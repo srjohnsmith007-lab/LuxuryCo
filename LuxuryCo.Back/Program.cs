@@ -41,9 +41,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<LuxuryCoDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LuxuryCoDbConnection")));
 
-// Supabase configuration
-var supabaseUrl = builder.Configuration["Supabase:Url"] ?? string.Empty;
-var supabaseKey = builder.Configuration["Supabase:Key"] ?? string.Empty;
+// Supabase configuration (supports both : and __ separators for env vars)
+var supabaseUrl = builder.Configuration["Supabase:Url"] ?? builder.Configuration["Supabase__Url"] ?? string.Empty;
+var supabaseKey = builder.Configuration["Supabase:Key"] ?? builder.Configuration["Supabase__Key"] ?? string.Empty;
 var options = new Supabase.SupabaseOptions
 {
     AutoRefreshToken = true,
@@ -103,7 +103,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles(); // For serving images in wwwroot/uploads
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
+// Render maneja HTTPS en su proxy, solo redirigir en desarrollo local
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

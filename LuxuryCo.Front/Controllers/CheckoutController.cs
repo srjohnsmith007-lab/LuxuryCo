@@ -11,8 +11,8 @@ namespace LuxuryCo.Front.Controllers;
 public class CheckoutController : Controller
 {
     private readonly HttpClient _httpClient;
-    private readonly string _apiCheckoutUrl = "https://localhost:7066/api/checkout/process";
-    private readonly string _apiCartUrl = "https://localhost:7066/api/carrito";
+    private readonly string _apiCheckoutUrl = "https://luxuryco.onrender.com/api/checkout/process";
+    private readonly string _apiCartUrl = "https://luxuryco.onrender.com/api/carrito";
 
     public CheckoutController()
     {

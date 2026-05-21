@@ -11,7 +11,7 @@ namespace LuxuryCo.Front.Controllers;
 public class CartController : Controller
 {
     private readonly HttpClient _httpClient;
-    private readonly string _apiBaseUrl = "https://localhost:7066/api/carrito";
+    private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api/carrito";
 
     public CartController()
     {

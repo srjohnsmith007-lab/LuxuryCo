@@ -13,7 +13,7 @@ public class AdminController : Controller
 {
     private readonly HttpClient _httpClient;
     private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
-    private readonly string _apiBaseUrl = "https://localhost:7066/api";
+    private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api";
 
     public AdminController(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
     {

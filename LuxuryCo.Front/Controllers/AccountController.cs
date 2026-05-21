@@ -39,7 +39,7 @@ namespace LuxuryCo.Front.Controllers
                     JsonSerializer.Serialize(new { email = model.Email, password = model.Password }),
                     System.Text.Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://localhost:7066/api/auth/login", requestBody);
+                var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/login", requestBody);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -146,7 +146,7 @@ namespace LuxuryCo.Front.Controllers
                 };
                 var content = new StringContent(JsonSerializer.Serialize(requestObj), System.Text.Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://localhost:7066/api/auth/register", content);
+                var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/register", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -295,7 +295,7 @@ namespace LuxuryCo.Front.Controllers
             using var client = new System.Net.Http.HttpClient();
             var content = new StringContent(JsonSerializer.Serialize(new { email = model.Email }), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("https://localhost:7066/api/auth/forgot-password", content);
+            var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/forgot-password", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -327,7 +327,7 @@ namespace LuxuryCo.Front.Controllers
                 newPassword = model.NewPassword
             }), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("https://localhost:7066/api/auth/reset-password", content);
+            var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/reset-password", content);
 
             if (response.IsSuccessStatusCode)
             {

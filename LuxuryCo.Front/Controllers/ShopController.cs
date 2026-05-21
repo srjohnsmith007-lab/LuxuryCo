@@ -7,7 +7,7 @@ namespace LuxuryCo.Front.Controllers
     public class ShopController : Controller
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl = "https://localhost:7066/api";
+        private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api";
 
         public ShopController()
         {

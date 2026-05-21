@@ -37,7 +37,7 @@ public class CarritoController : ControllerBase
         var idUsuario = GetUserId();
         try 
         {
-            var success = await _carritoService.AddToCartAsync(idUsuario, request.IdProducto, request.Cantidad);
+            var success = await _carritoService.AddToCartAsync(idUsuario, request.IdProducto, request.Cantidad, request.Talla);
             if (success) return Ok(new { message = "Producto añadido al carrito." });
             return BadRequest(new { message = "No se pudo añadir el producto." });
         }
@@ -85,4 +85,5 @@ public class AddToCartRequest
 {
     public int IdProducto { get; set; }
     public int Cantidad { get; set; }
+    public string? Talla { get; set; }
 }

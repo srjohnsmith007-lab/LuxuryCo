@@ -35,6 +35,10 @@
                                     <div>
                                         <h5 class="fw-bold mb-1" style="letter-spacing: 1px;">@item.NombreProducto</h5>
                                         <p class="text-secondary small mb-1">Marca: @item.MarcaNombre</p>
+                                        @if (!string.IsNullOrEmpty(item.Talla))
+                                        {
+                                            <p class="text-secondary small mb-1">Talla: <strong class="text-white">@item.Talla</strong></p>
+                                        }
                                         <p class="text-secondary small mb-3">Ref: #@item.IdProducto</p>
                                     </div>
                                     <h5 class="fw-bold text-light">$@(string.Format("{0:N0}", item.PrecioUnitario))</h5>

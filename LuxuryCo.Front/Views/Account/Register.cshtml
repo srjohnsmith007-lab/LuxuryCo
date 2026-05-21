@@ -16,33 +16,52 @@
             <div class="auth-alert-error"><i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]</div>
         }
 
-        <form method="post" asp-action="Register" asp-controller="Account">
+        <form id="registerForm" method="post" asp-action="Register" asp-controller="Account" novalidate>
             @Html.AntiForgeryToken()
 
             <div class="row g-3 mb-3">
-                <div class="col-6">
+                <div class="col-6 position-relative">
                     <label class="auth-label">Nombre</label>
-                    <input name="Nombre" type="text" class="auth-input" placeholder="Carlos" required />
+                    <input name="Nombre" type="text" class="auth-input" placeholder="Carlos" 
+                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
+                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un nombre válido.</div>
                 </div>
-                <div class="col-6">
+                <div class="col-6 position-relative">
                     <label class="auth-label">Apellido</label>
-                    <input name="Apellido" type="text" class="auth-input" placeholder="García" required />
+                    <input name="Apellido" type="text" class="auth-input" placeholder="García" 
+                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
+                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un apellido válido.</div>
                 </div>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3 position-relative">
                 <label class="auth-label">Correo Electrónico</label>
-                <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" required />
+                <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" 
+                       pattern="^[a-zA-Z0-9._%+\-]+@@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required />
+                <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un correo sin espacios y con dominio válido (ej: usuario@gmail.com).</div>
+                <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px;">
+                    * Por favor usa un correo real, necesitará ser verificado.
+                </small>
             </div>
 
-            <div class="mb-3">
-                <label class="auth-label">Teléfono (Opcional)</label>
-                <input name="Telefono" type="text" class="auth-input" placeholder="+57 300 000 0000" />
+            <div class="mb-3 position-relative">
+                <label class="auth-label">Teléfono</label>
+                <input name="Telefono" type="tel" class="auth-input" placeholder="Ej: +57 300 000 0000" 
+                       pattern="^\+?(?:\s*\d){12,15}\s*$" required />
+                <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un número válido de mínimo 12 dígitos (se permite "+" y espacios).</div>
             </div>
 
-            <div class="mb-5">
+            <div class="mb-3 position-relative">
                 <label class="auth-label">Contraseña</label>
-                <input name="Password" type="password" class="auth-input" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                <input id="pwdInput" name="Password" type="password" class="auth-input" placeholder="Mínimo 8 caracteres, mayúscula, minúscula y número" 
+                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" required />
+                <div class="invalid-feedback" style="font-size: 0.75rem;">Debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y un número.</div>
+            </div>
+
+            <div class="mb-5 position-relative">
+                <label class="auth-label">Confirmar Contraseña</label>
+                <input id="pwdConfirm" name="ConfirmPassword" type="password" class="auth-input" placeholder="Repite tu contraseña" required />
+                <div class="invalid-feedback" style="font-size: 0.75rem;">Las contraseñas no coinciden.</div>
             </div>
 
             <button type="submit" class="btn-auth-primary mb-3">
@@ -57,3 +76,68 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('registerForm');
+        const inputs = form.querySelectorAll('.auth-input');
+        const pwd = document.getElementById('pwdInput');
+        const pwdConfirm = document.getElementById('pwdConfirm');
+
+        const validateInput = (input) => {
+            // Eliminar espacios automáticamente en email y texto
+            if (input.type === 'email' || input.type === 'text') {
+                input.value = input.value.trim();
+            }
+
+            // Validación personalizada para confirmar contraseña
+            if (input.id === 'pwdConfirm') {
+                if (input.value !== pwd.value || input.value === '') {
+                    input.setCustomValidity('Las contraseñas no coinciden');
+                } else {
+                    input.setCustomValidity('');
+                }
+            }
+
+            // Bootstrap is-invalid class toggle
+            if (!input.checkValidity()) {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+                input.style.borderColor = 'var(--danger)';
+            } else {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                input.style.borderColor = 'var(--success)';
+            }
+        };
+
+        inputs.forEach(input => {
+            // Validar cuando el usuario sale del campo (Tab/Click fuera)
+            input.addEventListener('blur', () => validateInput(input));
+            
+            // Validar en tiempo real mientras escribe
+            input.addEventListener('input', () => {
+                if (input.classList.contains('is-invalid') || input.checkValidity() || input.id === 'pwdConfirm') {
+                    validateInput(input);
+                }
+            });
+        });
+
+        form.addEventListener('submit', function (event) {
+            let isValid = true;
+            inputs.forEach(input => {
+                validateInput(input);
+                if (!input.checkValidity()) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }, false);
+    });
+</script>
+}

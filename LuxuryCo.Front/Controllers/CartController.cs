@@ -55,12 +55,12 @@ public class CartController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(int productId, int quantity = 1)
+    public async Task<IActionResult> Add(int productId, int quantity = 1, string size = "S")
     {
         AddAuthorizationHeader();
         try
         {
-            var requestBody = new { IdProducto = productId, Cantidad = quantity };
+            var requestBody = new { IdProducto = productId, Cantidad = quantity, Talla = size };
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 

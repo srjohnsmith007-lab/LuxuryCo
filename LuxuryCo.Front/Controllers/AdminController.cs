@@ -2,10 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using LuxuryCo.Front.ViewModels;
 using System.Text;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LuxuryCo.Front.Controllers;
@@ -44,6 +42,62 @@ public class AdminController : Controller
     {
         // El dashboard principal será estático (solo el menú) o podría cargar pequeñas estadísticas
         return View();
+    }
+
+    public IActionResult AiAssistant()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> SendAiMessage([FromBody] Dictionary<string, string> request)
+    {
+        try
+        {
+            AddAuthorizationHeader();
+
+            if (!request.TryGetValue("message", out var message) || string.IsNullOrWhiteSpace(message))
+            {
+                return BadRequest(JsonSerializer.Serialize(new { message = "El mensaje no puede estar vacío." }));
+            }
+
+            var payload = new { message = message };
+            var jsonContent = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_apiBaseUrl}/Ai/admin-chat", jsonContent);
+
+            var rawContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(rawContent, "application/json");
+            }
+
+            // 401: El token no está o expiró
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return StatusCode(401, JsonSerializer.Serialize(new
+                {
+                    message = "Tu sesión ha expirado.",
+                    details = "Cierra sesión y vuelve a iniciarla para continuar."
+                }));
+            }
+
+            // Cualquier otro error del backend: devolver JSON válido
+            return StatusCode(
+                (int)response.StatusCode,
+                JsonSerializer.Serialize(new { message = $"Error del servidor ({(int)response.StatusCode})", details = rawContent })
+            );
+        }
+        catch (Exception ex)
+        {
+            Response.ContentType = "application/json";
+            return StatusCode(503, JsonSerializer.Serialize(new
+            {
+                message = "El servidor de IA no está disponible. ¿Está corriendo el Backend?",
+                details = ex.Message
+            }));
+        }
     }
 
     // ============================================================

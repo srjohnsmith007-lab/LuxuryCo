@@ -13,6 +13,7 @@ public class Resena
     [Range(1, 5)]
     public int calificacion { get; set; }
     public string? comentario { get; set; }
+    public string? nombre_invitado { get; set; }
     public DateTime fecha { get; set; } = DateTime.UtcNow;
 
     [ForeignKey("id_usuario")]

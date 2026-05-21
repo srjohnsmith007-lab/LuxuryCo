@@ -10,6 +10,7 @@ public class DetalleCarrito
     public int? id_carrito { get; set; }
     public int? id_producto { get; set; }
     public int cantidad { get; set; }
+    public string? talla { get; set; }
 
     [ForeignKey("id_carrito")]
     public Carrito Carrito { get; set; }

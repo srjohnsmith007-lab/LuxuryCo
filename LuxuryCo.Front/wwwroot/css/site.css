@@ -95,6 +95,11 @@ hr { border-color: var(--border-light); }
 .auth-page-bg {
   min-height: calc(100vh - 68px);
   background-color: var(--black);
+  /* Imagen de fondo con overlay oscuro para mantener la legibilidad de la tarjeta */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), url('/img/login-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;

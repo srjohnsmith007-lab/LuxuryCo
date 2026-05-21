@@ -67,7 +67,10 @@ namespace LuxuryCo.Front.Controllers
                         { 
                             HttpOnly = true, 
                             Expires = DateTimeOffset.UtcNow.AddDays(7),
-                            Secure = true
+                            // SameSite=Lax permite que la cookie viaje en peticiones del mismo sitio
+                            // Secure=false en desarrollo para evitar que el navegador rechace la cookie en localhost
+                            Secure = Request.IsHttps,
+                            SameSite = SameSiteMode.Lax
                         });
                     }
 
@@ -121,7 +124,12 @@ namespace LuxuryCo.Front.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Por favor, completa todos los campos requeridos para el registro.";
+                var errors = string.Join(" ", ModelState.Values
+                                    .SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = string.IsNullOrEmpty(errors) 
+                    ? "Por favor, verifica que los datos cumplan con el formato correcto." 
+                    : errors;
                 return View(model);
             }
 

@@ -44,17 +44,18 @@ public class CarritoService : ICarritoService
         return new CarritoDto
         {
             IdCarrito = carrito.id_carrito,
-            IdUsuario = carrito.id_usuario,
+            IdUsuario = carrito.id_usuario ?? 0,
             FechaCreacion = carrito.fecha_creacion,
             Detalles = carrito.Detalles.Select(d => new DetalleCarritoDto
             {
                 IdDetalleCarrito = d.id_detalle_carrito,
-                IdProducto = d.id_producto,
+                IdProducto = d.id_producto ?? 0,
                 NombreProducto = d.Producto?.nombre ?? "Desconocido",
                 MarcaNombre = d.Producto?.Marca?.nombre,
                 ImagenUrl = d.Producto?.Imagenes.FirstOrDefault()?.url_imagen,
                 PrecioUnitario = d.Producto?.precio ?? 0,
-                Cantidad = d.cantidad
+                Cantidad = d.cantidad,
+                Talla = d.talla
             }).ToList()
         };
     }
@@ -65,7 +66,7 @@ public class CarritoService : ICarritoService
         return MapToDto(carrito);
     }
 
-    public async Task<bool> AddToCartAsync(int idUsuario, int idProducto, int cantidad)
+    public async Task<bool> AddToCartAsync(int idUsuario, int idProducto, int cantidad, string? talla = null)
     {
         if (cantidad <= 0) throw new ArgumentException("La cantidad debe ser mayor a cero.");
 
@@ -74,7 +75,8 @@ public class CarritoService : ICarritoService
         var producto = await _context.Productos.FirstOrDefaultAsync(p => p.id_producto == idProducto && p.activo);
         if (producto == null) throw new Exception("El producto no existe o está inactivo.");
 
-        var detalleExistente = carrito.Detalles.FirstOrDefault(d => d.id_producto == idProducto);
+        // Verificar si ya existe el mismo producto CON LA MISMA TALLA
+        var detalleExistente = carrito.Detalles.FirstOrDefault(d => d.id_producto == idProducto && d.talla == talla);
         int nuevaCantidad = (detalleExistente?.cantidad ?? 0) + cantidad;
 
         // Validación CRÍTICA contra Inventario
@@ -93,7 +95,8 @@ public class CarritoService : ICarritoService
             {
                 id_carrito = carrito.id_carrito,
                 id_producto = idProducto,
-                cantidad = cantidad
+                cantidad = cantidad,
+                talla = talla
             };
             _context.DetallesCarrito.Add(nuevoDetalle);
         }

@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using LuxuryCo.Database.Models;
 
 namespace LuxuryCo.Database.Data
 {
-    public class LuxuryCoDbContext : DbContext
+    public class LuxuryCoDbContext : DbContext, IDataProtectionKeyContext
     {
         public LuxuryCoDbContext(DbContextOptions<LuxuryCoDbContext> options) : base(options)
         {
@@ -28,6 +29,9 @@ namespace LuxuryCo.Database.Data
         public DbSet<MetodoPago> MetodosPago { get; set; }
         public DbSet<Factura> Facturas { get; set; }
         public DbSet<Resena> Resenas { get; set; }
+
+        // DataProtection keys (persisted in DB so they survive container restarts on Render)
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
         // Nuevos modelos ERP
         public DbSet<Sede> Sedes { get; set; }

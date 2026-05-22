@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 
 // Enable Legacy Timestamp Behavior to prevent DateTime Kind errors when saving to PostgreSQL
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -28,6 +29,11 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
 
 builder.Services.AddDbContext<LuxuryCo.Database.Data.LuxuryCoDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LuxuryCoDbConnection")));
+
+// DataProtection: persist keys in DB so antiforgery tokens survive container restarts on Render
+builder.Services.AddDataProtection()
+    .SetApplicationName("LuxuryCo")
+    .PersistKeysToDbContext<LuxuryCo.Database.Data.LuxuryCoDbContext>();
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())

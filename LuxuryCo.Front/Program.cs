@@ -36,6 +36,22 @@ builder.Services.AddDataProtection()
     .PersistKeysToDbContext<LuxuryCo.Database.Data.LuxuryCoDbContext>();
 
 var app = builder.Build();
+
+// Auto-apply any pending DB migrations at startup (creates DataProtectionKeys table if missing)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<LuxuryCo.Database.Data.LuxuryCoDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("DB migration on startup failed (may already be up to date): {Message}", ex.Message);
+    }
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

@@ -33,7 +33,7 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.ToolExecutorService>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GroqProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.WhisperProvider>();
-builder.Services.AddHttpClient<LuxuryCo.Back.Services.IntentParserService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.IntentParserService>();
 
 // Core Orchestrator
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();

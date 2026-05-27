@@ -6,9 +6,9 @@ namespace LuxuryCo.Back.Services;
 
 public class IntentParserService
 {
-    private readonly IAiProvider _groqProvider;
+    private readonly GroqProvider _groqProvider;
 
-    public IntentParserService(IAiProvider groqProvider)
+    public IntentParserService(GroqProvider groqProvider)
     {
         _groqProvider = groqProvider;
     }

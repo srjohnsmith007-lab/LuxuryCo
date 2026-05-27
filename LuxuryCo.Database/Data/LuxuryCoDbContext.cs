@@ -41,10 +41,13 @@ namespace LuxuryCo.Database.Data
         public DbSet<HistorialAbastecimiento> HistorialesAbastecimiento { get; set; }
         public DbSet<TransferenciaStock> TransferenciasStock { get; set; }
         public DbSet<HistorialChatAi> HistorialesChatAi { get; set; }
+        public DbSet<AiActionLog> AiActionLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AiActionLog>().ToTable("ai_action_log");
 
             // Configuramos los nombres exactos de las tablas en Supabase
             modelBuilder.Entity<Rol>().ToTable("rol");

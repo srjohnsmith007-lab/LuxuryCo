@@ -23,6 +23,9 @@ public class Producto
     [MaxLength(50)]
     public string? seccion { get; set; } // "Hombre", "Mujer", "Accesorios" — sección de la tienda pública
 
+    [ConcurrencyCheck]
+    public Guid ConcurrencyToken { get; set; } = Guid.NewGuid();
+
     [ForeignKey("id_categoria")]
     public Categoria Categoria { get; set; }
     [ForeignKey("id_marca")]

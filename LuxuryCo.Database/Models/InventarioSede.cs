@@ -16,6 +16,9 @@ public class InventarioSede
     
     public int umbral_minimo { get; set; } = 5;
 
+    [ConcurrencyCheck]
+    public Guid ConcurrencyToken { get; set; } = Guid.NewGuid();
+
     [ForeignKey("id_producto")]
     public Producto Producto { get; set; }
 

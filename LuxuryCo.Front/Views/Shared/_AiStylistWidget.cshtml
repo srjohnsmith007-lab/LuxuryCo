@@ -29,7 +29,10 @@
             <div class="typing-line"></div>
         </div>
 
-        <form id="stylist-form" class="chat-footer d-flex">
+        <form id="stylist-form" class="chat-footer d-flex align-items-center gap-2">
+            <button type="button" id="btn-voice-mic" class="btn text-white px-2" style="background:transparent; border:none; color:var(--chat-accent) !important;" title="Hablar con la IA">
+                <i class="fas fa-microphone" id="mic-icon" style="color:var(--chat-accent);"></i>
+            </button>
             <input type="text" id="stylist-input" class="form-control" placeholder="Ej: Camisas de lino oscuro..." autocomplete="off" required>
             <button type="submit" class="btn btn-send">
                 <i class="fas fa-paper-plane"></i>
@@ -37,6 +40,7 @@
         </form>
     </div>
 </div>
+<script src="~/js/voice_assistant.js"></script>
 
 <style>
     :root {
@@ -387,6 +391,13 @@
 
                 if (response.ok) {
                     addMessageToUI(data.reply, 'ai');
+                    
+                    // --- Text-to-Speech (TTS) ---
+                    if (window.VoiceAssistant) {
+                        const plainText = data.reply.replace(/<[^>]*>?/gm, '').replace(/\*/g, '');
+                        window.VoiceAssistant.speak(plainText);
+                    }
+                    
                     // Render product cards if any
                     if (data.cards && data.cards.length > 0) {
                         renderProductCards(data.cards);
@@ -489,6 +500,35 @@
             }, 45000);
 
             chatToggle.addEventListener('click', () => clearTimeout(proactiveTimer), { once: true });
+        }
+        // 4. Voice Assistant Integration
+        const btnVoiceMic = document.getElementById('btn-voice-mic');
+        const micIcon = document.getElementById('mic-icon');
+        
+        if (btnVoiceMic) {
+            btnVoiceMic.addEventListener('click', () => {
+                if (window.VoiceAssistant.state === "LISTENING") {
+                    window.VoiceAssistant.stopListening();
+                } else {
+                    window.VoiceAssistant.startListening(
+                        (text) => {
+                            stylistInput.value = text;
+                            stylistForm.dispatchEvent(new Event('submit'));
+                        },
+                        (state) => {
+                            if (state === "LISTENING") {
+                                micIcon.className = "fas fa-microphone text-danger";
+                                btnVoiceMic.style.transform = "scale(1.15)";
+                            } else if (state === "PROCESSING") {
+                                micIcon.className = "fas fa-circle-notch fa-spin text-warning";
+                            } else {
+                                micIcon.className = "fas fa-microphone";
+                                btnVoiceMic.style.transform = "scale(1)";
+                            }
+                        }
+                    );
+                }
+            });
         }
     })();
 </script>

@@ -62,6 +62,34 @@ public class HomeController : Controller
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> TranscribeAudio(IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "Archivo vacío" });
+
+            using var content = new MultipartFormDataContent();
+            using var stream = file.OpenReadStream();
+            using var streamContent = new StreamContent(stream);
+            content.Add(streamContent, "file", file.FileName);
+
+            var response = await _httpClient.PostAsync($"{_apiBaseUrl}/Ai/transcribe", content);
+            var rawContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(rawContent, "application/json");
+            }
+            return StatusCode((int)response.StatusCode, rawContent);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(503, JsonSerializer.Serialize(new { message = "Error de proxy transcribe", details = ex.Message }));
+        }
+    }
+
     public IActionResult Index()
     {
         return View();

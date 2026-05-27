@@ -1,6 +1,7 @@
 using LuxuryCo.Back.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace LuxuryCo.Back.Controllers;
 
@@ -10,11 +11,20 @@ namespace LuxuryCo.Back.Controllers;
 public class AiController : ControllerBase
 {
     private readonly IAiService _aiService;
+    private readonly WhisperProvider _whisperProvider;
+    private readonly ConfirmationService _confirmationService;
+    private readonly ToolExecutorService _toolExecutor;
 
-    // Inyección de dependencias: se inyecta el servicio que contiene la lógica de Groq
-    public AiController(IAiService aiService)
+    public AiController(
+        IAiService aiService, 
+        WhisperProvider whisperProvider, 
+        ConfirmationService confirmationService,
+        ToolExecutorService toolExecutor)
     {
         _aiService = aiService;
+        _whisperProvider = whisperProvider;
+        _confirmationService = confirmationService;
+        _toolExecutor = toolExecutor;
     }
 
     // Endpoint seguro para el chat del Administrador (solo accesible con token JWT válido de Rol ADMIN)
@@ -67,6 +77,78 @@ public class AiController : ControllerBase
             return StatusCode(500, new { message = "Error interno de la IA", details = ex.Message });
         }
     }
+
+    // Endpoint para transcribir audio usando Whisper
+    // Ruta: POST /api/Ai/transcribe
+    [HttpPost("transcribe")]
+    [AllowAnonymous]
+    public async Task<IActionResult> TranscribeAudio(Microsoft.AspNetCore.Http.IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new { message = "El archivo de audio no puede estar vacío." });
+        }
+
+        try
+        {
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var audioBytes = ms.ToArray();
+
+            var text = await _whisperProvider.TranscribeAudioAsync(audioBytes, file.FileName);
+            return Ok(new { text });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al transcribir el audio", details = ex.Message });
+        }
+    }
+
+    // Endpoint para aprobar una acción pendiente por confirmación del administrador
+    // Ruta: POST /api/Ai/approve-action
+    [HttpPost("approve-action")]
+    [Authorize(Roles = "ADMIN")]
+    public async Task<IActionResult> ApproveAction([FromBody] ActionConfirmRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            return BadRequest(new { message = "El token de acción es requerido." });
+        }
+
+        try
+        {
+            var pending = await _confirmationService.GetPendingActionAsync(request.Token);
+            if (pending == null)
+            {
+                return NotFound(new { message = "Acción pendiente caducada o no encontrada." });
+            }
+
+            var idClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            int adminUserId = int.TryParse(idClaim, out int id) ? id : 0;
+
+            if (pending.UserId != adminUserId)
+            {
+                return Forbid("No tienes autorización sobre esta acción pendiente.");
+            }
+
+            // Execute using the tool executor
+            var paramsObj = JsonSerializer.Deserialize<IntentParameters>(JsonSerializer.Serialize(pending.Parameters));
+            var toolResult = await _toolExecutor.ExecuteToolAsync(pending.Intent, paramsObj ?? new IntentParameters(), adminUserId);
+
+            await _confirmationService.CompleteActionAsync(request.Token);
+
+            return Ok(new { success = toolResult.Success, message = toolResult.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al procesar la aprobación", details = ex.Message });
+        }
+    }
+}
+
+public class ActionConfirmRequest
+{
+    public string Token { get; set; } = string.Empty;
 }
 
 // DTO (Objeto de Transferencia de Datos) para las peticiones del Administrador

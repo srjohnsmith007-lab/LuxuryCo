@@ -22,7 +22,21 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.IProveedorService, LuxuryCo.Ba
 builder.Services.AddScoped<LuxuryCo.Back.Services.IInventarioService, LuxuryCo.Back.Services.InventarioService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IPaymentGatewayService, LuxuryCo.Back.Services.PaymentGatewayService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ICheckoutService, LuxuryCo.Back.Services.CheckoutService>();
-builder.Services.AddHttpClient<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.GroqAiService>();
+builder.Services.AddSingleton<LuxuryCo.Back.Services.PromptSecurityService>();
+builder.Services.AddSingleton<LuxuryCo.Back.Services.ColombianDialectParserService>();
+builder.Services.AddSingleton<LuxuryCo.Back.Services.ConfirmationService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.PermissionEngine>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.BusinessRulesService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ToolExecutorService>();
+
+// Register AI Providers
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.GroqProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.WhisperProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.IntentParserService>();
+
+// Core Orchestrator
+builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -127,6 +141,37 @@ _ = Task.Run(async () =>
         try 
         {
             // 0. Auto-patch robusto para añadir columnas faltantes en Supabase
+            try
+            {
+                await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, @"
+                    CREATE TABLE IF NOT EXISTS ai_action_log (
+                        ""Id"" SERIAL PRIMARY KEY,
+                        ""UserId"" INTEGER NULL,
+                        ""SessionId"" VARCHAR(255) NOT NULL DEFAULT '',
+                        ""PromptOriginal"" TEXT NOT NULL,
+                        ""SanitizedPrompt"" TEXT NOT NULL,
+                        ""IntentDetected"" VARCHAR(100) NOT NULL DEFAULT '',
+                        ""ModelUsed"" VARCHAR(50) NOT NULL DEFAULT '',
+                        ""Confidence"" DOUBLE PRECISION NOT NULL,
+                        ""RiskLevel"" VARCHAR(50) NOT NULL DEFAULT 'LOW',
+                        ""ActionExecuted"" VARCHAR(255) NOT NULL DEFAULT '',
+                        ""BeforeState"" TEXT NOT NULL DEFAULT '',
+                        ""AfterState"" TEXT NOT NULL DEFAULT '',
+                        ""Timestamp"" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT timezone('utc', now()),
+                        ""IpAddress"" VARCHAR(45) NOT NULL DEFAULT '',
+                        ""Success"" BOOLEAN NOT NULL,
+                        ""ErrorMessage"" TEXT NOT NULL DEFAULT '',
+                        CONSTRAINT fk_ai_action_log_usuario FOREIGN KEY (""UserId"") REFERENCES usuario(id_usuario) ON DELETE SET NULL
+                    );
+                ");
+                await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE producto ADD COLUMN IF NOT EXISTS \"ConcurrencyToken\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';");
+                await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE inventario_sede ADD COLUMN IF NOT EXISTS \"ConcurrencyToken\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al aplicar parches de IA/Concurrencia: " + ex.Message);
+            }
+
             await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE marca ADD COLUMN IF NOT EXISTS logo_url character varying(500) NULL;");
             try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE \"Resenas\" ADD COLUMN IF NOT EXISTS nombre_invitado character varying(100) NULL;"); } catch {}
             try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE resena ADD COLUMN IF NOT EXISTS nombre_invitado character varying(100) NULL;"); } catch {}

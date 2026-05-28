@@ -87,6 +87,14 @@
         </div>
 
          <form id="stylist-form" class="chat-footer d-flex align-items-center gap-2">
+             <!-- Input de archivo oculto -->
+             <input type="file" id="stylist-file-upload" accept="image/*" class="d-none">
+             
+             <!-- Botón para subir imagen -->
+             <button type="button" class="btn btn-secondary rounded-circle" id="btn-upload-image" title="Subir foto para Probador Virtual">
+                 <i class="fas fa-camera"></i>
+             </button>
+
              <input type="text" id="stylist-input" class="form-control" placeholder="Ej: Camisas de lino oscuro..." autocomplete="off" required>
              <button type="submit" class="btn btn-send">
                  <i class="fas fa-paper-plane"></i>
@@ -571,6 +579,52 @@
     .badge-real    { background: rgba(0,200,100,0.15); color:#00c864; border:1px solid rgba(0,200,100,0.3); }
     .badge-est     { background: rgba(201,168,76,0.15); color:#C9A84C; border:1px solid rgba(201,168,76,0.3); }
 
+    /* ── Upload Button ── */
+    #btn-upload-image {
+        background: rgba(201,168,76,0.15);
+        color: var(--chat-accent);
+        border: 1px solid rgba(201,168,76,0.4);
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+        cursor: pointer;
+    }
+    #btn-upload-image:hover {
+        background: rgba(201,168,76,0.35);
+    }
+    .upload-preview-bubble {
+        background: rgba(201,168,76,0.07);
+        border: 1px dashed rgba(201,168,76,0.4);
+        border-radius: 10px;
+        padding: 8px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .upload-preview-bubble img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid rgba(201,168,76,0.3);
+    }
+    .upload-preview-bubble .upload-info { flex: 1; font-size: 0.75rem; color:#bbb; }
+    .upload-preview-bubble .btn-clear-upload {
+        background: none;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 2px 6px;
+    }
+    .upload-preview-bubble .btn-clear-upload:hover { color:#ff6b6b; }
+
     /* ── Mobile UX Responsiveness ── */
     @@media (max-width: 768px) {
         .chat-window {
@@ -984,8 +1038,8 @@
         formattedText = formattedText.replace(/\n/g, '<br>');
         formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--chat-accent)">$1</a>');
         
-        div.innerHTML = formattedText;
-        stylistMessages.appendChild(div);
+        bubble.innerHTML = formattedText;
+        stylistMessages.appendChild(bubble);
 
         // Solo guardar en historial si el flag está activado y NO es trigger de imagen
         if (saveHistory && !text.includes('[[IMAGE_GEN_TRIGGER:')) {
@@ -1235,7 +1289,170 @@
         }
     })();
 
+    // ── Lógica de Subida de Imagen para Probador Virtual ──
+    let uploadedImageBase64 = null;
+    let uploadedImageMime = null;
+
+    const btnUpload = document.getElementById('btn-upload-image');
+    const fileUploadInput = document.getElementById('stylist-file-upload');
+
+    if (btnUpload && fileUploadInput) {
+        btnUpload.addEventListener('click', () => {
+            fileUploadInput.click();
+        });
+
+        fileUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validar tipo y tamaño (máx 5MB)
+            if (!file.type.startsWith('image/')) {
+                addMessageToUI('⚠️ Solo puedes subir imágenes (JPG, PNG, WEBP).', 'ai', false);
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                addMessageToUI('⚠️ La imagen es muy grande. Máximo 5 MB.', 'ai', false);
+                return;
+            }
+
+            uploadedImageMime = file.type;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const fullDataUrl = ev.target.result;
+                // Extraer solo el base64 sin el prefijo data:image/...;base64,
+                uploadedImageBase64 = fullDataUrl.split(',')[1];
+
+                // Mostrar preview en el chat
+                showImagePreviewInChat(fullDataUrl, file.name);
+            };
+            reader.readAsDataURL(file);
+            // Limpiar el input para permitir re-selección del mismo archivo
+            fileUploadInput.value = '';
+        });
+    }
+
+    function showImagePreviewInChat(dataUrl, fileName) {
+        // Remover preview anterior si existe
+        const existing = document.getElementById('upload-preview-bubble');
+        if (existing) existing.remove();
+
+        const previewBubble = document.createElement('div');
+        previewBubble.id = 'upload-preview-bubble';
+        previewBubble.className = 'upload-preview-bubble mx-2 mb-1';
+        previewBubble.innerHTML = `
+            <img src="${dataUrl}" alt="Tu foto">
+            <div class="upload-info">
+                <div><strong style="color:var(--chat-accent);font-size:0.75rem;"><i class="fas fa-camera me-1"></i>Foto lista para probador virtual</strong></div>
+                <div style="color:#888;">${fileName}</div>
+                <div style="color:#aaa; font-size:0.7rem;">Ahora dime qué prenda quieres probar, ej: "ponme una camisa azul"</div>
+            </div>
+            <button class="btn-clear-upload" onclick="clearUploadedImage()" title="Quitar foto">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Insertar antes del chat-footer (el form)
+        const footer = document.getElementById('stylist-form');
+        footer.parentNode.insertBefore(previewBubble, footer);
+
+        // Cambiar color del botón de cámara para indicar que hay foto
+        if (btnUpload) {
+            btnUpload.style.background = 'rgba(201,168,76,0.4)';
+            btnUpload.title = 'Cambiar foto';
+        }
+
+        scrollToBottom();
+    }
+
+    function clearUploadedImage() {
+        uploadedImageBase64 = null;
+        uploadedImageMime = null;
+        const preview = document.getElementById('upload-preview-bubble');
+        if (preview) preview.remove();
+        if (btnUpload) {
+            btnUpload.style.background = '';
+            btnUpload.title = 'Subir foto para Probador Virtual';
+        }
+    }
+
+    // Sobrescribir el submit del formulario para incluir la imagen si está disponible
+    const stylistFormOverride = document.getElementById('stylist-form');
+    const originalSubmitHandler = stylistFormOverride.onsubmit;
+
+    stylistFormOverride.addEventListener('submit', async (e) => {
+        // Si hay imagen subida, usar flujo de Virtual Try-On directo
+        if (uploadedImageBase64) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const garmentText = stylistInput.value.trim() || 'una prenda de estilo elegante';
+            stylistInput.value = '';
+
+            // Capturar referencias ANTES de limpiar
+            const capturedBase64 = uploadedImageBase64;
+            const capturedMime = uploadedImageMime || 'image/jpeg';
+
+            // Mostrar mensaje de usuario con indicador de foto
+            const userBubble = document.createElement('div');
+            userBubble.className = 'msg-bubble user-bubble ms-auto mb-3';
+            userBubble.innerHTML = `<i class="fas fa-camera me-2 text-gold"></i>${garmentText}`;
+            stylistMessages.appendChild(userBubble);
+
+            // Quitar preview
+            clearUploadedImage();
+
+            // Mostrar typing
+            stylistTyping.classList.remove('d-none');
+            scrollToBottom();
+
+            try {
+                const tryonResponse = await fetch('/Home/VirtualTryOn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userPhotoBase64: capturedBase64,
+                        userPhotoMimeType: capturedMime,
+                        garmentDescription: garmentText,
+                        garmentImageUrl: null,
+                        productId: lastShownProductId || null,
+                        category: 'tops',
+                        seed: null
+                    })
+                });
+
+                const rawText = await tryonResponse.text();
+                let data;
+                try { data = JSON.parse(rawText); } catch { data = { errorMessage: rawText }; }
+
+                stylistTyping.classList.add('d-none');
+
+                if (tryonResponse.ok && data.imageUrl) {
+                    const resultBubble = document.createElement('div');
+                    resultBubble.className = 'msg-bubble ai-bubble mb-3';
+                    resultBubble.innerHTML = `
+                        <div class="fw-bold mb-2"><i class="fas fa-tshirt text-gold me-2"></i>Probador Virtual IA</div>
+                        <img src="${data.imageUrl}" alt="Resultado probador virtual" class="generated-luxury-img rounded mb-2" style="max-width:100%;">
+                        <div style="font-size:0.7rem; color:#aaa; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.2); border-radius:6px; padding:6px 8px;">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <strong>Nota:</strong> La generación con IA puede cometer errores visuales. Para mayor precisión, considera nuestro plan premium con fotos reales.
+                        </div>
+                    `;
+                    stylistMessages.appendChild(resultBubble);
+                } else {
+                    addMessageToUI('⚠️ No pude procesar el probador virtual. Intenta de nuevo con otra foto o prenda.', 'ai', false);
+                }
+            } catch (err) {
+                stylistTyping.classList.add('d-none');
+                addMessageToUI('⚠️ Error de conexión con el probador virtual.', 'ai', false);
+            }
+
+            scrollToBottom();
+        }
+        // Si no hay imagen, el flujo normal de texto continúa (otros listeners del submit)
+    }, true); // capture=true para ejecutarse antes
+
     // ── Lógica Modal Seguro de Registro (Zero-Password) ──
+
     let currentSecureToken = null;
 
     function openSecureRegistrationModal(token) {

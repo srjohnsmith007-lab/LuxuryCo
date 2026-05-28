@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+
 
 namespace LuxuryCo.Back.Services;
 
@@ -9,7 +11,12 @@ public interface IAiService
     Task<string> GetAdminBusinessAdviceAsync(string userMessage, int adminUserId);
     
     // Método para el chat del Cliente (Asesor de Estilo, devuelve texto y tarjetas de producto visuales)
-    Task<StylistResponse> GetClientStylistAdviceAsync(string userMessage, string sessionId, int? userId = null);
+    Task<StylistResponse> GetClientStylistAdviceAsync(
+        string userMessage,
+        string sessionId,
+        int? userId = null,
+        List<ChatHistoryEntry>? history = null,
+        int? lastProductId = null);
 }
 
 // Modelo que representa una Tarjeta Visual de Producto que la IA recomienda en el chat
@@ -31,4 +38,11 @@ public class StylistResponse
     
     // La lista de productos que la IA detectó y recomendó
     public List<ProductCard> Cards { get; set; } = new();
+}
+
+// Turno del historial del chat (cliente o estilista)
+public class ChatHistoryEntry
+{
+    public string Role { get; set; } = string.Empty;   // "user" o "assistant"
+    public string Content { get; set; } = string.Empty;
 }

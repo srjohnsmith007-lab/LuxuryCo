@@ -198,7 +198,12 @@ DATOS EN TIEMPO REAL:
         return "El servicio de IA empresarial está temporalmente no disponible. Inténtalo más tarde.";
     }
 
-    public async Task<StylistResponse> GetClientStylistAdviceAsync(string userMessage, string sessionId, int? userId = null)
+    public async Task<StylistResponse> GetClientStylistAdviceAsync(
+        string userMessage,
+        string sessionId,
+        int? userId = null,
+        List<ChatHistoryEntry>? history = null,
+        int? lastProductId = null)
     {
         var stylistResult = new StylistResponse();
         int activeUserId = userId ?? 0;
@@ -212,15 +217,40 @@ DATOS EN TIEMPO REAL:
 
         string sanitized = _promptSecurity.SanitizedInput(userMessage);
 
-        // 2. Intent Parsing (to see if client wants to add to cart or search)
+        // 2. Intent Parsing
         var intent = await _intentParser.ParseIntentAsync(sanitized);
 
+        // 2a. Si quiere agregar al carrito pero no está logueado → informarle amablemente
+        if (intent.Intent == "ADD_TO_CART" && activeUserId == 0)
+        {
+            stylistResult.Reply = "🔒 Para agregar productos al carrito necesitas **iniciar sesión** o **crear una cuenta**. " +
+                                  "\n\n¿Quieres [iniciar sesión](/Account/Login) o [crear una cuenta](/Account/Register)? " +
+                                  "\n\nUna vez logueado, puedo ayudarte a agregar este artículo de inmediato. 😊";
+            return stylistResult;
+        }
+
+        // 2b. Si quiere agregar al carrito y está logueado, intentar resolver el producto
         if (intent.Intent == "ADD_TO_CART" && activeUserId > 0)
         {
-            // Execute add to cart tool safely
-            var toolResult = await _toolExecutor.ExecuteToolAsync(intent.Intent, intent.Parameters, activeUserId);
-            stylistResult.Reply = toolResult.Message;
-            return stylistResult;
+            // Si la IA no detectó un ProductId concreto pero hay un último producto mostrado, usarlo
+            if (intent.Parameters.ProductId == 0 && lastProductId.HasValue && lastProductId.Value > 0)
+            {
+                intent.Parameters.ProductId = lastProductId.Value;
+            }
+
+            if (intent.Parameters.ProductId > 0)
+            {
+                // Ejecutar la herramienta de agregar al carrito
+                var toolResult = await _toolExecutor.ExecuteToolAsync(intent.Intent, intent.Parameters, activeUserId);
+                stylistResult.Reply = toolResult.Message;
+                return stylistResult;
+            }
+            else
+            {
+                // No hay suficiente contexto para saber qué producto agregar
+                stylistResult.Reply = "No tengo claro qué producto deseas agregar. ¿Puedes indicarme el nombre o hacer clic en **'Ver producto'** de la tarjeta que te mostré?";
+                return stylistResult;
+            }
         }
 
         // 3. Stylist RAG Catalogo Recommendations
@@ -236,12 +266,32 @@ DATOS EN TIEMPO REAL:
         var catalogForPrompt = activeProducts.Select(p => new { p.id_producto, p.nombre, p.precio, p.seccion });
         var productsJson = JsonSerializer.Serialize(catalogForPrompt);
 
+        // 4. Construir el historial formateado para el prompt (contexto de conversación)
+        string historyBlock = string.Empty;
+        if (history != null && history.Count > 0)
+        {
+            // Tomar máximo los últimos 10 turnos para no exceder tokens
+            var recentHistory = history.TakeLast(10).ToList();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("\nHISTORIAL RECIENTE DE LA CONVERSACIÓN (del más antiguo al más reciente):");
+            foreach (var entry in recentHistory)
+            {
+                string roleLabel = entry.Role == "user" ? "Cliente" : "Estilista";
+                sb.AppendLine($"{roleLabel}: {entry.Content}");
+            }
+            historyBlock = sb.ToString();
+        }
+
+        var loginStatus = activeUserId > 0 ? "LOGUEADO (puede agregar al carrito)" : "NO LOGUEADO (si pide agregar al carrito, díselo que debe iniciar sesión)";
+
         var systemPrompt = $@"Eres un Asesor de Estilo exclusivo y 'Personal Shopper' de LuxuryCo.
 Tono: amable, sofisticado, breve.
-REGLA 1: Solo recomienda productos del catálogo JSON. Si no existe lo que piden, dilo amablemente.
+ESTADO USUARIO: {loginStatus}
+REGLA 1: Solo recomienda productos del catálogo JSON. Si no existe lo que piden, dílo amablemente.
 REGLA 2: Cuando recomiendes 1 o más productos, incluye la etiqueta [PRODUCTO:id_producto] exactamente así (reemplaza id_producto por el número). Ejemplo: [PRODUCTO:3]
 REGLA 3: Máximo 2 productos recomendados por respuesta.
-
+REGLA 4: Tienes memoria de la conversación. Usa el historial para responder con coherencia.
+{historyBlock}
 CATÁLOGO:
 {productsJson}";
 

@@ -66,8 +66,13 @@ public class AiController : ControllerBase
 
         try
         {
-            // Llama al servicio de IA configurado como Asesor de Estilo, pasando el SessionId para mantener la memoria
-            var result = await _aiService.GetClientStylistAdviceAsync(request.Message, request.SessionId ?? "default");
+            // Llama al servicio de IA configurado como Asesor de Estilo
+            var result = await _aiService.GetClientStylistAdviceAsync(
+                request.Message,
+                request.SessionId ?? "default",
+                request.UserId,
+                request.History,
+                request.LastProductId);
             
             // Retorna tanto el texto de respuesta como las tarjetas de productos recomendados
             return Ok(new { reply = result.Reply, cards = result.Cards });
@@ -166,4 +171,14 @@ public class StylistAiRequest
     
     // Identificador único generado por el navegador para recordar el historial del chat
     public string SessionId { get; set; } = string.Empty;
+
+    // ID del usuario autenticado (0 o null = visitante no logueado)
+    public int? UserId { get; set; }
+
+    // Historial de la conversación (últimos N turnos) para dar contexto a la IA
+    public List<ChatHistoryEntry> History { get; set; } = new();
+
+    // ID del último producto que la IA mostró al usuario en tarjeta (para contexto "agrégalo")
+    public int? LastProductId { get; set; }
 }
+

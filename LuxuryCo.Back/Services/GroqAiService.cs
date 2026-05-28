@@ -158,7 +158,12 @@ MÉTRICAS DE VENTAS Y FACTURACIÓN:
         return aiReply;
     }
 
-    public async Task<StylistResponse> GetClientStylistAdviceAsync(string userMessage, string sessionId, int? userId = null)
+    public async Task<StylistResponse> GetClientStylistAdviceAsync(
+        string userMessage,
+        string sessionId,
+        int? userId = null,
+        List<ChatHistoryEntry>? history = null,
+        int? lastProductId = null)
     {
         // 1. Guardar el mensaje del usuario en la base de datos
         // Esto crea el primer registro de la interacción actual en el historial.

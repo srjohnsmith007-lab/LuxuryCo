@@ -24,18 +24,24 @@ public class HomeController : Controller
 
     // Endpoint "Proxy" (Puente) para el chat del Estilista
     // El navegador (Frontend) por seguridad no hace peticiones directas al Backend.
-    // Envía la petición aquí, y este método se encarga de enviarla al Backend de forma segura.
+    // Envía la peticin aquí, y este método se encarga de enviarla al Backend de forma segura.
     [HttpPost]
     public async Task<IActionResult> SendStylistMessage([FromBody] StylistProxyRequest request)
     {
         try
         {
             // 1. Preparar los datos que se enviarán al Backend
-            // Se usa un objeto fuertemente tipado para evitar errores de parseo de JSON en el Backend.
-            var payload = new { message = request.Message, sessionId = request.SessionId };
+            var payload = new
+            {
+                message = request.Message,
+                sessionId = request.SessionId,
+                userId = request.UserId,
+                history = request.History,
+                lastProductId = request.LastProductId
+            };
             var jsonContent = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             
-            // 2. Hacer la petición al Backend real (puerto 7066)
+            // 2. Hacer la petición al Backend real
             var response = await _httpClient.PostAsync($"{_apiBaseUrl}/Ai/stylist-chat", jsonContent);
 
             var rawContent = await response.Content.ReadAsStringAsync();
@@ -47,7 +53,6 @@ public class HomeController : Controller
             }
 
             // 4. Manejo de Errores: Siempre devolver JSON válido al Frontend
-            // Esto evita el error de JavaScript "Unexpected end of JSON input" cuando el servidor falla.
             return StatusCode(
                 (int)response.StatusCode,
                 JsonSerializer.Serialize(new { message = $"Error del servidor ({(int)response.StatusCode})", details = rawContent })
@@ -55,8 +60,6 @@ public class HomeController : Controller
         }
         catch (Exception ex)
         {
-            // Si el Backend está apagado o no responde, evitamos que la página explote
-            // y devolvemos un mensaje en formato JSON que el widget pueda entender y mostrar.
             Response.ContentType = "application/json";
             return StatusCode(503, JsonSerializer.Serialize(new { message = "El servidor de IA no está disponible. ¿Está corriendo el Backend?", details = ex.Message }));
         }
@@ -136,4 +139,13 @@ public class StylistProxyRequest
 {
     public string Message { get; set; } = string.Empty;
     public string SessionId { get; set; } = string.Empty;
+    public int? UserId { get; set; }
+    public List<ChatHistoryEntryFront> History { get; set; } = new();
+    public int? LastProductId { get; set; }
+}
+
+public class ChatHistoryEntryFront
+{
+    public string Role { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
 }

@@ -312,6 +312,33 @@
         localStorage.setItem('luxuryco_ai_session_id', currentSessionId);
     }
 
+    // ── ID del usuario autenticado (0 = visitante anónimo) ─────────────────────
+    const _luxuryUserId = (function() {
+        const meta = document.querySelector('meta[name="luxuryco-user-id"]');
+        return meta ? parseInt(meta.content, 10) || 0 : 0;
+    })();
+
+    // ── Historial de conversación (persistente en localStorage) ────────────────
+    const HISTORY_KEY = 'luxuryco_chat_history_' + currentSessionId;
+    const MAX_HISTORY_TURNS = 20; 
+
+    function loadHistory() {
+        try {
+            const raw = localStorage.getItem(HISTORY_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+    }
+
+    function saveToHistory(role, content) {
+        const history = loadHistory();
+        history.push({ role, content });
+        if (history.length > MAX_HISTORY_TURNS) history.splice(0, history.length - MAX_HISTORY_TURNS);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    // ── ID del último producto mostrado (para contexto de "agrégalo") ─────────
+    let lastShownProductId = null;
+
     // ── Estado del chat ────────────────────────────────────────────
     let chatGreetingShown = false;
 
@@ -338,6 +365,15 @@
         return '¡Hola! Soy tu asesor de estilo personal de LuxuryCo. ✨<br>¿Buscas algo para una ocasión especial o quieres explorar nuevas tendencias?';
     }
 
+    // ── Restaurar historial visual al abrir ──────────────────────────────────
+    function restoreHistoryToUI() {
+        const history = loadHistory();
+        if (history.length === 0) return;
+        history.forEach(entry => {
+            addMessageToUI(entry.content, entry.role === 'user' ? 'user' : 'ai', false);
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         // Toggle: abrir/cerrar con saludo inmediato en la primera apertura
         chatToggle.addEventListener('click', () => {
@@ -345,7 +381,12 @@
             if (!chatBox.classList.contains('d-none')) {
                 if (!chatGreetingShown) {
                     chatGreetingShown = true;
-                    addMessageToUI(buildSmartGreeting(), 'ai');
+                    const history = loadHistory();
+                    if (history.length > 0) {
+                        restoreHistoryToUI();
+                    } else {
+                        addMessageToUI(buildSmartGreeting(), 'ai', false);
+                    }
                 }
                 stylistInput.focus();
                 scrollToBottom();
@@ -364,20 +405,23 @@
 
             // Limpiar input y agregar mensaje de usuario
             stylistInput.value = '';
-            addMessageToUI(text, 'user');
+            addMessageToUI(text, 'user', true);
             
             // Mostrar "escribiendo..."
             stylistTyping.classList.remove('d-none');
             scrollToBottom();
 
             try {
-                // Ahora enviamos el sessionId en lugar de todo el historial
+                const currentHistory = loadHistory();
                 const response = await fetch('/Home/SendStylistMessage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         message: text,
-                        sessionId: currentSessionId
+                        sessionId: currentSessionId,
+                        userId: _luxuryUserId || null,
+                        history: currentHistory,
+                        lastProductId: lastShownProductId
                     })
                 });
 
@@ -385,12 +429,13 @@
                 const rawText = await response.text();
                 try { data = JSON.parse(rawText); }
                 catch {
-                    addMessageToUI("⚠️ Error de formato en la respuesta del servidor.", 'ai');
+                    addMessageToUI("⚠️ Error de formato en la respuesta del servidor.", 'ai', false);
                     return;
                 }
 
                 if (response.ok) {
-                    addMessageToUI(data.reply, 'ai');
+                    saveToHistory('assistant', data.reply);
+                    addMessageToUI(data.reply, 'ai', false);
                     
                     // --- Text-to-Speech (TTS) ---
                     if (window.VoiceAssistant) {
@@ -401,12 +446,13 @@
                     // Render product cards if any
                     if (data.cards && data.cards.length > 0) {
                         renderProductCards(data.cards);
+                        lastShownProductId = data.cards[0].id;
                     }
                 } else {
-                    addMessageToUI("⚠️ " + (data.message || "Error al conectar con el servidor."), 'ai');
+                    addMessageToUI("⚠️ " + (data.message || "Error al conectar con el servidor."), 'ai', false);
                 }
             } catch (error) {
-                addMessageToUI("⚠️ Error de conexión.", 'ai');
+                addMessageToUI("⚠️ Error de conexión.", 'ai', false);
             } finally {
                 stylistTyping.classList.add('d-none');
                 scrollToBottom();
@@ -414,15 +460,20 @@
         });
     });
 
-    function addMessageToUI(text, sender) {
+    function addMessageToUI(text, sender, saveHistory = true) {
         const div = document.createElement('div');
         div.className = `msg-bubble ${sender}-bubble mb-3`;
         
         let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formattedText = formattedText.replace(/\n/g, '<br>');
+        formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--chat-accent)">$1</a>');
         
         div.innerHTML = formattedText;
         stylistMessages.appendChild(div);
+
+        if (saveHistory) {
+            saveToHistory(sender === 'user' ? 'user' : 'assistant', text);
+        }
     }
 
     function renderProductCards(cards) {
@@ -452,9 +503,11 @@
     function clearStylistChat() {
         currentSessionId = 'session_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('luxuryco_ai_session_id', currentSessionId);
+        localStorage.removeItem(HISTORY_KEY);
+        lastShownProductId = null;
         chatGreetingShown = false;
         stylistMessages.innerHTML = '';
-        addMessageToUI(buildSmartGreeting(), 'ai');
+        addMessageToUI(buildSmartGreeting(), 'ai', false);
         chatGreetingShown = true;
     }
 

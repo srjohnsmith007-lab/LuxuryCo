@@ -17,6 +17,15 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (User.Identity!.IsAuthenticated)
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+        <meta name="luxuryco-user-id" content="@userIdClaim" />
+    }
+    else
+    {
+        <meta name="luxuryco-user-id" content="0" />
+    }
 </head>
 <body>
     <!-- Scroll Progress Bar -->

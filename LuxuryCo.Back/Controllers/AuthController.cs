@@ -105,4 +105,41 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPost("complete-secure-registration")]
+    public async Task<IActionResult> CompleteSecureRegistration([FromBody] CompleteSecureRegDto dto, [FromServices] Microsoft.Extensions.Caching.Memory.IMemoryCache cache)
+    {
+        try
+        {
+            var cacheKey = $"SecureReg_{dto.Token}";
+            if (!cache.TryGetValue(cacheKey, out dynamic sessionData))
+            {
+                return BadRequest(new { message = "La sesión de registro ha expirado o es inválida. Intenta nuevamente." });
+            }
+
+            var registerDto = new RegisterDto
+            {
+                Nombre = sessionData.Name,
+                Apellido = "", // Opcional o derivado del nombre
+                Email = sessionData.Email,
+                Telefono = sessionData.Phone ?? "",
+                Password = dto.Password
+            };
+
+            var response = await _authService.RegisterAsync(registerDto);
+            cache.Remove(cacheKey); // Invalidate token after success
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+}
+
+public class CompleteSecureRegDto
+{
+    public string Token { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

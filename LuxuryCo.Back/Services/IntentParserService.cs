@@ -19,18 +19,20 @@ public class IntentParserService
 Analiza el mensaje del usuario y clasifícalo estrictamente en una de las siguientes intenciones (Intent):
 - UPDATE_PRICE (Cambiar, subir o bajar precio de un producto)
 - UPDATE_STOCK (Aumentar o reducir stock en inventario)
-- SEARCH_PRODUCT (Buscar o filtrar productos por nombre, categoría, género o sección. Ejemplos: 'busco camisas', 'ropa de hombre', 'tengo algo para mujer', 'para niños', 'ropa masculina', 'algo femenino', 'ropa de dama', 'ropa para caballero', 'quiero ver pantalones', 'tienen vestidos')
+- SEARCH_PRODUCT (Buscar o filtrar productos por nombre, categoría, género o sección)
 - ADD_TO_CART (Agregar prendas al carrito)
-- GENERATE_IMAGE (Diseñar, generar, visualizar, probar o ver cómo luce una prenda. Incluye: 'hazme', 'diseña', 'créame', 'pruébame', 'quiero ver', 'cómo me queda', 'generar imagen', 'crear imagen', 'dibuja', 'genera un outfit', 'muéstrame', 'haz un look', 'imagen de', 'foto de', 'mostrame cómo se ve')
+- GENERATE_IMAGE (Diseñar, generar, visualizar, probar o ver cómo luce una prenda)
+- GENERATE_DOCUMENT (Generar, exportar, crear o descargar un documento Word/PDF con información, resumen, cotizaciones o perfiles solicitados)
 - CREATE_INVOICE_DRAFT (Generar borrador de factura/cotización)
+- REGISTER_USER (Registrar, crear cuenta, inscribir usuario. El usuario debe proporcionar nombre, email y opcionalmente teléfono. NUNCA pidas contraseña, la IA no debe manejar contraseñas.)
 - GENERAL_CONVERSATION (Preguntas de estilo, saludos, etc.)
 
 REGLAS IMPORTANTES:
-- Si el usuario menciona 'hombre', 'masculino', 'caballero', 'hombres' → SEARCH_PRODUCT con ProductName='hombre'
-- Si el usuario menciona 'mujer', 'femenino', 'dama', 'mujeres', 'señora' → SEARCH_PRODUCT con ProductName='mujer'
-- Si el usuario menciona 'niño', 'niña', 'niños', 'infante', 'bebé' → SEARCH_PRODUCT con ProductName='niños'
-- Si el usuario dice 'hazme', 'diseña', 'genera', 'crear imagen', 'pruébame', 'quiero ver puesto' → GENERATE_IMAGE
-- Si la intención no está totalmente clara o no hay datos suficientes, pon una confianza baja (< 0.80) o clasifica como GENERAL_CONVERSATION.
+- Si el usuario menciona 'hombre', 'masculino', 'caballero' → SEARCH_PRODUCT con ProductName='hombre'
+- Si el usuario dice 'hazme', 'diseña', 'genera', 'pruébame' → GENERATE_IMAGE
+- Si el usuario quiere registrarse (REGISTER_USER), extrae Nombre e Email. Si falta alguno, la IA debe pedirlos de forma conversacional.
+- NUNCA PIDAS CONTRASEÑAS en el chat. Si detectas una contraseña en el input del usuario, bórrala inmediatamente del texto.
+- Si la intención no está totalmente clara, clasifica como GENERAL_CONVERSATION.
 
 Debes devolver EXCLUSIVAMENTE un objeto JSON con el siguiente formato, sin explicaciones ni markdown:
 {
@@ -41,7 +43,9 @@ Debes devolver EXCLUSIVAMENTE un objeto JSON con el siguiente formato, sin expli
     ""ProductId"": 0,
     ""Amount"": 0.0,
     ""Quantity"": 0,
-    ""RawAmountText"": """"
+    ""RawAmountText"": """",
+    ""Name"": ""Juan Perez"",
+    ""Email"": ""juan@example.com""
   }
 }
 ";
@@ -93,4 +97,6 @@ public class IntentParameters
     public decimal Amount { get; set; }
     public int Quantity { get; set; }
     public string RawAmountText { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 }

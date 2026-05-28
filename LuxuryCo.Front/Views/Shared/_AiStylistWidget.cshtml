@@ -570,6 +570,64 @@
     }
     .badge-real    { background: rgba(0,200,100,0.15); color:#00c864; border:1px solid rgba(0,200,100,0.3); }
     .badge-est     { background: rgba(201,168,76,0.15); color:#C9A84C; border:1px solid rgba(201,168,76,0.3); }
+
+    /* ── Mobile UX Responsiveness ── */
+    @@media (max-width: 768px) {
+        .chat-window {
+            width: 100vw;
+            height: 100dvh;
+            height: calc(100dvh - env(safe-area-inset-bottom));
+            bottom: 0;
+            right: 0;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 10000;
+            position: fixed;
+            margin: 0;
+            box-shadow: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-header {
+            border-radius: 0;
+            padding-top: env(safe-area-inset-top);
+        }
+        .chat-body {
+            flex: 1 1 auto;
+            border-radius: 0;
+        }
+        .chat-footer {
+            border-radius: 0;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        }
+        .floating-chat-container {
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            right: 15px;
+            z-index: 9999;
+        }
+        .btn-floating-chat {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* ── Modal Seguro HTTPS para Registro Zero-Password ── */
+    .secure-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 10001;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .secure-modal-box {
+        background: #111; border: 1px solid var(--chat-accent);
+        border-radius: 12px; padding: 25px; width: 90%; max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .secure-modal-box input {
+        width: 100%; padding: 10px; margin-bottom: 15px;
+        background: #222; border: 1px solid #444; color: white; border-radius: 6px;
+    }
+    .secure-modal-box button { width: 100%; }
 </style>
 
 <script>
@@ -919,8 +977,8 @@
             }
         }
 
-        const div = document.createElement('div');
-        div.className = `msg-bubble ${sender}-bubble mb-3`;
+        const bubble = document.createElement('div');
+        bubble.className = `msg-bubble ${sender === 'user' ? 'user-bubble ms-auto' : 'ai-bubble'} mb-3`;
         
         let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formattedText = formattedText.replace(/\n/g, '<br>');
@@ -1011,7 +1069,10 @@
 
             infoDiv.innerHTML = `
                 <strong>Diseño Optimizado:</strong> ${data.prompt}<br>
-                <strong>Seed:</strong> ${data.seed || 'Aleatorio'}
+                <strong>Seed:</strong> ${data.seed || 'Aleatorio'}<br>
+                <div class="mt-2 p-2 rounded" style="background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); font-size:0.7rem; color:#aaa; line-height:1.2;">
+                    <i class="fas fa-exclamation-triangle text-gold me-1"></i> <strong>Disclaimer IA:</strong> Las imágenes generadas son conceptuales y aproximadas. La IA puede cometer errores visuales y no garantiza la exactitud de colores ni detalles reales de la prenda. Para la prenda exacta en fotos reales, consulta los modelos de estudio.
+                </div>
             `;
 
             // Agregar botones de acción
@@ -1173,4 +1234,90 @@
             });
         }
     })();
+
+    // ── Lógica Modal Seguro de Registro (Zero-Password) ──
+    let currentSecureToken = null;
+
+    function openSecureRegistrationModal(token) {
+        currentSecureToken = token;
+        const modalHtml = `
+            <div id="secure-registration-modal" class="secure-modal-overlay">
+                <div class="secure-modal-box">
+                    <h5 class="text-gold mb-3"><i class="fas fa-lock me-2"></i>Registro Seguro</h5>
+                    <p style="font-size:0.8rem; color:#aaa;">Crea una contraseña segura para finalizar tu registro. La IA no tiene acceso a esta información.</p>
+                    <form id="secure-reg-form" onsubmit="submitSecureRegistration(event)">
+                        <label style="font-size:0.75rem; color:#888;">Contraseña Segura</label>
+                        <input type="password" id="secure-reg-pwd" required minlength="8" placeholder="Min. 8 caracteres, números y símbolos">
+                        <label style="font-size:0.75rem; color:#888;">Confirmar Contraseña</label>
+                        <input type="password" id="secure-reg-pwd2" required minlength="8" placeholder="Confirma tu contraseña">
+                        
+                        <div id="secure-reg-error" class="text-danger mb-2 d-none" style="font-size:0.75rem;"></div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="closeSecureRegistrationModal()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-sm flex-fill" id="secure-reg-btn">Registrarme Seguramente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        chatBox.classList.add('d-none'); // Ocultar chat por seguridad
+    }
+
+    function closeSecureRegistrationModal() {
+        const modal = document.getElementById('secure-registration-modal');
+        if (modal) modal.remove();
+        currentSecureToken = null;
+        chatBox.classList.remove('d-none');
+    }
+
+    async function submitSecureRegistration(e) {
+        e.preventDefault();
+        const pwd = document.getElementById('secure-reg-pwd').value;
+        const pwd2 = document.getElementById('secure-reg-pwd2').value;
+        const errorDiv = document.getElementById('secure-reg-error');
+        const btn = document.getElementById('secure-reg-btn');
+
+        if (pwd !== pwd2) {
+            errorDiv.innerText = "Las contraseñas no coinciden.";
+            errorDiv.classList.remove('d-none');
+            return;
+        }
+
+        errorDiv.classList.add('d-none');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+
+        try {
+            const response = await fetch('/Account/CompleteSecureRegistration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Token: currentSecureToken, Password: pwd })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "Error de validación.");
+            }
+
+            // Exito
+            closeSecureRegistrationModal();
+            const textToAppend = "<i class='fas fa-check-circle text-success me-2'></i> <strong>¡Registro Exitoso!</strong> Bienvenido a LuxuryCo. Ya estás conectado de forma segura.";
+            
+            const bubble = document.createElement('div');
+            bubble.className = "msg-bubble ai-bubble";
+            bubble.innerHTML = textToAppend;
+            stylistMessages.appendChild(bubble);
+            scrollToBottom();
+
+            setTimeout(() => window.location.reload(), 2000); 
+            
+        } catch (error) {
+            errorDiv.innerText = error.message;
+            errorDiv.classList.remove('d-none');
+            btn.disabled = false;
+            btn.innerText = 'Registrarme Seguramente';
+        }
+    }
 </script>

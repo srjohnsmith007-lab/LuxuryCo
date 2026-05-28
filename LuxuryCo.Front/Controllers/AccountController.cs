@@ -339,5 +339,84 @@ namespace LuxuryCo.Front.Controllers
             ModelState.AddModelError(string.Empty, "Error al restablecer la contraseña. " + errContent);
             return View(model);
         }
+        [HttpPost]
+        public async Task<IActionResult> CompleteSecureRegistration([FromBody] CompleteSecureRegRequest model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.Token) || string.IsNullOrEmpty(model.Password))
+                return BadRequest(new { message = "Datos inválidos." });
+
+            try
+            {
+                using var client = new System.Net.Http.HttpClient();
+                var content = new StringContent(JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json");
+
+                // Enviar la petición al backend (puerto configurado de Render o localhost en desarrollo)
+                var response = await client.PostAsync("https://localhost:7066/api/auth/complete-secure-registration", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Obtener token y rol del backend y loguear automáticamente
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    string userRole = "CLIENTE";
+                    string token = "";
+                    string email = "";
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(responseJson);
+                        if (doc.RootElement.TryGetProperty("usuario", out var usuarioEl))
+                        {
+                            userRole = usuarioEl.GetProperty("rol").GetString() ?? "CLIENTE";
+                            email = usuarioEl.GetProperty("email").GetString() ?? "";
+                        }
+                        if (doc.RootElement.TryGetProperty("token", out var tokenEl))
+                        {
+                            token = tokenEl.GetString() ?? "";
+                        }
+                    }
+                    catch { /* ignorar */ }
+
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        Response.Cookies.Append("jwt_token", token, new CookieOptions 
+                        { 
+                            HttpOnly = true, 
+                            Expires = DateTimeOffset.UtcNow.AddDays(7),
+                            Secure = Request.IsHttps,
+                            SameSite = SameSiteMode.Lax
+                        });
+
+                        var claims = new List<System.Security.Claims.Claim>
+                        {
+                            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email),
+                            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, email),
+                            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, userRole)
+                        };
+
+                        var claimsIdentity = new System.Security.Claims.ClaimsIdentity(
+                            claims, Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+
+                        await HttpContext.SignInAsync(
+                            Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
+                            new System.Security.Claims.ClaimsPrincipal(claimsIdentity),
+                            new AuthenticationProperties { IsPersistent = true });
+                    }
+
+                    return Ok(new { success = true });
+                }
+
+                var errContent = await response.Content.ReadAsStringAsync();
+                return BadRequest(new { message = errContent });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno: " + ex.Message });
+            }
+        }
+    }
+
+    public class CompleteSecureRegRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

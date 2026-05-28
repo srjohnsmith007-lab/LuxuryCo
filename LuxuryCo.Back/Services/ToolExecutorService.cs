@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LuxuryCo.Database.Data;
 using LuxuryCo.Database.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 
 namespace LuxuryCo.Back.Services;
@@ -12,11 +13,15 @@ public class ToolExecutorService
 {
     private readonly LuxuryCoDbContext _context;
     private readonly BusinessRulesService _businessRules;
+    private readonly IMemoryCache _cache;
+    private readonly DocumentGenerationService _docGenService;
 
-    public ToolExecutorService(LuxuryCoDbContext context, BusinessRulesService businessRules)
+    public ToolExecutorService(LuxuryCoDbContext context, BusinessRulesService businessRules, IMemoryCache cache, DocumentGenerationService docGenService)
     {
         _context = context;
         _businessRules = businessRules;
+        _cache = cache;
+        _docGenService = docGenService;
     }
 
     public async Task<ToolExecutionResult> ExecuteToolAsync(string intent, IntentParameters parameters, int userId)
@@ -41,6 +46,13 @@ public class ToolExecutorService
 
                 case "CREATE_INVOICE_DRAFT":
                     return await ExecuteCreateInvoiceDraftToolAsync(userId, parameters.ProductName, parameters.Quantity);
+
+                case "REGISTER_USER":
+                    return await ExecuteRegisterUserToolAsync(parameters.Name, parameters.Email, parameters.RawAmountText); // Using RawAmountText tentatively for phone if extracted
+
+                case "GENERATE_DOCUMENT":
+                    return await ExecuteGenerateDocumentToolAsync(parameters.ProductName);
+
 
                 default:
                     result.Message = "Herramienta no soportada o intención desconocida.";
@@ -230,6 +242,65 @@ public class ToolExecutorService
         
         result.Success = true;
         result.Message = $"[BORRADOR DE COTIZACIÓN]\nCliente ID: {userId}\nItem: {product.nombre}\nCantidad: {qty}\nSubtotal: ${product.precio:N0} COP\nTotal: ${total:N0} COP\n\n*Nota: Este documento es únicamente un borrador de cotización informativa.*";
+        return result;
+    }
+
+    private async Task<ToolExecutionResult> ExecuteRegisterUserToolAsync(string name, string email, string rawPhone)
+    {
+        var result = new ToolExecutionResult();
+
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
+        {
+            result.Success = false;
+            result.Message = "Por favor, proporcióname tu nombre completo y tu correo electrónico para comenzar el registro.";
+            return result;
+        }
+
+        if (!email.Contains("@"))
+        {
+            result.Success = false;
+            result.Message = "El correo electrónico no parece válido. Por favor, revísalo.";
+            return result;
+        }
+
+        // Generar token seguro temporal
+        var token = Guid.NewGuid().ToString("N");
+        
+        // Guardar sesión en caché (TTL 10 min)
+        var sessionData = new { Name = name, Email = email, Phone = rawPhone };
+        _cache.Set($"SecureReg_{token}", sessionData, TimeSpan.FromMinutes(10));
+
+        result.Success = true;
+        result.Message = $"[[OPEN_REGISTRATION_MODAL:{token}]]";
+        return result;
+    }
+
+    private async Task<ToolExecutionResult> ExecuteGenerateDocumentToolAsync(string contentRequest)
+    {
+        var result = new ToolExecutionResult();
+        
+        if (string.IsNullOrWhiteSpace(contentRequest))
+        {
+            contentRequest = "Reporte General de LuxuryCo\n\nEste es un documento generado automáticamente por el Asistente de IA de LuxuryCo.";
+        }
+
+        try
+        {
+            string url = await _docGenService.GenerateWordDocumentAsync("Documento LuxuryCo", contentRequest);
+            // Construct absolute URL based on typical Render host if needed, but relative works well if backend and frontend share domain,
+            // or we just return the endpoint path and let the frontend prepend the API domain.
+            
+            string fullUrl = $"https://luxuryco.onrender.com{url}"; 
+
+            result.Success = true;
+            result.Message = $"¡He generado el documento de forma segura! Puedes descargarlo usando este enlace único (válido por 24 horas): <a href='{fullUrl}' target='_blank' class='btn btn-sm btn-outline-gold mt-2'><i class='fas fa-file-word me-2'></i>Descargar Documento Word</a>";
+        }
+        catch (Exception ex)
+        {
+            result.Success = false;
+            result.Message = "Error al generar el documento seguro: " + ex.Message;
+        }
+
         return result;
     }
 }

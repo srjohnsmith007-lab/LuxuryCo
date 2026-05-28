@@ -48,10 +48,15 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.ImageMetadataService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ImageGenerationService>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.VirtualTryOnService>();
 
+// Register Document and Storage Services
+builder.Services.AddSingleton<LuxuryCo.Back.Services.SecureFileStorageService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.DocumentGenerationService>();
+
 // Core Orchestrator
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {

@@ -217,8 +217,33 @@ DATOS EN TIEMPO REAL:
 
         string sanitized = _promptSecurity.SanitizedInput(userMessage);
 
+        // Interceptores locales directos de alta prioridad (Probador Virtual & Generación de Diseños)
+        bool forceImageGen = false;
+        string lowerSanitized = sanitized.ToLower();
+        if (lowerSanitized.Contains("hacer una imagen") || 
+            lowerSanitized.Contains("hazme") || 
+            lowerSanitized.Contains("diseña") || 
+            lowerSanitized.Contains("diseñame") || 
+            lowerSanitized.Contains("créame") || 
+            lowerSanitized.Contains("creame") || 
+            lowerSanitized.Contains("pruebame") || 
+            lowerSanitized.Contains("pruébame") || 
+            lowerSanitized.Contains("ver puesto") || 
+            lowerSanitized.Contains("cómo me queda") || 
+            lowerSanitized.Contains("dibuja") || 
+            lowerSanitized.Contains("genera una imagen") || 
+            lowerSanitized.Contains("crear una imagen") || 
+            lowerSanitized.Contains("dibuja una imagen") ||
+            lowerSanitized.Contains("crear imagen") ||
+            lowerSanitized.Contains("hacer imagen"))
+        {
+            forceImageGen = true;
+        }
+
         // 2. Intent Parsing
-        var intent = await _intentParser.ParseIntentAsync(sanitized);
+        var intent = forceImageGen 
+            ? new ParsedIntent { Intent = "GENERATE_IMAGE", Confidence = 0.99 }
+            : await _intentParser.ParseIntentAsync(sanitized);
 
         // 2a. Si quiere agregar al carrito pero no está logueado → informarle amablemente
         if (intent.Intent == "ADD_TO_CART" && activeUserId == 0)

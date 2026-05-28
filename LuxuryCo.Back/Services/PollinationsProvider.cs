@@ -1,57 +1,42 @@
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LuxuryCo.Back.Services;
 
 public class PollinationsProvider : IImageProvider
 {
-    private readonly HttpClient _httpClient;
-
     public string ProviderName => "Pollinations";
 
-    public PollinationsProvider(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
+    public PollinationsProvider() { }
 
-    public async Task<ImageGenerationProviderResponse> GenerateImageAsync(string optimizedPrompt, string negativePrompt, int seed)
+    public Task<ImageGenerationProviderResponse> GenerateImageAsync(string optimizedPrompt, string negativePrompt, int seed)
     {
         try
         {
+            // Pollinations genera imágenes via URL directamente - no se necesita verificar el endpoint
+            // La imagen se carga en el navegador del cliente, no en el servidor
             var promptCombined = optimizedPrompt;
             if (!string.IsNullOrWhiteSpace(negativePrompt))
             {
-                promptCombined += $" (negative prompt: {negativePrompt})";
+                promptCombined += $", avoid: {negativePrompt}";
             }
             
             var encodedPrompt = Uri.EscapeDataString(promptCombined);
-            var url = $"https://image.pollinations.ai/prompt/{encodedPrompt}?width=512&height=512&seed={seed}&nologo=true&private=true";
+            var url = $"https://image.pollinations.ai/prompt/{encodedPrompt}?width=768&height=768&seed={seed}&nologo=true&model=flux";
 
-            // Verificar que el endpoint responda correctamente
-            var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
+            return Task.FromResult(new ImageGenerationProviderResponse
             {
-                return new ImageGenerationProviderResponse
-                {
-                    Success = true,
-                    ImageUrl = url
-                };
-            }
-
-            return new ImageGenerationProviderResponse
-            {
-                Success = false,
-                ErrorMessage = $"Pollinations API returned status: {response.StatusCode}"
-            };
+                Success = true,
+                ImageUrl = url
+            });
         }
         catch (Exception ex)
         {
-            return new ImageGenerationProviderResponse
+            return Task.FromResult(new ImageGenerationProviderResponse
             {
                 Success = false,
                 ErrorMessage = ex.Message
-            };
+            });
         }
     }
 }

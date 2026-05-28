@@ -34,7 +34,7 @@ builder.Services.AddHttpClient<LuxuryCo.Back.Services.GroqProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiImageProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.WhisperProvider>();
-builder.Services.AddHttpClient<LuxuryCo.Back.Services.PollinationsProvider>();
+builder.Services.AddSingleton<LuxuryCo.Back.Services.PollinationsProvider>(); // URL-based, no HttpClient needed
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.StabilityProvider>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IntentParserService>();
 

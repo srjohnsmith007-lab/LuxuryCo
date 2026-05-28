@@ -327,6 +327,37 @@ DATOS EN TIEMPO REAL:
         }
 
         // 3. Stylist RAG Catalogo Recommendations
+        // Mapeo de palabras clave de género/categoría a la columna 'seccion' de la BD
+        var genderSectionKeywords = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "hombre" , "hombre"  }, { "masculino" , "hombre"  }, { "caballero"  , "hombre"  }, { "hombres", "hombre" },
+            { "mujer"  , "mujer"   }, { "femenino"  , "mujer"   }, { "dama"       , "mujer"   }, { "mujeres", "mujer"  }, { "señora", "mujer" },
+            { "niño"   , "niños"   }, { "niña"      , "niños"   }, { "niños"      , "niños"   }, { "niñas"  , "niños"  }, { "infante", "niños" }, { "bebé", "niños" }
+        };
+
+        // Detectar si la búsqueda es por sección (género/categoría)
+        string? sectionFilter = null;
+        if (intent.Intent == "SEARCH_PRODUCT" && !string.IsNullOrWhiteSpace(intent.Parameters.ProductName))
+        {
+            var productNameLower = intent.Parameters.ProductName.ToLower().Trim();
+            if (genderSectionKeywords.TryGetValue(productNameLower, out var mappedSection))
+            {
+                sectionFilter = mappedSection;
+            }
+        }
+        // También verificar el mensaje directo del usuario para mayor robustez
+        if (sectionFilter == null)
+        {
+            foreach (var kv in genderSectionKeywords)
+            {
+                if (lowerSanitized.Contains(kv.Key) && intent.Intent == "SEARCH_PRODUCT")
+                {
+                    sectionFilter = kv.Value;
+                    break;
+                }
+            }
+        }
+
         var activeProducts = await _context.Productos
             .Where(p => p.activo && p.stock > 0)
             .Select(p => new
@@ -336,7 +367,18 @@ DATOS EN TIEMPO REAL:
             })
             .ToListAsync();
 
-        var catalogForPrompt = activeProducts.Select(p => new { p.id_producto, p.nombre, p.precio, p.seccion });
+        // Aplicar filtro de sección/género si fue detectado
+        var filteredProducts = sectionFilter != null
+            ? activeProducts.Where(p => p.seccion != null && p.seccion.ToLower().Contains(sectionFilter.ToLower())).ToList()
+            : activeProducts;
+
+        // Si el filtro de sección no dio resultados, usar el catálogo completo como fallback
+        if (sectionFilter != null && filteredProducts.Count == 0)
+        {
+            filteredProducts = activeProducts;
+        }
+
+        var catalogForPrompt = filteredProducts.Select(p => new { p.id_producto, p.nombre, p.precio, p.seccion });
         var productsJson = JsonSerializer.Serialize(catalogForPrompt);
 
         // 4. Construir el historial formateado para el prompt (contexto de conversación)
@@ -356,10 +398,13 @@ DATOS EN TIEMPO REAL:
         }
 
         var loginStatus = activeUserId > 0 ? "LOGUEADO (puede agregar al carrito)" : "NO LOGUEADO (si pide agregar al carrito, díselo que debe iniciar sesión)";
+        var categoryContext = sectionFilter != null 
+            ? $"\nCONTEXTO: El cliente está buscando específicamente productos de la sección '{sectionFilter}'. El catálogo ya está pre-filtrado para esta categoría."
+            : string.Empty;
 
         var systemPrompt = $@"Eres un Asesor de Estilo exclusivo y 'Personal Shopper' de LuxuryCo.
 Tono: amable, sofisticado, breve.
-ESTADO USUARIO: {loginStatus}
+ESTADO USUARIO: {loginStatus}{categoryContext}
 REGLA 1: Solo recomienda productos del catálogo JSON. Si no existe lo que piden, dílo amablemente.
 REGLA 2: Cuando recomiendes 1 o más productos, incluye la etiqueta [PRODUCTO:id_producto] exactamente así (reemplaza id_producto por el número). Ejemplo: [PRODUCTO:3]
 REGLA 3: Máximo 2 productos recomendados por respuesta.
@@ -368,6 +413,7 @@ REGLA 5: NUNCA afirmes haber realizado acciones del sistema como agregar al carr
 {historyBlock}
 CATÁLOGO:
 {productsJson}";
+
 
         var response = await _retryAndFallbackPolicy.ExecuteAsync(() =>
             _groqProvider.GenerateCompletionAsync(systemPrompt, sanitized));

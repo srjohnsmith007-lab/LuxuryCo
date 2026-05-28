@@ -48,12 +48,9 @@
             
             <div class="nav-icons d-flex align-items-center">
                 <form asp-controller="Shop" asp-action="Search" id="global-search-form" method="get" class="d-flex align-items-center me-3 position-relative" style="max-width: 220px;">
-                    <input type="text" name="q" id="global-search-input" class="form-control-luxury" placeholder="BUSCAR..." style="padding: 2px 25px 2px 25px; font-size: 0.75rem; border-bottom-color: #333;" required />
+                    <input type="text" name="q" id="global-search-input" class="form-control-luxury" placeholder="BUSCAR..." style="padding: 2px 10px 2px 25px; font-size: 0.75rem; border-bottom-color: #333;" required />
                     <button type="submit" style="background:transparent; border:none; color:#fff; position:absolute; left:0; top:50%; transform:translateY(-50%);">
                         <i class="fas fa-search" style="font-size:0.9rem;"></i>
-                    </button>
-                    <button type="button" id="btn-search-mic" style="background:transparent; border:none; color:#888; position:absolute; right:0; top:50%; transform:translateY(-50%); cursor:pointer;">
-                        <i class="fas fa-microphone" id="search-mic-icon" style="font-size:0.85rem;"></i>
                     </button>
                 </form>
                 @if (User.Identity.IsAuthenticated)

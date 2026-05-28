@@ -11,8 +11,11 @@
                 <i class="fas fa-gem text-gold me-2"></i>
                 <span class="fw-bold">LuxuryCo Stylist</span>
             </div>
-            <div>
-                <button class="btn btn-sm text-white px-2" onclick="clearStylistChat()" title="Limpiar conversación">
+            <div class="d-flex align-items-center gap-1">
+                <button class="btn btn-sm text-gold px-2" id="btn-tryon-toggle" title="Probador Virtual">
+                    <i class="fas fa-tshirt"></i>
+                </button>
+                <button class="btn btn-sm text-white px-2" onclick="clearStylistChat()" title="Limpiar">
                     <i class="fas fa-trash-alt"></i>
                 </button>
                 <button class="btn btn-sm text-white px-2" id="ai-stylist-close">
@@ -20,9 +23,63 @@
                 </button>
             </div>
         </div>
-        
+
+        <!-- Panel Probador Virtual -->
+        <div id="tryon-panel" class="tryon-panel d-none">
+            <div class="tryon-panel-header">
+                <i class="fas fa-tshirt text-gold me-2"></i>
+                <span>Probador Virtual con IA</span>
+                <button class="btn btn-sm text-white ms-auto" id="btn-tryon-close" title="Cerrar">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <!-- Upload de foto -->
+            <div class="tryon-upload-area" id="tryon-drop-zone">
+                <input type="file" id="tryon-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+                <div id="tryon-upload-placeholder" onclick="document.getElementById('tryon-photo-input').click()">
+                    <i class="fas fa-camera tryon-camera-icon"></i>
+                    <p class="mb-1">Sube tu foto</p>
+                    <small>JPG, PNG o WEBP</small>
+                </div>
+                <div id="tryon-preview-container" class="d-none">
+                    <img id="tryon-photo-preview" class="tryon-preview-img" alt="Tu foto">
+                    <button class="btn-tryon-remove" onclick="removeTryOnPhoto()" title="Quitar foto">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Prenda a probar -->
+            <div class="tryon-fields">
+                <label class="tryon-label">Categor&iacute;a de la prenda</label>
+                <select id="tryon-category" class="tryon-select">
+                    <option value="tops">&#128084; Camisa / Top / Chaqueta</option>
+                    <option value="bottoms">&#128096; Pantalon / Falda / Shorts</option>
+                    <option value="one-pieces">&#128163; Vestido / Overall</option>
+                </select>
+
+                <label class="tryon-label mt-2">Prenda a probarte</label>
+                <input type="text" id="tryon-garment-desc" class="tryon-input"
+                       placeholder="Ej: camisa negra de lino manga larga...">
+                <small class="tryon-hint">Puedes escribirlo o seleccionar un producto del chat</small>
+            </div>
+
+            <!-- Boton de accion -->
+            <button id="btn-tryon-run" class="btn-tryon-run" onclick="runVirtualTryOn()">
+                <i class="fas fa-magic me-2"></i>Probarme esta prenda
+            </button>
+
+            <!-- Estado de carga -->
+            <div id="tryon-loading" class="tryon-loading d-none">
+                <div class="tryon-spinner"></div>
+                <p class="tryon-loading-text">Analizando tu foto y ajustando la prenda...<br><small>Esto puede tomar 15-40 segundos</small></p>
+            </div>
+        </div>
+        <!-- /Panel Probador Virtual -->
+
         <div class="chat-body" id="stylist-messages">
-            <!-- El saludo se genera dinámicamente en JS según la página -->
+            <!-- El saludo se genera dinamicamente en JS segun la pagina -->
         </div>
         
         <div id="stylist-typing" class="typing-indicator d-none p-2 mb-2">
@@ -372,6 +429,147 @@
         margin-top: 6px;
         flex-wrap: wrap;
     }
+
+    /* ── Probador Virtual Panel ── */
+    .tryon-panel {
+        background: rgba(8,8,8,0.97);
+        border-bottom: 1px solid rgba(201,168,76,0.2);
+        padding: 12px;
+        animation: slideDown 0.25s ease;
+        max-height: 420px;
+        overflow-y: auto;
+    }
+    @@keyframes slideDown {
+        from { opacity:0; transform:translateY(-10px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    .tryon-panel-header {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #e0e0e0;
+        margin-bottom: 10px;
+    }
+    .tryon-upload-area {
+        border: 1.5px dashed rgba(201,168,76,0.4);
+        border-radius: 8px;
+        background: #0d0d0d;
+        min-height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        margin-bottom: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    .tryon-upload-area:hover, .tryon-upload-area.drag-over {
+        border-color: var(--chat-accent);
+        background: rgba(201,168,76,0.05);
+    }
+    #tryon-upload-placeholder {
+        text-align: center;
+        color: #666;
+        font-size: 0.8rem;
+        padding: 12px;
+        cursor: pointer;
+        width: 100%;
+    }
+    .tryon-camera-icon {
+        font-size: 1.8rem;
+        color: rgba(201,168,76,0.5);
+        display: block;
+        margin-bottom: 6px;
+    }
+    .tryon-preview-img {
+        width: 100%;
+        max-height: 140px;
+        object-fit: cover;
+        display: block;
+    }
+    #tryon-preview-container {
+        position: relative;
+        width: 100%;
+    }
+    .btn-tryon-remove {
+        position: absolute;
+        top: 4px; right: 4px;
+        background: rgba(0,0,0,0.7);
+        border: 1px solid #555;
+        color: #fff;
+        border-radius: 50%;
+        width: 22px; height: 22px;
+        font-size: 0.65rem;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .tryon-fields { margin-bottom: 10px; }
+    .tryon-label {
+        display: block;
+        font-size: 0.72rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    .tryon-select, .tryon-input {
+        width: 100%;
+        background: #111;
+        border: 1px solid #333;
+        color: #e0e0e0;
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 0.82rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .tryon-select:focus, .tryon-input:focus { border-color: var(--chat-accent); }
+    .tryon-hint {
+        font-size: 0.68rem;
+        color: #555;
+        display: block;
+        margin-top: 3px;
+    }
+    .btn-tryon-run {
+        width: 100%;
+        background: linear-gradient(135deg, #C9A84C, #a07830);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-tryon-run:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-tryon-run:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .tryon-loading {
+        text-align: center;
+        padding: 14px 0 6px;
+    }
+    .tryon-spinner {
+        width: 36px; height: 36px;
+        border: 3px solid #222;
+        border-top-color: var(--chat-accent);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+        margin: 0 auto 8px;
+    }
+    @@keyframes spin { to { transform:rotate(360deg); } }
+    .tryon-loading-text { font-size:0.78rem; color:#888; margin:0; }
+    .tryon-result-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        padding: 2px 7px;
+        border-radius: 10px;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+    .badge-real    { background: rgba(0,200,100,0.15); color:#00c864; border:1px solid rgba(0,200,100,0.3); }
+    .badge-est     { background: rgba(201,168,76,0.15); color:#C9A84C; border:1px solid rgba(201,168,76,0.3); }
 </style>
 
 <script>
@@ -400,6 +598,156 @@
     // ── Historial de conversación (persistente en localStorage) ────────────────
     const HISTORY_KEY = 'luxuryco_chat_history_' + currentSessionId;
     const MAX_HISTORY_TURNS = 20; 
+
+    // ── Lógica del Probador Virtual ────────────────────────────────────────────
+    let tryonBase64 = null;
+    let tryonMimeType = null;
+    let currentTryOnProductId = null;
+
+    const btnTryonToggle = document.getElementById('btn-tryon-toggle');
+    const btnTryonClose = document.getElementById('btn-tryon-close');
+    const panelTryon = document.getElementById('tryon-panel');
+    const inputPhoto = document.getElementById('tryon-photo-input');
+    const dropZone = document.getElementById('tryon-drop-zone');
+    const previewContainer = document.getElementById('tryon-preview-container');
+    const placeholder = document.getElementById('tryon-upload-placeholder');
+    const imgPreview = document.getElementById('tryon-photo-preview');
+    const btnRun = document.getElementById('btn-tryon-run');
+    const loadingTryon = document.getElementById('tryon-loading');
+    const categorySelect = document.getElementById('tryon-category');
+    const garmentDescInput = document.getElementById('tryon-garment-desc');
+
+    function toggleTryOnPanel() {
+        if(panelTryon.classList.contains('d-none')) {
+            panelTryon.classList.remove('d-none');
+            // Autocompletar con el producto del contexto actual si existe
+            if(lastShownProductId && !garmentDescInput.value) {
+                garmentDescInput.value = "producto seleccionado";
+                currentTryOnProductId = lastShownProductId;
+            }
+        } else {
+            panelTryon.classList.add('d-none');
+        }
+    }
+    btnTryonToggle.addEventListener('click', toggleTryOnPanel);
+    btnTryonClose.addEventListener('click', () => panelTryon.classList.add('d-none'));
+
+    // Upload & Preview
+    inputPhoto.addEventListener('change', function(e) {
+        if(this.files && this.files[0]) handleTryOnPhoto(this.files[0]);
+    });
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if(e.dataTransfer.files && e.dataTransfer.files[0]) handleTryOnPhoto(e.dataTransfer.files[0]);
+    });
+
+    function handleTryOnPhoto(file) {
+        if(!file.type.startsWith('image/')) {
+            alert('Por favor selecciona una imagen (JPG/PNG).');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+            imgPreview.src = e.target.result;
+            placeholder.classList.add('d-none');
+            previewContainer.classList.remove('d-none');
+            
+            // Extraer base64
+            const result = e.target.result;
+            const parts = result.split(',');
+            tryonMimeType = parts[0].match(/:(.*?);/)[1];
+            tryonBase64 = parts[1];
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeTryOnPhoto() {
+        inputPhoto.value = '';
+        tryonBase64 = null;
+        tryonMimeType = null;
+        imgPreview.src = '';
+        previewContainer.classList.add('d-none');
+        placeholder.classList.remove('d-none');
+    }
+
+    // Run AI
+    async function runVirtualTryOn() {
+        if(!tryonBase64) {
+            alert('¡Sube tu foto primero!');
+            return;
+        }
+        
+        btnRun.disabled = true;
+        btnRun.classList.add('d-none');
+        loadingTryon.classList.remove('d-none');
+
+        const garment = garmentDescInput.value || "ropa de moda";
+        const cat = categorySelect.value;
+        const pid = currentTryOnProductId;
+
+        // Añadir burbuja de contexto en el chat
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble ai-bubble mb-2';
+        bubble.innerHTML = `<i class="fas fa-tshirt text-gold me-2"></i><strong>Procesando tu prueba virtual...</strong><br><small>Categoria: ${cat} | Prenda: ${garment}</small>`;
+        stylistMessages.appendChild(bubble);
+        scrollToBottom();
+
+        try {
+            const resp = await fetch('/Home/VirtualTryOn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    UserPhotoBase64: tryonBase64,
+                    UserPhotoMimeType: tryonMimeType,
+                    GarmentDescription: garment,
+                    ProductId: pid,
+                    Category: cat
+                })
+            });
+
+            if(!resp.ok) throw new Error('Error en el servidor de IA');
+            const data = await resp.json();
+
+            if(data.status === 'Failed' || !data.imageUrl) {
+                throw new Error(data.errorMessage || 'Fallo en la generacion');
+            }
+
+            // Mostrar resultado en chat
+            bubble.remove(); // Quitar la burbuja temporal
+            const resultBubble = document.createElement('div');
+            resultBubble.className = 'msg-bubble ai-bubble mb-2';
+            
+            const badgeClass = data.isEstimation ? 'badge-est' : 'badge-real';
+            const badgeIcon = data.isEstimation ? 'fa-magic' : 'fa-check-circle';
+
+            resultBubble.innerHTML = `
+                <div class="mb-2"><strong>¡Aquí tienes!</strong> Así luciría la prenda:</div>
+                <div class="image-container-secure mb-2">
+                    <img src="${data.imageUrl}" class="img-fluid rounded generated-luxury-img">
+                </div>
+                <span class="tryon-result-badge ${badgeClass}"><i class="fas ${badgeIcon} me-1"></i> ${data.provider}</span>
+                <div class="image-actions-row mt-2">
+                    <a href="${data.imageUrl}" target="_blank" download="LuxuryCo-TryOn.png" class="btn btn-outline-gold btn-action-gen">
+                        <i class="fas fa-download me-1"></i> Descargar
+                    </a>
+                </div>
+            `;
+            stylistMessages.appendChild(resultBubble);
+            panelTryon.classList.add('d-none'); // Cerrar panel
+        } catch (error) {
+            bubble.innerHTML = `<i class="fas fa-exclamation-triangle text-danger me-2"></i> ${error.message}`;
+        }
+
+        btnRun.disabled = false;
+        btnRun.classList.remove('d-none');
+        loadingTryon.classList.add('d-none');
+        scrollToBottom();
+    }
+    // ───────────────────────────────────────────────────────────────────────────
+
 
     function loadHistory() {
         try {

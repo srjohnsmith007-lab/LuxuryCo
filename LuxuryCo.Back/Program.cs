@@ -46,6 +46,7 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.ImageStorageService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ImageProviderRouter>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ImageMetadataService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ImageGenerationService>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.VirtualTryOnService>();
 
 // Core Orchestrator
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();

@@ -129,6 +129,35 @@ public class HomeController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> VirtualTryOn([FromBody] VirtualTryOnProxyRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.UserPhotoBase64))
+                return BadRequest(new { message = "La foto es requerida." });
+
+            var payload = new
+            {
+                userPhotoBase64   = request.UserPhotoBase64,
+                userPhotoMimeType = request.UserPhotoMimeType,
+                productId         = request.ProductId,
+                garmentDescription = request.GarmentDescription,
+                garmentImageUrl   = request.GarmentImageUrl,
+                category          = request.Category,
+                seed              = request.Seed
+            };
+            var jsonContent = new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_apiBaseUrl}/Ai/virtual-tryon", jsonContent);
+            var rawContent = await response.Content.ReadAsStringAsync();
+            return Content(rawContent, "application/json");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(503, JsonSerializer.Serialize(new { message = "Error de proxy del probador virtual.", details = ex.Message }));
+        }
+    }
+
+    [HttpPost]
     public async Task<IActionResult> GenerateImageProxy([FromBody] ImageGenProxyRequest request)
     {
         try
@@ -176,6 +205,17 @@ public class StylistProxyRequest
 
 public class ChatHistoryEntryFront
 {
-    public string Role { get; set; } = string.Empty;
+    public string Role    { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+}
+
+public class VirtualTryOnProxyRequest
+{
+    public string  UserPhotoBase64    { get; set; } = string.Empty;
+    public string? UserPhotoMimeType  { get; set; }
+    public int?    ProductId          { get; set; }
+    public string? GarmentDescription { get; set; }
+    public string? GarmentImageUrl    { get; set; }
+    public string? Category           { get; set; }
+    public int?    Seed               { get; set; }
 }

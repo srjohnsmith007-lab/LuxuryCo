@@ -1,6 +1,8 @@
 using LuxuryCo.Back.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Text.Json;
 
 namespace LuxuryCo.Back.Controllers;
@@ -15,19 +17,25 @@ public class AiController : ControllerBase
     private readonly ConfirmationService _confirmationService;
     private readonly ToolExecutorService _toolExecutor;
     private readonly ImageGenerationService _imageGenService;
+    private readonly VirtualTryOnService _virtualTryOnService;
+    private readonly LuxuryCo.Database.Data.LuxuryCoDbContext _context;
 
     public AiController(
         IAiService aiService, 
         WhisperProvider whisperProvider, 
         ConfirmationService confirmationService,
         ToolExecutorService toolExecutor,
-        ImageGenerationService imageGenService)
+        ImageGenerationService imageGenService,
+        VirtualTryOnService virtualTryOnService,
+        LuxuryCo.Database.Data.LuxuryCoDbContext context)
     {
         _aiService = aiService;
         _whisperProvider = whisperProvider;
         _confirmationService = confirmationService;
         _toolExecutor = toolExecutor;
         _imageGenService = imageGenService;
+        _virtualTryOnService = virtualTryOnService;
+        _context = context;
     }
 
     // Endpoint seguro para el chat del Administrador (solo accesible con token JWT válido de Rol ADMIN)
@@ -180,6 +188,62 @@ public class AiController : ControllerBase
             return StatusCode(500, new { message = "Error al generar imagen de lujo.", details = ex.Message });
         }
     }
+
+    // Endpoint del Probador Virtual con IA
+    // Ruta: POST /api/Ai/virtual-tryon
+    [HttpPost("virtual-tryon")]
+    [AllowAnonymous]
+    public async Task<IActionResult> VirtualTryOn([FromBody] VirtualTryOnRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.UserPhotoBase64))
+            return BadRequest(new { message = "La foto del usuario es requerida." });
+
+        try
+        {
+            // Si viene productId, buscar la imagen y descripcion del producto
+            string garmentDescription = request.GarmentDescription ?? "luxury fashion garment";
+            string? garmentImageUrl = request.GarmentImageUrl;
+
+            if (request.ProductId.HasValue && request.ProductId.Value > 0)
+            {
+                var product = await _context.Productos
+                    .Where(p => p.id_producto == request.ProductId.Value)
+                    .Select(p => new
+                    {
+                        p.nombre,
+                        p.descripcion,
+                        imagen = p.Imagenes
+                            .Where(i => i.principal)
+                            .Select(i => i.url_imagen)
+                            .FirstOrDefault()
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (product != null)
+                {
+                    garmentDescription = $"{product.nombre} - {product.descripcion ?? string.Empty}";
+                    garmentImageUrl ??= product.imagen;
+                }
+            }
+
+            var result = await _virtualTryOnService.TryOnAsync(
+                request.UserPhotoBase64,
+                request.UserPhotoMimeType ?? "image/jpeg",
+                garmentDescription,
+                garmentImageUrl,
+                request.Category ?? "tops",
+                request.Seed ?? 0);
+
+            if (result.Status == "Failed")
+                return StatusCode(500, new { message = result.ErrorMessage });
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error en el probador virtual.", details = ex.Message });
+        }
+    }
 }
 
 public class ActionConfirmRequest
@@ -220,3 +284,15 @@ public class ImageGenRequest
     public int? Seed { get; set; }
 }
 
+// DTO para el Probador Virtual con IA
+public class VirtualTryOnRequest
+{
+    public string UserPhotoBase64   { get; set; } = string.Empty;
+    public string? UserPhotoMimeType { get; set; }
+    public int?   ProductId         { get; set; }
+    public string? GarmentDescription { get; set; }
+    public string? GarmentImageUrl  { get; set; }
+    /// Categoria: tops | bottoms | one-pieces
+    public string? Category         { get; set; }
+    public int?   Seed              { get; set; }
+}

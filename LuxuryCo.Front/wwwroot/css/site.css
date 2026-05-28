@@ -19,8 +19,8 @@
   --text-secondary: #aaaaaa;
   --danger: #ef5350;
   --success: #66bb6a;
-  --font-ui: 'Inter', sans-serif;
-  --font-display: 'Playfair Display', serif;
+  --font-ui: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Cormorant Garamond', serif;
 }
 
 /* ---- RESET BASE ---- */
@@ -32,64 +32,72 @@ body {
   color: var(--text);
   margin: 0; padding: 0;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.02em;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: 1px;
+  font-weight: 500;
+  letter-spacing: 2px;
   color: var(--text);
+  line-height: 1.2;
 }
 
-a { color: inherit; transition: color .2s; }
+a { color: inherit; transition: all .3s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none; }
 a:hover { color: var(--gold); }
-p { color: var(--text-secondary); }
-hr { border-color: var(--border-light); }
+p { color: var(--text-secondary); line-height: 1.7; font-weight: 300; }
+hr { border-color: var(--border-light); opacity: 0.15; }
 
 /* ---- NAVBAR ---- */
 .luxury-navbar {
-  background-color: var(--black);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 2rem;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.2rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 1050;
+  transition: all 0.4s ease;
 }
 
 .luxury-navbar .nav-links a {
-  color: var(--text);
+  color: var(--text-secondary);
   text-decoration: none;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 2px;
-  margin-right: 2rem;
-  transition: color .25s;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  margin-right: 2.5rem;
+  transition: all .3s ease;
   font-family: var(--font-ui);
+  font-weight: 400;
 }
-.luxury-navbar .nav-links a:hover { color: var(--gold); }
+.luxury-navbar .nav-links a:hover { color: var(--text); letter-spacing: 4px; }
 
 .luxury-navbar .brand {
   font-family: var(--font-display);
-  font-size: 1.9rem;
-  font-weight: 700;
-  letter-spacing: 4px;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 6px;
   color: var(--text);
   text-decoration: none;
   flex-grow: 1;
   text-align: center;
+  transition: opacity 0.3s;
 }
+.luxury-navbar .brand:hover { opacity: 0.85; color: var(--text); }
 
-.luxury-navbar .nav-icons { display: flex; gap: 1.5rem; align-items: center; }
+.luxury-navbar .nav-icons { display: flex; gap: 1.8rem; align-items: center; }
 .luxury-navbar .nav-icons a {
-  color: var(--text);
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 1.1rem;
-  transition: color .25s;
+  font-size: 1.05rem;
+  transition: all .3s ease;
 }
-.luxury-navbar .nav-icons a:hover { color: var(--gold); }
+.luxury-navbar .nav-icons a:hover { color: var(--text); transform: scale(1.05); }
 
 /* ---- AUTH PAGES (Login / Register / Recovery) ---- */
 .auth-page-bg {

@@ -653,7 +653,7 @@
             const imgSec = document.createElement('div');
             imgSec.className = 'image-container-secure';
             imgSec.innerHTML = `
-                <img src="${data.imageUrl}" class="img-fluid rounded generated-luxury-img" alt="${data.prompt}" style="display:none;" onload="this.style.display='block'; this.nextElementSibling?.remove();" onerror="this.onerror=null; this.src='/img/placeholder.png'; this.nextElementSibling?.remove();">
+                <img src="${data.imageUrl}" class="img-fluid rounded generated-luxury-img" alt="${data.prompt}" style="display:none;" onload="this.style.display='block'; this.nextElementSibling?.remove();" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.nextElementSibling?.remove();">
                 <div class="image-loading-placeholder"><i class="fas fa-spinner fa-spin me-2"></i>Cargando diseño...</div>
             `;
             container.insertBefore(imgSec, infoDiv);
@@ -724,7 +724,7 @@
             cardEl.href = card.url;
             cardEl.className = 'product-card-mini';
             cardEl.innerHTML = `
-                <img src="${card.imagen}" alt="${card.nombre}" onerror="this.onerror=null; this.src='/img/placeholder.png';">
+                <img src="${card.imagen}" alt="${card.nombre}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
                 <div class="pc-body">
                     <p class="pc-name">${card.nombre}</p>
                     <p class="pc-section">${card.seccion}</p>

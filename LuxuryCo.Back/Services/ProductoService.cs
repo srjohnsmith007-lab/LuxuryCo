@@ -112,11 +112,13 @@ public class ProductoService : IProductoService
             .ToListAsync();
         var marcaMap = marcas.ToDictionary(m => m.id_marca, m => m.nombre);
 
-        // Filter by name, description OR brand name
+        // Filter by name, description, brand name, section OR category name
         var filteredProductos = productos.Where(p => 
             p.nombre.ToLower().Contains(q) || 
             (p.descripcion != null && p.descripcion.ToLower().Contains(q)) ||
-            (p.id_marca.HasValue && marcaMap.ContainsKey(p.id_marca.Value) && marcaMap[p.id_marca.Value].ToLower().Contains(q))
+            (p.id_marca.HasValue && marcaMap.ContainsKey(p.id_marca.Value) && marcaMap[p.id_marca.Value].ToLower().Contains(q)) ||
+            (p.seccion != null && p.seccion.ToLower().Contains(q)) ||
+            (p.Categoria != null && p.Categoria.nombre.ToLower().Contains(q))
         ).ToList();
 
         return filteredProductos.Select(p => new ProductoDto

@@ -59,12 +59,21 @@ namespace LuxuryCo.Front.Controllers
         // GET: /Shop/Search?q=termino
         public async Task<IActionResult> Search(string q)
         {
-            ViewData["CategoryName"] = $"Resultados para \"{q}\"";
-
             if (string.IsNullOrWhiteSpace(q))
             {
                 return View("Category", new List<ProductoViewModel>());
             }
+
+            var cleanQuery = q.Trim().ToLower();
+
+            // Si el usuario buscó exactamente el nombre de una categoría, redirigir a la categoría directamente
+            if (cleanQuery == "hombre" || cleanQuery == "mujer" || cleanQuery == "accesorios")
+            {
+                string capCategory = char.ToUpper(cleanQuery[0]) + cleanQuery.Substring(1);
+                return RedirectToAction("Category", new { id = capCategory });
+            }
+
+            ViewData["CategoryName"] = $"Resultados para \"{q}\"";
 
             try
             {

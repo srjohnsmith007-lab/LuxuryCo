@@ -26,10 +26,12 @@ public class ImageStorageService
         {
             if (string.IsNullOrWhiteSpace(sourceUrl)) return string.Empty;
 
-            // Si ya es una URL relativa local, no necesitamos volver a descargarla
+            // Si ya es una URL relativa local, retornar con el dominio absoluto del backend para evitar 404s entre servidores
             if (sourceUrl.StartsWith("/") || sourceUrl.StartsWith("~") || !sourceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
-                return sourceUrl;
+                var cleanPath = sourceUrl.Replace("~", "");
+                if (!cleanPath.StartsWith("/")) cleanPath = "/" + cleanPath;
+                return $"https://luxuryco.onrender.com{cleanPath}";
             }
 
             var bytes = await _httpClient.GetByteArrayAsync(sourceUrl);
@@ -65,8 +67,8 @@ public class ImageStorageService
                 // Supabase inactivo o pausado
             }
 
-            // Fallback a URL local
-            return $"/uploads/generated/{filename}";
+            // Fallback a URL local absoluta usando el dominio real del backend para evitar 404s entre servidores
+            return $"https://luxuryco.onrender.com/uploads/generated/{filename}";
         }
         catch (Exception ex)
         {

@@ -32,8 +32,20 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.ToolExecutorService>();
 // Register AI Providers
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GroqProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.GeminiImageProvider>();
 builder.Services.AddHttpClient<LuxuryCo.Back.Services.WhisperProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.PollinationsProvider>();
+builder.Services.AddHttpClient<LuxuryCo.Back.Services.StabilityProvider>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IntentParserService>();
+
+// Register Image Generation Services
+builder.Services.AddSingleton<LuxuryCo.Back.Services.ImageCacheService>();
+builder.Services.AddSingleton<LuxuryCo.Back.Services.ImageModerationService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ImagePromptOptimizerService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ImageStorageService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ImageProviderRouter>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ImageMetadataService>();
+builder.Services.AddScoped<LuxuryCo.Back.Services.ImageGenerationService>();
 
 // Core Orchestrator
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();
@@ -162,6 +174,19 @@ _ = Task.Run(async () =>
                         ""Success"" BOOLEAN NOT NULL,
                         ""ErrorMessage"" TEXT NOT NULL DEFAULT '',
                         CONSTRAINT fk_ai_action_log_usuario FOREIGN KEY (""UserId"") REFERENCES usuario(id_usuario) ON DELETE SET NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS ai_image_generation (
+                        ""Id"" SERIAL PRIMARY KEY,
+                        ""UserId"" INTEGER NULL,
+                        ""PromptOriginal"" TEXT NOT NULL,
+                        ""OptimizedPrompt"" TEXT NOT NULL DEFAULT '',
+                        ""NegativePrompt"" TEXT NOT NULL DEFAULT '',
+                        ""Seed"" INTEGER NOT NULL DEFAULT 0,
+                        ""Provider"" VARCHAR(100) NOT NULL DEFAULT '',
+                        ""GenerationTimeMs"" DOUBLE PRECISION NOT NULL DEFAULT 0,
+                        ""ImageUrl"" VARCHAR(1000) NOT NULL DEFAULT '',
+                        ""CreatedAt"" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT timezone('utc', now()),
+                        CONSTRAINT fk_ai_image_generation_usuario FOREIGN KEY (""UserId"") REFERENCES usuario(id_usuario) ON DELETE SET NULL
                     );
                 ");
                 await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE producto ADD COLUMN IF NOT EXISTS \"ConcurrencyToken\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';");

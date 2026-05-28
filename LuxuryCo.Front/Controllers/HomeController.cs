@@ -128,11 +128,41 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpPost]
+    public async Task<IActionResult> GenerateImageProxy([FromBody] ImageGenProxyRequest request)
+    {
+        try
+        {
+            var payload = new
+            {
+                prompt = request.Prompt,
+                userId = request.UserId,
+                seed = request.Seed
+            };
+            var jsonContent = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_apiBaseUrl}/Ai/generate-image", jsonContent);
+            var rawContent = await response.Content.ReadAsStringAsync();
+
+            return Content(rawContent, "application/json");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(503, JsonSerializer.Serialize(new { message = "Error de proxy de imagen", details = ex.Message }));
+        }
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+}
+
+public class ImageGenProxyRequest
+{
+    public string Prompt { get; set; } = string.Empty;
+    public int? UserId { get; set; }
+    public int? Seed { get; set; }
 }
 
 public class StylistProxyRequest

@@ -14,17 +14,20 @@ public class AiController : ControllerBase
     private readonly WhisperProvider _whisperProvider;
     private readonly ConfirmationService _confirmationService;
     private readonly ToolExecutorService _toolExecutor;
+    private readonly ImageGenerationService _imageGenService;
 
     public AiController(
         IAiService aiService, 
         WhisperProvider whisperProvider, 
         ConfirmationService confirmationService,
-        ToolExecutorService toolExecutor)
+        ToolExecutorService toolExecutor,
+        ImageGenerationService imageGenService)
     {
         _aiService = aiService;
         _whisperProvider = whisperProvider;
         _confirmationService = confirmationService;
         _toolExecutor = toolExecutor;
+        _imageGenService = imageGenService;
     }
 
     // Endpoint seguro para el chat del Administrador (solo accesible con token JWT válido de Rol ADMIN)
@@ -149,6 +152,34 @@ public class AiController : ControllerBase
             return StatusCode(500, new { message = "Error al procesar la aprobación", details = ex.Message });
         }
     }
+
+    [HttpPost("generate-image")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GenerateImage([FromBody] ImageGenRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Prompt))
+        {
+            return BadRequest(new { message = "El prompt no puede estar vacío." });
+        }
+
+        try
+        {
+            var result = await _imageGenService.GenerateImageAsync(request.Prompt, request.UserId, request.Seed);
+            if (result.Status == "Failed")
+            {
+                return StatusCode(500, result);
+            }
+            if (result.Status == "Blocked" || result.Status == "QuotaExceeded" || result.Status == "Cooldown")
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al generar imagen de lujo.", details = ex.Message });
+        }
+    }
 }
 
 public class ActionConfirmRequest
@@ -180,5 +211,12 @@ public class StylistAiRequest
 
     // ID del último producto que la IA mostró al usuario en tarjeta (para contexto "agrégalo")
     public int? LastProductId { get; set; }
+}
+
+public class ImageGenRequest
+{
+    public string Prompt { get; set; } = string.Empty;
+    public int? UserId { get; set; }
+    public int? Seed { get; set; }
 }
 

@@ -293,6 +293,88 @@
         border-top: 1px solid #222;
         padding-top: 5px;
     }
+    .image-skeleton-loader {
+        width: 100%;
+        height: 180px;
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed var(--chat-accent);
+    }
+    .skeleton-glow {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.15), transparent);
+        animation: glowSweep 1.5s infinite;
+    }
+    @@keyframes glowSweep {
+        to { left: 200%; }
+    }
+    .skeleton-text {
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 500;
+        z-index: 2;
+    }
+    .btn-outline-gold {
+        border: 1px solid var(--chat-accent);
+        color: var(--chat-accent);
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-gold:hover {
+        background: var(--chat-accent);
+        color: #000;
+    }
+    .btn-action-gen {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    .image-container-secure {
+        position: relative;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 8px;
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        background: #0d0d0d;
+    }
+    .generated-luxury-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    .generated-luxury-img:hover {
+        transform: scale(1.03);
+    }
+    .image-loading-placeholder {
+        padding: 40px 10px;
+        text-align: center;
+        color: #888;
+        font-size: 0.85rem;
+    }
+    .image-meta-info {
+        font-size: 0.72rem;
+        color: #aaa;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+    .image-actions-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+    }
 </style>
 
 <script>
@@ -460,7 +542,33 @@
         });
     });
 
+    function isAllowedImageDomain(url) {
+        try {
+            if (!url) return false;
+            const parsed = new URL(url, window.location.origin);
+            const hostname = parsed.hostname.toLowerCase();
+            if (hostname === window.location.hostname) return true;
+            if (hostname.endsWith('.supabase.co')) return true;
+            if (hostname === 'pollinations.ai' || hostname.endsWith('.pollinations.ai')) return true;
+            if (hostname === 'api.stability.ai') return true;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+            return false;
+        } catch {
+            return false;
+        }
+    }
+
     function addMessageToUI(text, sender, saveHistory = true) {
+        // Interceptar gatillo de generación de imágenes
+        if (sender === 'ai' && text.includes('[[IMAGE_GEN_TRIGGER:')) {
+            const match = text.match(/\[\[IMAGE_GEN_TRIGGER:(.*?)\]\]/);
+            if (match) {
+                const prompt = match[1];
+                triggerImageGeneration(prompt);
+                return;
+            }
+        }
+
         const div = document.createElement('div');
         div.className = `msg-bubble ${sender}-bubble mb-3`;
         
@@ -474,6 +582,136 @@
         if (saveHistory) {
             saveToHistory(sender === 'user' ? 'user' : 'assistant', text);
         }
+    }
+
+    async function triggerImageGeneration(prompt, seed = null, targetContainerId = null) {
+        let container;
+        let skeleton;
+        let infoDiv;
+        let actionsDiv;
+
+        if (targetContainerId) {
+            container = document.getElementById(targetContainerId);
+            container.innerHTML = '';
+        } else {
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ai-bubble mb-3`;
+            bubble.id = 'img-gen-' + Math.random().toString(36).substr(2, 9);
+            stylistMessages.appendChild(bubble);
+            container = bubble;
+        }
+
+        // Crear la estructura de carga y skeleton
+        const header = document.createElement('div');
+        header.className = 'fw-bold mb-2';
+        header.innerHTML = `<i class="fas fa-magic text-gold me-2"></i>Generador de Diseños IA`;
+        container.appendChild(header);
+
+        skeleton = document.createElement('div');
+        skeleton.className = 'image-skeleton-loader mb-2';
+        skeleton.innerHTML = `
+            <div class="skeleton-glow"></div>
+            <div class="skeleton-text"><i class="fas fa-circle-notch fa-spin me-2"></i>Optimizando y generando...</div>
+        `;
+        container.appendChild(skeleton);
+
+        infoDiv = document.createElement('div');
+        infoDiv.className = 'image-meta-info';
+        infoDiv.innerText = `Prompt: "${prompt}"`;
+        container.appendChild(infoDiv);
+
+        scrollToBottom();
+
+        try {
+            const response = await fetch('/Home/GenerateImageProxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    userId: _luxuryUserId || null,
+                    seed: seed || null
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la generación (${response.status})`);
+            }
+
+            const data = await response.json();
+            if (data.status === 'Failed' || !data.imageUrl) {
+                throw new Error(data.message || 'Error al generar la imagen.');
+            }
+
+            // Validar dominio por seguridad
+            if (!isAllowedImageDomain(data.imageUrl)) {
+                throw new Error('URL de imagen no permitida por seguridad.');
+            }
+
+            // Quitar skeleton y colocar la imagen segura
+            skeleton.remove();
+
+            const imgSec = document.createElement('div');
+            imgSec.className = 'image-container-secure';
+            imgSec.innerHTML = `
+                <img src="${data.imageUrl}" class="img-fluid rounded generated-luxury-img" alt="${data.prompt}" style="display:none;" onload="this.style.display='block'; this.nextElementSibling?.remove();" onerror="this.src='/img/placeholder.png'; this.nextElementSibling?.remove();">
+                <div class="image-loading-placeholder"><i class="fas fa-spinner fa-spin me-2"></i>Cargando diseño...</div>
+            `;
+            container.insertBefore(imgSec, infoDiv);
+
+            infoDiv.innerHTML = `
+                <strong>Diseño Optimizado:</strong> ${data.prompt}<br>
+                <strong>Seed:</strong> ${data.seed || 'Aleatorio'}
+            `;
+
+            // Agregar botones de acción
+            actionsDiv = document.createElement('div');
+            actionsDiv.className = 'image-actions-row';
+            
+            // Botón de variación (cambiar seed o regenerar)
+            const varBtn = document.createElement('button');
+            varBtn.className = 'btn btn-outline-gold btn-action-gen';
+            varBtn.innerHTML = '<i class="fas fa-redo me-1"></i> Variación';
+            varBtn.onclick = () => {
+                const nextSeed = Math.floor(Math.random() * 99999999);
+                triggerImageGeneration(prompt, nextSeed, container.id);
+            };
+            actionsDiv.appendChild(varBtn);
+
+            // Botón de Upscale
+            const upscaleBtn = document.createElement('button');
+            upscaleBtn.className = 'btn btn-outline-gold btn-action-gen';
+            upscaleBtn.innerHTML = '<i class="fas fa-expand me-1"></i> Alta Calidad (Upscale)';
+            upscaleBtn.onclick = () => {
+                alert('Mejorando la resolución de la imagen...');
+                // Aquí se podría integrar un endpoint de upscale si es necesario
+            };
+            actionsDiv.appendChild(upscaleBtn);
+
+            container.appendChild(actionsDiv);
+
+        } catch (error) {
+            if (skeleton) skeleton.remove();
+            
+            const errDiv = document.createElement('div');
+            errDiv.className = 'alert alert-danger p-2 text-center';
+            errDiv.style.fontSize = '0.8rem';
+            errDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-1"></i> ${error.message || 'Error al generar la imagen.'}`;
+            container.insertBefore(errDiv, infoDiv);
+
+            actionsDiv = document.createElement('div');
+            actionsDiv.className = 'image-actions-row';
+
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'btn btn-outline-gold btn-action-gen';
+            retryBtn.innerHTML = '<i class="fas fa-sync me-1"></i> Reintentar';
+            retryBtn.onclick = () => {
+                triggerImageGeneration(prompt, seed, container.id);
+            };
+            actionsDiv.appendChild(retryBtn);
+            container.appendChild(actionsDiv);
+        }
+
+        scrollToBottom();
     }
 
     function renderProductCards(cards) {

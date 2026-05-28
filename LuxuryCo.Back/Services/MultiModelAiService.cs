@@ -229,6 +229,14 @@ DATOS EN TIEMPO REAL:
             return stylistResult;
         }
 
+        // 2c. Si el cliente quiere generar o diseñar una imagen
+        if (intent.Intent == "GENERATE_IMAGE")
+        {
+            var promptToUse = string.IsNullOrWhiteSpace(intent.Parameters.ProductName) ? sanitized : intent.Parameters.ProductName;
+            stylistResult.Reply = $"[[IMAGE_GEN_TRIGGER:{promptToUse}]]";
+            return stylistResult;
+        }
+
         // 2b. Si quiere agregar al carrito y está logueado, intentar resolver el producto
         if (intent.Intent == "ADD_TO_CART" && activeUserId > 0)
         {

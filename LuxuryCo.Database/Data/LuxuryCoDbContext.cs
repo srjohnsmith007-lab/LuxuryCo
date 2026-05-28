@@ -42,12 +42,14 @@ namespace LuxuryCo.Database.Data
         public DbSet<TransferenciaStock> TransferenciasStock { get; set; }
         public DbSet<HistorialChatAi> HistorialesChatAi { get; set; }
         public DbSet<AiActionLog> AiActionLogs { get; set; }
+        public DbSet<AiImageGeneration> AiImageGenerations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<AiActionLog>().ToTable("ai_action_log");
+            modelBuilder.Entity<AiImageGeneration>().ToTable("ai_image_generation");
 
             // Configuramos los nombres exactos de las tablas en Supabase
             modelBuilder.Entity<Rol>().ToTable("rol");

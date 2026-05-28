@@ -232,6 +232,20 @@ DATOS EN TIEMPO REAL:
         // 2b. Si quiere agregar al carrito y está logueado, intentar resolver el producto
         if (intent.Intent == "ADD_TO_CART" && activeUserId > 0)
         {
+            // Si la IA no detectó un ProductId concreto pero hay un nombre, buscar en BD por nombre
+            if (intent.Parameters.ProductId == 0 && !string.IsNullOrWhiteSpace(intent.Parameters.ProductName))
+            {
+                var normName = intent.Parameters.ProductName.ToLower().Trim();
+                var matchedProduct = await _context.Productos
+                    .Where(p => p.activo && p.nombre.ToLower().Contains(normName))
+                    .FirstOrDefaultAsync();
+
+                if (matchedProduct != null)
+                {
+                    intent.Parameters.ProductId = matchedProduct.id_producto;
+                }
+            }
+
             // Si la IA no detectó un ProductId concreto pero hay un último producto mostrado, usarlo
             if (intent.Parameters.ProductId == 0 && lastProductId.HasValue && lastProductId.Value > 0)
             {
@@ -291,6 +305,7 @@ REGLA 1: Solo recomienda productos del catálogo JSON. Si no existe lo que piden
 REGLA 2: Cuando recomiendes 1 o más productos, incluye la etiqueta [PRODUCTO:id_producto] exactamente así (reemplaza id_producto por el número). Ejemplo: [PRODUCTO:3]
 REGLA 3: Máximo 2 productos recomendados por respuesta.
 REGLA 4: Tienes memoria de la conversación. Usa el historial para responder con coherencia.
+REGLA 5: NUNCA afirmes haber realizado acciones del sistema como agregar al carrito (ej. decir ""Ya lo agregué"" o ""Listo, he añadido...""). El sistema backend se encarga de eso. Si el cliente pide agregar al carrito, limita tu respuesta a guiarlo o sugerirle el producto, pero no inventes que modificaste su carrito.
 {historyBlock}
 CATÁLOGO:
 {productsJson}";

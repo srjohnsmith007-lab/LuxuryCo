@@ -21,7 +21,7 @@ Analiza el mensaje del usuario y clasifícalo estrictamente en una de las siguie
 - UPDATE_STOCK (Aumentar o reducir stock en inventario)
 - SEARCH_PRODUCT (Buscar productos en catálogo)
 - ADD_TO_CART (Agregar prendas al carrito)
-- GENERATE_IMAGE (Diseñar o generar una imagen/outfit de una prenda)
+- GENERATE_IMAGE (Diseñar o generar una imagen/outfit de una prenda, probador virtual, probar prenda en línea, o frases como 'pruébame esta camisa', 'cómo me queda', 'ver puesto', 'diseña una camisa')
 - CREATE_INVOICE_DRAFT (Generar borrador de factura/cotización)
 - GENERAL_CONVERSATION (Preguntas de estilo, saludos, etc.)
 

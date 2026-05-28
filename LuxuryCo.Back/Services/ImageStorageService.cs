@@ -24,11 +24,20 @@ public class ImageStorageService
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(sourceUrl)) return string.Empty;
+
+            // Si ya es una URL relativa local, no necesitamos volver a descargarla
+            if (sourceUrl.StartsWith("/") || sourceUrl.StartsWith("~") || !sourceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                return sourceUrl;
+            }
+
             var bytes = await _httpClient.GetByteArrayAsync(sourceUrl);
             var filename = $"gen_{Guid.NewGuid()}_{DateTime.UtcNow.Ticks}.png";
 
             // Tarea de almacenamiento local como fallback/primario
-            var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "generated");
+            var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadDir = Path.Combine(webRoot, "uploads", "generated");
             if (!Directory.Exists(uploadDir))
             {
                 Directory.CreateDirectory(uploadDir);

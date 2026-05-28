@@ -229,10 +229,36 @@ DATOS EN TIEMPO REAL:
             return stylistResult;
         }
 
-        // 2c. Si el cliente quiere generar o diseñar una imagen
+        // 2c. Si el cliente quiere generar, diseñar o probarse una imagen (Probador en línea)
         if (intent.Intent == "GENERATE_IMAGE")
         {
-            var promptToUse = string.IsNullOrWhiteSpace(intent.Parameters.ProductName) ? sanitized : intent.Parameters.ProductName;
+            string promptToUse = string.Empty;
+            if (!string.IsNullOrWhiteSpace(intent.Parameters.ProductName))
+            {
+                promptToUse = intent.Parameters.ProductName;
+            }
+            else if (lastProductId.HasValue && lastProductId.Value > 0)
+            {
+                var prod = await _context.Productos.FindAsync(lastProductId.Value);
+                if (prod != null)
+                {
+                    promptToUse = $"{prod.nombre}";
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(promptToUse))
+            {
+                promptToUse = sanitized;
+            }
+
+            // Si es una petición de probarse la prenda (virtual try-on), enriquecerla
+            if (sanitized.ToLower().Contains("pruebame") || sanitized.ToLower().Contains("pruébame") || 
+                sanitized.ToLower().Contains("ver puesto") || sanitized.ToLower().Contains("cómo me queda") || 
+                sanitized.ToLower().Contains("pruébamela") || sanitized.ToLower().Contains("pruebamela"))
+            {
+                promptToUse = $"A professional model elegantly wearing the luxury apparel: {promptToUse}, highly detailed fashion studio mockup, editorial photo";
+            }
+
             stylistResult.Reply = $"[[IMAGE_GEN_TRIGGER:{promptToUse}]]";
             return stylistResult;
         }

@@ -35,10 +35,10 @@ public class OpenRouterProvider : IAiProvider
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 response.Success = false;
-                response.ErrorMessage = "OpenRouter API Key not configured.";
+                response.ErrorMessage = $"OpenRouter API Key not configured. Config[openrouter:key]={_config["openrouter:key"] ?? "NULL"} | EnvVar={Environment.GetEnvironmentVariable("openrouter__key") ?? "NULL"}";
                 return response;
             }
-            apiKey = apiKey.Trim().Trim('"').Trim('\'');
+            apiKey = apiKey.Trim().Trim('"').Trim('\'').Replace("\n","").Replace("\r","");
             var model = _config["OpenRouter:Model"] ?? "google/gemini-2.0-flash-exp:free";
 
             var requestBody = new
@@ -87,7 +87,7 @@ public class OpenRouterProvider : IAiProvider
             else
             {
                 response.Success = false;
-                response.ErrorMessage = $"OpenRouter API Error: {httpResponse.StatusCode} - {responseString}";
+                response.ErrorMessage = $"OpenRouter API Error: {httpResponse.StatusCode} - {responseString} [key_prefix={apiKey.Substring(0, Math.Min(10, apiKey.Length))}...]";
                 _logger.LogWarning("OpenRouter failed: {Error}", response.ErrorMessage);
             }
         }

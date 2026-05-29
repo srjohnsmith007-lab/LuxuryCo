@@ -41,23 +41,11 @@ public class OpenRouterProvider : IAiProvider
                 return response;
             }
             apiKey = apiKey.Trim().Trim('"').Trim('\'').Replace("\n","").Replace("\r","");
-            // List of free models to try in order
-            var freeModels = new[]
-            {
-                _config["OpenRouter:Model"] ?? "",
-                "mistralai/mistral-nemo:free",
-                "google/gemma-2-9b-it:free",
-                "deepseek/deepseek-chat-v3-0324:free",
-                "qwen/qwen3-8b:free",
-                "meta-llama/llama-3.2-3b-instruct:free",
-                "mistralai/mistral-7b-instruct:free",
-                "nousresearch/hermes-3-llama-3.1-8b:free",
-                "google/gemma-3-12b-it:free",
-                "qwen/qwen-2.5-7b-instruct:free"
-            };
+            // Dynamically fetch available free models from OpenRouter, then try them in order
+            var freeModels = await GetAvailableFreeModelsAsync(apiKey);
 
             string? lastError = null;
-            foreach (var model in freeModels.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct())
+            foreach (var model in freeModels)
             {
                 var requestBody = new
                 {
@@ -99,17 +87,17 @@ public class OpenRouterProvider : IAiProvider
                     }
                 }
 
-                // 404 = model unavailable, 429 = rate limited — try next model in both cases
                 var statusCode = (int)httpResponse.StatusCode;
                 lastError = $"[{model}] {httpResponse.StatusCode}: {responseString}";
 
-                if (statusCode != 404 && statusCode != 429)
+                // Continue to next model on 400 (invalid), 404 (unavailable), 429 (rate limited)
+                if (statusCode != 400 && statusCode != 404 && statusCode != 429)
                 {
                     _logger.LogWarning("OpenRouter fatal error on model {Model}: {Error}", model, lastError);
                     break;
                 }
 
-                _logger.LogWarning("OpenRouter model {Model} not found, trying next...", model);
+                _logger.LogWarning("OpenRouter model {Model} skipped ({Status}), trying next...", model, statusCode);
                 sw = Stopwatch.StartNew();
             }
 
@@ -129,5 +117,49 @@ public class OpenRouterProvider : IAiProvider
         }
 
         return response;
+    }
+
+    private async Task<IEnumerable<string>> GetAvailableFreeModelsAsync(string apiKey)
+    {
+        // Fallback list in case the API call fails
+        var fallback = new[]
+        {
+            "mistralai/mistral-nemo:free",
+            "deepseek/deepseek-chat-v3-0324:free",
+            "google/gemma-2-9b-it:free",
+            "qwen/qwen3-8b:free",
+            "meta-llama/llama-3.2-3b-instruct:free",
+            "microsoft/phi-3-mini-128k-instruct:free",
+            "mistralai/mistral-7b-instruct:free"
+        };
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://openrouter.ai/api/v1/models");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+            var httpResponse = await _httpClient.SendAsync(request);
+            if (!httpResponse.IsSuccessStatusCode)
+                return fallback;
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var models = doc.RootElement.GetProperty("data");
+
+            var freeModels = models.EnumerateArray()
+                .Select(m => m.TryGetProperty("id", out var idProp) ? idProp.GetString() : null)
+                .Where(id => id != null && id.EndsWith(":free"))
+                .Select(id => id!)
+                .OrderBy(id => id)
+                .ToList();
+
+            _logger.LogInformation("OpenRouter: found {Count} free models available.", freeModels.Count);
+            return freeModels.Count > 0 ? freeModels : fallback;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch OpenRouter model list, using fallback.");
+            return fallback;
+        }
     }
 }

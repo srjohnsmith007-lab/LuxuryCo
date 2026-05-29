@@ -428,9 +428,15 @@ CATÁLOGO:
         var response = await _retryAndFallbackPolicy.ExecuteAsync(() =>
             _groqProvider.GenerateCompletionAsync(systemPrompt, sanitized));
 
+        string geminiError = "";
+
         if (!response.Success)
         {
             response = await _geminiProvider.GenerateCompletionAsync(systemPrompt, sanitized);
+            if (!response.Success)
+            {
+                geminiError = response.ErrorMessage;
+            }
         }
 
         if (!response.Success)
@@ -469,7 +475,7 @@ CATÁLOGO:
         }
         else
         {
-            stylistResult.Reply = $"Lo lamento, no puedo procesar tu recomendación en este momento. Error Técnico (Depuración): {response.ErrorMessage}. Prueba de nuevo.";
+            stylistResult.Reply = $"Lo lamento, no puedo procesar tu recomendación en este momento. Error Técnico: Gemini [{geminiError}] | OpenRouter [{response.ErrorMessage}]. Prueba de nuevo.";
         }
 
         return stylistResult;

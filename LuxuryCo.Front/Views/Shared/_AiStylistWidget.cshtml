@@ -89,15 +89,15 @@
              <!-- Input de archivo oculto (hidden) -->
              <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
 
-             <!-- Fila 1: Acciones rápidas — cada botón ocupa 50% del ancho -->
+             <!-- Fila 1: Acciones rápidas — Grid robusto de 2 columnas -->
              <div class="chat-footer-actions">
-                 <button type="button" id="btn-upload-image" class="chat-action-btn" title="Probador Virtual — sube tu foto">
-                     <i class="fas fa-camera"></i>
-                     <span>Probador Virtual</span>
+                 <button type="button" id="btn-upload-image" class="chat-action-btn" title="Sube un archivo de imagen">
+                     <i class="fas fa-image"></i>
+                     <span>Subir Archivo</span>
                  </button>
-                 <button type="button" id="btn-voice-mic" class="chat-action-btn" title="Hablar con la IA">
+                 <button type="button" id="btn-voice-mic" class="chat-action-btn" title="Consulta usando tu micrófono">
                      <i class="fas fa-microphone" id="mic-icon"></i>
-                     <span>Consulta por Voz</span>
+                     <span>Chat de Voz</span>
                  </button>
              </div>
 
@@ -238,32 +238,34 @@
         flex-shrink: 0;
     }
 
-    /* Fila de acciones rápidas: cada botón ocupa exactamente la mitad */
+    /* Fila de acciones rápidas: Grid exacto de 2 columnas para máxima estabilidad */
     .chat-footer-actions {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 9px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+        width: 100%;
     }
 
     .chat-action-btn {
-        flex: 1 1 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        background: rgba(201,168,76,0.10);
+        gap: 8px;
+        background: rgba(201,168,76,0.12);
         color: #C9A84C;
         border: 1px solid rgba(201,168,76,0.4);
-        border-radius: 22px;
-        padding: 7px 10px;
-        font-size: 0.80rem;
-        font-weight: 500;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        font-weight: 600;
         cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        transition: background 0.2s, transform 0.1s;
-        letter-spacing: 0.2px;
+        transition: all 0.2s ease;
     }
     .chat-action-btn i {
         font-size: 0.85rem;

@@ -27,7 +27,9 @@ public class OpenRouterProvider : IAiProvider
 
         try
         {
-            var apiKey = _config["OpenRouter:ApiKey"] 
+            // Read from config first, then env vars. Skip empty or placeholder values.
+            var configKey = _config["OpenRouter:ApiKey"];
+            var apiKey = (!string.IsNullOrWhiteSpace(configKey) ? configKey : null)
                 ?? _config["openrouter:key"]
                 ?? Environment.GetEnvironmentVariable("openrouter__key") 
                 ?? Environment.GetEnvironmentVariable("open_router_key");

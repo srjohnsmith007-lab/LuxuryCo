@@ -89,17 +89,19 @@
              <!-- Input de archivo oculto -->
              <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
              
-             <!-- Fila 1: Acciones rápidas -->
-             <div class="chat-footer-actions">
+             <!-- Fila 1: Acciones rápidas (Subir Foto & Consulta por Voz) -->
+             <div class="chat-footer-actions" style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap;">
                  <button type="button" id="btn-upload-image" class="chat-action-btn" title="Subir tu foto para el Probador Virtual">
-                     <i class="fas fa-camera"></i> Subir foto
+                     <i class="fas fa-camera"></i> Probador Virtual
                  </button>
-                 <span style="font-size:0.75rem; color:#aaa; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Sube tu foto para el Probador Virtual</span>
+                 <button type="button" id="btn-voice-mic" class="chat-action-btn" title="Hablar con el Asesor de Estilo">
+                     <i class="fas fa-microphone" id="mic-icon"></i> Consulta por voz
+                 </button>
              </div>
              
              <!-- Fila 2: Input de texto -->
              <form id="stylist-form" class="chat-footer-main">
-                 <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul..." autocomplete="off" required>
+                 <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul o consulta..." autocomplete="off" required>
                  <button type="submit" class="btn btn-send"><i class="fas fa-paper-plane"></i></button>
              </form>
          </div>
@@ -1021,7 +1023,11 @@
                     }
                     addMessageToUI(data.reply, 'ai', false);
                     
-                    // --- Text-to-Speech (TTS) Desactivado ---
+                    // --- Text-to-Speech (TTS) ---
+                    if (window.VoiceAssistant) {
+                        const plainText = data.reply.replace(/<[^>]*>?/gm, '').replace(/\*/g, '');
+                        window.VoiceAssistant.speak(plainText);
+                    }
                     
                     // Render product cards if any
                     if (data.cards && data.cards.length > 0) {

@@ -85,21 +85,24 @@
         <div id="stylist-typing" class="typing-indicator d-none p-2 mb-2">
             <div class="typing-line"></div>
         </div>
-         <form id="stylist-form" class="chat-footer d-flex align-items-center gap-2">
+         <div class="chat-footer">
              <!-- Input de archivo oculto -->
              <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
              
-             <!-- Botón Cámara para Probador Virtual -->
-             <button type="button" id="btn-upload-image" title="Subir tu foto para el Probador Virtual"
-                 style="background:rgba(201,168,76,0.2); color:#C9A84C; border:1.5px solid #C9A84C; border-radius:50%; width:38px; height:38px; min-width:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;">
-                 <i class="fas fa-camera" style="font-size:0.95rem;"></i>
-             </button>
-
-             <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul..." autocomplete="off" required>
-             <button type="submit" class="btn btn-send">
-                 <i class="fas fa-paper-plane"></i>
-             </button>
-         </form>
+             <!-- Fila 1: Acciones rápidas -->
+             <div class="chat-footer-actions">
+                 <button type="button" id="btn-upload-image" class="chat-action-btn" title="Subir tu foto para el Probador Virtual">
+                     <i class="fas fa-camera"></i> Subir foto
+                 </button>
+                 <span style="font-size:0.75rem; color:#aaa; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Sube tu foto para el Probador Virtual</span>
+             </div>
+             
+             <!-- Fila 2: Input de texto -->
+             <form id="stylist-form" class="chat-footer-main">
+                 <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul..." autocomplete="off" required>
+                 <button type="submit" class="btn btn-send"><i class="fas fa-paper-plane"></i></button>
+             </form>
+         </div>
     </div>
 </div>
 <script src="~/js/voice_assistant.js"></script>
@@ -140,15 +143,14 @@
     }
 
     .chat-window {
-        width: 360px;
-        height: 500px;
-        /* The Kinetic Monolith: Glassmorphism */
-        background-color: rgba(5, 5, 5, 0.75);
+        width: 420px;
+        height: 590px;
+        background-color: rgba(5, 5, 5, 0.92);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(201, 168, 76, 0.2);
+        border: 1px solid rgba(201, 168, 76, 0.25);
         box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.05) !important;
-        border-radius: 12px;
+        border-radius: 16px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -226,9 +228,49 @@
     }
 
     .chat-footer {
-        padding: 10px;
-        background-color: rgba(15, 15, 15, 0.85);
-        border-top: 1px solid rgba(255,255,255,0.05);
+        padding: 8px 12px 12px;
+        background-color: rgba(10, 10, 10, 0.95);
+        border-top: 1px solid rgba(201,168,76,0.15);
+        flex-shrink: 0;
+    }
+
+    /* Fila superior: botones de acción + input + enviar */
+    .chat-footer-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Fila inferior: acciones rápidas (cámara, etc.) */
+    .chat-footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .chat-action-btn {
+        background: rgba(201,168,76,0.12) !important;
+        color: #C9A84C !important;
+        border: 1px solid rgba(201,168,76,0.45) !important;
+        border-radius: 20px !important;
+        padding: 5px 12px !important;
+        font-size: 0.78rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        transition: background 0.2s !important;
+    }
+    .chat-action-btn:hover {
+        background: rgba(201,168,76,0.28) !important;
+    }
+    .chat-action-btn.active {
+        background: rgba(201,168,76,0.35) !important;
+        border-color: #C9A84C !important;
     }
 
     .chat-footer input {

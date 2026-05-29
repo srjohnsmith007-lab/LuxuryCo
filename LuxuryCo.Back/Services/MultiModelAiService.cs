@@ -27,6 +27,8 @@ public class MultiModelAiService : IAiService
     private readonly IAiProvider _groqProvider;
     private readonly IAiProvider _geminiProvider;
 
+    private readonly IAiProvider _openRouterProvider;
+
     // Resiliency Policies
     private readonly AsyncPolicy _retryAndFallbackPolicy;
 
@@ -39,7 +41,8 @@ public class MultiModelAiService : IAiService
         ConfirmationService confirmationService,
         ToolExecutorService toolExecutor,
         GroqProvider groqProvider,
-        GeminiProvider geminiProvider)
+        GeminiProvider geminiProvider,
+        OpenRouterProvider openRouterProvider)
     {
         _context = context;
         _promptSecurity = promptSecurity;
@@ -50,6 +53,7 @@ public class MultiModelAiService : IAiService
         _toolExecutor = toolExecutor;
         _groqProvider = groqProvider;
         _geminiProvider = geminiProvider;
+        _openRouterProvider = openRouterProvider;
 
         // Polly: Retry up to 2 times, then fallback to Gemini if Groq fails
         _retryAndFallbackPolicy = Policy
@@ -172,6 +176,12 @@ DATOS EN TIEMPO REAL:
             {
                 // Fallback to Gemini
                 response = await _geminiProvider.GenerateCompletionAsync(systemPrompt, sanitized);
+            }
+
+            if (!response.Success)
+            {
+                // Fallback to OpenRouter
+                response = await _openRouterProvider.GenerateCompletionAsync(systemPrompt, sanitized);
             }
         }
         catch (Exception ex)
@@ -421,6 +431,11 @@ CATÁLOGO:
         if (!response.Success)
         {
             response = await _geminiProvider.GenerateCompletionAsync(systemPrompt, sanitized);
+        }
+
+        if (!response.Success)
+        {
+            response = await _openRouterProvider.GenerateCompletionAsync(systemPrompt, sanitized);
         }
 
         if (response.Success)

@@ -86,23 +86,25 @@
             <div class="typing-line"></div>
         </div>
          <div class="chat-footer">
-             <!-- Input de archivo oculto -->
+             <!-- Input de archivo oculto (hidden) -->
              <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
-             
-             <!-- Fila 1: Acciones rápidas (Subir Foto & Consulta por Voz) -->
-             <div class="chat-footer-actions" style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap;">
-                 <button type="button" id="btn-upload-image" class="chat-action-btn" title="Subir tu foto para el Probador Virtual">
-                     <i class="fas fa-camera"></i> Probador Virtual
+
+             <!-- Fila 1: Acciones rápidas — cada botón ocupa 50% del ancho -->
+             <div class="chat-footer-actions">
+                 <button type="button" id="btn-upload-image" class="chat-action-btn" title="Probador Virtual — sube tu foto">
+                     <i class="fas fa-camera"></i>
+                     <span>Probador Virtual</span>
                  </button>
-                 <button type="button" id="btn-voice-mic" class="chat-action-btn" title="Hablar con el Asesor de Estilo">
-                     <i class="fas fa-microphone" id="mic-icon"></i> Consulta por voz
+                 <button type="button" id="btn-voice-mic" class="chat-action-btn" title="Hablar con la IA">
+                     <i class="fas fa-microphone" id="mic-icon"></i>
+                     <span>Consulta por Voz</span>
                  </button>
              </div>
-             
-             <!-- Fila 2: Input de texto -->
+
+             <!-- Fila 2: Input de texto + enviar -->
              <form id="stylist-form" class="chat-footer-main">
-                 <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul o consulta..." autocomplete="off" required>
-                 <button type="submit" class="btn btn-send"><i class="fas fa-paper-plane"></i></button>
+                 <input type="text" id="stylist-input" class="form-control" placeholder="Escribe tu consulta aquí..." autocomplete="off">
+                 <button type="submit" class="btn btn-send" title="Enviar"><i class="fas fa-paper-plane"></i></button>
              </form>
          </div>
     </div>
@@ -145,8 +147,8 @@
     }
 
     .chat-window {
-        width: 480px;
-        height: 700px;
+        width: 560px;
+        height: 640px;
         background-color: rgba(5, 5, 5, 0.92);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -230,49 +232,71 @@
     }
 
     .chat-footer {
-        padding: 8px 12px 12px;
-        background-color: rgba(10, 10, 10, 0.95);
-        border-top: 1px solid rgba(201,168,76,0.15);
+        padding: 10px 14px 14px;
+        background-color: rgba(8, 8, 8, 0.97);
+        border-top: 1px solid rgba(201,168,76,0.18);
         flex-shrink: 0;
     }
 
-    /* Fila superior: botones de acción + input + enviar */
+    /* Fila de acciones rápidas: cada botón ocupa exactamente la mitad */
+    .chat-footer-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 9px;
+    }
+
+    .chat-action-btn {
+        flex: 1 1 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: rgba(201,168,76,0.10);
+        color: #C9A84C;
+        border: 1px solid rgba(201,168,76,0.4);
+        border-radius: 22px;
+        padding: 7px 10px;
+        font-size: 0.80rem;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background 0.2s, transform 0.1s;
+        letter-spacing: 0.2px;
+    }
+    .chat-action-btn i {
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .chat-action-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .chat-action-btn:hover {
+        background: rgba(201,168,76,0.25);
+        transform: translateY(-1px);
+    }
+    .chat-action-btn.active,
+    .chat-action-btn.mic-listening {
+        background: rgba(201,168,76,0.30);
+        border-color: #C9A84C;
+    }
+    .chat-action-btn.mic-listening i {
+        color: #ff4444;
+        animation: micPulse 1s ease-in-out infinite;
+    }
+    @@keyframes micPulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    /* Fila de input: input de texto + botón enviar */
     .chat-footer-main {
         display: flex;
         align-items: center;
         gap: 8px;
-    }
-
-    /* Fila inferior: acciones rápidas (cámara, etc.) */
-    .chat-footer-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-
-    .chat-action-btn {
-        background: rgba(201,168,76,0.12) !important;
-        color: #C9A84C !important;
-        border: 1px solid rgba(201,168,76,0.45) !important;
-        border-radius: 20px !important;
-        padding: 5px 12px !important;
-        font-size: 0.78rem !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        cursor: pointer !important;
-        white-space: nowrap !important;
-        transition: background 0.2s !important;
-    }
-    .chat-action-btn:hover {
-        background: rgba(201,168,76,0.28) !important;
-    }
-    .chat-action-btn.active {
-        background: rgba(201,168,76,0.35) !important;
-        border-color: #C9A84C !important;
     }
 
     .chat-footer input {
@@ -1295,26 +1319,36 @@
         
         if (btnVoiceMic) {
             btnVoiceMic.addEventListener('click', () => {
-                if (window.VoiceAssistant.state === "LISTENING") {
+                if (window.VoiceAssistant && window.VoiceAssistant.state === "LISTENING") {
                     window.VoiceAssistant.stopListening();
-                } else {
+                    btnVoiceMic.classList.remove('mic-listening', 'active');
+                    micIcon.className = "fas fa-microphone";
+                } else if (window.VoiceAssistant) {
                     window.VoiceAssistant.startListening(
                         (text) => {
                             stylistInput.value = text;
                             stylistForm.dispatchEvent(new Event('submit'));
+                            btnVoiceMic.classList.remove('mic-listening', 'active');
+                            micIcon.className = "fas fa-microphone";
                         },
                         (state) => {
                             if (state === "LISTENING") {
-                                micIcon.className = "fas fa-microphone text-danger";
-                                btnVoiceMic.style.transform = "scale(1.15)";
+                                micIcon.className = "fas fa-microphone";
+                                btnVoiceMic.classList.add('mic-listening');
+                                btnVoiceMic.classList.remove('active');
                             } else if (state === "PROCESSING") {
-                                micIcon.className = "fas fa-circle-notch fa-spin text-warning";
+                                micIcon.className = "fas fa-circle-notch fa-spin";
+                                btnVoiceMic.classList.remove('mic-listening');
+                                btnVoiceMic.classList.add('active');
                             } else {
                                 micIcon.className = "fas fa-microphone";
-                                btnVoiceMic.style.transform = "scale(1)";
+                                btnVoiceMic.classList.remove('mic-listening', 'active');
                             }
                         }
                     );
+                } else {
+                    // VoiceAssistant no disponible — mostrar mensaje amigable
+                    addMessageToUI('⚠️ El asistente de voz no está disponible en este momento. Escribe tu consulta directamente.', 'ai', false);
                 }
             });
         }

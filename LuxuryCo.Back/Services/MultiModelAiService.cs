@@ -469,7 +469,7 @@ CATÁLOGO:
         }
         else
         {
-            stylistResult.Reply = "Lo lamento, no puedo procesar tu recomendación en este momento. Prueba de nuevo.";
+            stylistResult.Reply = $"Lo lamento, no puedo procesar tu recomendación en este momento. Error Técnico (Depuración): {response.ErrorMessage}. Prueba de nuevo.";
         }
 
         return stylistResult;

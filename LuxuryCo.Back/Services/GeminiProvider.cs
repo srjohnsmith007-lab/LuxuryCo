@@ -20,7 +20,7 @@ public class GeminiProvider : IAiProvider
     {
         _httpClient = httpClient;
         _apiKey = config["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("gemini__key") ?? string.Empty;
-        _model = config["Gemini:Model"] ?? "gemini-1.5-flash";
+        _model = config["Gemini:Model"] ?? "gemini-2.0-flash";
     }
 
     public async Task<ProviderResponse> GenerateCompletionAsync(string systemPrompt, string userPrompt, double temperature = 0.7)

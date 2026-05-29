@@ -41,56 +41,78 @@ public class OpenRouterProvider : IAiProvider
                 return response;
             }
             apiKey = apiKey.Trim().Trim('"').Trim('\'').Replace("\n","").Replace("\r","");
-            var model = _config["OpenRouter:Model"] ?? "meta-llama/llama-3.1-8b-instruct:free";
-
-            var requestBody = new
+            // List of free models to try in order
+            var freeModels = new[]
             {
-                model = model,
-                temperature = temperature,
-                messages = new[]
-                {
-                    new { role = "system", content = systemPrompt },
-                    new { role = "user", content = userPrompt }
-                }
+                _config["OpenRouter:Model"] ?? "",
+                "mistralai/mistral-7b-instruct:free",
+                "qwen/qwen-2.5-7b-instruct:free",
+                "meta-llama/llama-3.2-3b-instruct:free",
+                "nousresearch/hermes-3-llama-3.1-8b:free",
+                "google/gemma-3-12b-it:free"
             };
 
-            var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            request.Headers.Add("HTTP-Referer", "https://luxuryco.com"); // Reemplazar con dominio real
-            request.Headers.Add("X-Title", "LuxuryCo AI");
-            request.Content = jsonContent;
-
-            var httpResponse = await _httpClient.SendAsync(request);
-            var responseString = await httpResponse.Content.ReadAsStringAsync();
-
-            sw.Stop();
-            response.LatencyMs = sw.ElapsedMilliseconds;
-
-            if (httpResponse.IsSuccessStatusCode)
+            string? lastError = null;
+            foreach (var model in freeModels.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct())
             {
-                using var document = JsonDocument.Parse(responseString);
-                var root = document.RootElement;
-                
-                var choices = root.GetProperty("choices");
-                if (choices.GetArrayLength() > 0)
+                var requestBody = new
                 {
-                    var message = choices[0].GetProperty("message");
-                    response.Reply = message.GetProperty("content").GetString() ?? "";
-                    response.Success = true;
-                }
-                else
+                    model = model,
+                    temperature = temperature,
+                    messages = new[]
+                    {
+                        new { role = "system", content = systemPrompt },
+                        new { role = "user", content = userPrompt }
+                    }
+                };
+
+                var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                request.Headers.Add("HTTP-Referer", "https://luxuryco.com");
+                request.Headers.Add("X-Title", "LuxuryCo AI");
+                request.Content = jsonContent;
+
+                var httpResponse = await _httpClient.SendAsync(request);
+                var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+                sw.Stop();
+                response.LatencyMs = sw.ElapsedMilliseconds;
+
+                if (httpResponse.IsSuccessStatusCode)
                 {
-                    response.Success = false;
-                    response.ErrorMessage = "No choices returned by OpenRouter API.";
+                    using var document = JsonDocument.Parse(responseString);
+                    var root = document.RootElement;
+
+                    var choices = root.GetProperty("choices");
+                    if (choices.GetArrayLength() > 0)
+                    {
+                        var msg = choices[0].GetProperty("message");
+                        response.Reply = msg.GetProperty("content").GetString() ?? "";
+                        response.Success = true;
+                        break; // Exit loop on success
+                    }
                 }
+
+                // 404 = model unavailable, try next. Anything else = real error, stop.
+                var statusCode = (int)httpResponse.StatusCode;
+                lastError = $"[{model}] {httpResponse.StatusCode}: {responseString}";
+
+                if (statusCode != 404)
+                {
+                    _logger.LogWarning("OpenRouter non-404 error on model {Model}: {Error}", model, lastError);
+                    break;
+                }
+
+                _logger.LogWarning("OpenRouter model {Model} not found, trying next...", model);
+                sw = Stopwatch.StartNew();
             }
-            else
+
+            if (!response.Success)
             {
-                response.Success = false;
-                response.ErrorMessage = $"OpenRouter API Error: {httpResponse.StatusCode} - {responseString} [key_prefix={apiKey.Substring(0, Math.Min(10, apiKey.Length))}...]";
-                _logger.LogWarning("OpenRouter failed: {Error}", response.ErrorMessage);
+                response.ErrorMessage = $"All OpenRouter models failed. Last error: {lastError}";
+                _logger.LogWarning("All OpenRouter models failed: {Error}", response.ErrorMessage);
             }
         }
         catch (Exception ex)

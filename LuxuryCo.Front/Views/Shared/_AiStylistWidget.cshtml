@@ -85,17 +85,17 @@
         <div id="stylist-typing" class="typing-indicator d-none p-2 mb-2">
             <div class="typing-line"></div>
         </div>
-
          <form id="stylist-form" class="chat-footer d-flex align-items-center gap-2">
              <!-- Input de archivo oculto -->
-             <input type="file" id="stylist-file-upload" accept="image/*" class="d-none">
+             <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
              
-             <!-- Botón para subir imagen -->
-             <button type="button" class="btn btn-secondary rounded-circle" id="btn-upload-image" title="Subir foto para Probador Virtual">
-                 <i class="fas fa-camera"></i>
+             <!-- Botón Cámara para Probador Virtual -->
+             <button type="button" id="btn-upload-image" title="Subir tu foto para el Probador Virtual"
+                 style="background:rgba(201,168,76,0.2); color:#C9A84C; border:1.5px solid #C9A84C; border-radius:50%; width:38px; height:38px; min-width:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;">
+                 <i class="fas fa-camera" style="font-size:0.95rem;"></i>
              </button>
 
-             <input type="text" id="stylist-input" class="form-control" placeholder="Ej: Camisas de lino oscuro..." autocomplete="off" required>
+             <input type="text" id="stylist-input" class="form-control" placeholder="Ej: ponme una camisa azul..." autocomplete="off" required>
              <button type="submit" class="btn btn-send">
                  <i class="fas fa-paper-plane"></i>
              </button>

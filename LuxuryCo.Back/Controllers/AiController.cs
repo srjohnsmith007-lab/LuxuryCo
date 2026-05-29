@@ -60,7 +60,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error interno de la IA", details = ex.Message });
+            return StatusCode(500, new { message = "Error interno de la IA", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 
@@ -90,7 +90,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error interno de la IA", details = ex.Message });
+            return StatusCode(500, new { message = "Error interno de la IA", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 
@@ -116,7 +116,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error al transcribir el audio", details = ex.Message });
+            return StatusCode(500, new { message = "Error al transcribir el audio", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 
@@ -157,7 +157,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error al procesar la aprobación", details = ex.Message });
+            return StatusCode(500, new { message = "Error al procesar la aprobación", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 
@@ -185,7 +185,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error al generar imagen de lujo.", details = ex.Message });
+            return StatusCode(500, new { message = "Error al generar imagen de lujo.", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 
@@ -241,7 +241,7 @@ public class AiController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error en el probador virtual.", details = ex.Message });
+            return StatusCode(500, new { message = "Error en el probador virtual.", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
 }

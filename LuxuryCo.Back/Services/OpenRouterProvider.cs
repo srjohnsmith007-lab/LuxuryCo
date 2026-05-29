@@ -28,14 +28,15 @@ public class OpenRouterProvider : IAiProvider
         try
         {
             var apiKey = _config["OpenRouter:ApiKey"] ?? Environment.GetEnvironmentVariable("open_router_key");
-            var model = _config["OpenRouter:Model"] ?? "google/gemini-2.0-flash-exp:free";
-
-            if (string.IsNullOrEmpty(apiKey))
+            
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 response.Success = false;
                 response.ErrorMessage = "OpenRouter API Key not configured.";
                 return response;
             }
+            apiKey = apiKey.Trim();
+            var model = _config["OpenRouter:Model"] ?? "google/gemini-2.0-flash-exp:free";
 
             var requestBody = new
             {
@@ -51,7 +52,7 @@ public class OpenRouterProvider : IAiProvider
             var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {apiKey}");
             request.Headers.Add("HTTP-Referer", "https://luxuryco.com"); // Reemplazar con dominio real
             request.Headers.Add("X-Title", "LuxuryCo AI");
             request.Content = jsonContent;

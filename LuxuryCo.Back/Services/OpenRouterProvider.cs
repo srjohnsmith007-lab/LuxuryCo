@@ -41,7 +41,7 @@ public class OpenRouterProvider : IAiProvider
                 return response;
             }
             apiKey = apiKey.Trim().Trim('"').Trim('\'').Replace("\n","").Replace("\r","");
-            var model = _config["OpenRouter:Model"] ?? "google/gemini-2.0-flash-exp:free";
+            var model = _config["OpenRouter:Model"] ?? "meta-llama/llama-3.1-8b-instruct:free";
 
             var requestBody = new
             {

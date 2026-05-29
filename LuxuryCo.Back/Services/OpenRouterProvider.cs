@@ -45,11 +45,15 @@ public class OpenRouterProvider : IAiProvider
             var freeModels = new[]
             {
                 _config["OpenRouter:Model"] ?? "",
-                "mistralai/mistral-7b-instruct:free",
-                "qwen/qwen-2.5-7b-instruct:free",
+                "mistralai/mistral-nemo:free",
+                "google/gemma-2-9b-it:free",
+                "deepseek/deepseek-chat-v3-0324:free",
+                "qwen/qwen3-8b:free",
                 "meta-llama/llama-3.2-3b-instruct:free",
+                "mistralai/mistral-7b-instruct:free",
                 "nousresearch/hermes-3-llama-3.1-8b:free",
-                "google/gemma-3-12b-it:free"
+                "google/gemma-3-12b-it:free",
+                "qwen/qwen-2.5-7b-instruct:free"
             };
 
             string? lastError = null;
@@ -95,13 +99,13 @@ public class OpenRouterProvider : IAiProvider
                     }
                 }
 
-                // 404 = model unavailable, try next. Anything else = real error, stop.
+                // 404 = model unavailable, 429 = rate limited — try next model in both cases
                 var statusCode = (int)httpResponse.StatusCode;
                 lastError = $"[{model}] {httpResponse.StatusCode}: {responseString}";
 
-                if (statusCode != 404)
+                if (statusCode != 404 && statusCode != 429)
                 {
-                    _logger.LogWarning("OpenRouter non-404 error on model {Model}: {Error}", model, lastError);
+                    _logger.LogWarning("OpenRouter fatal error on model {Model}: {Error}", model, lastError);
                     break;
                 }
 

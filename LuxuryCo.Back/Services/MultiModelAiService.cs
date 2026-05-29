@@ -475,7 +475,7 @@ CATÁLOGO:
         }
         else
         {
-            stylistResult.Reply = $"Lo lamento, no puedo procesar tu recomendación en este momento. Error Técnico: Gemini [{geminiError}] | OpenRouter [{response.ErrorMessage}]. Prueba de nuevo.";
+            stylistResult.Reply = "Lo lamento, no puedo procesar tu recomendación en este momento. Por favor, intenta de nuevo más tarde.";
         }
 
         return stylistResult;

@@ -18,7 +18,7 @@ public class StabilityProvider : IImageProvider
     public StabilityProvider(HttpClient httpClient, IConfiguration config)
     {
         _httpClient = httpClient;
-        _apiKey = config["Stability:ApiKey"] ?? string.Empty;
+        _apiKey = config["Stability:ApiKey"] ?? Environment.GetEnvironmentVariable("stability__key") ?? string.Empty;
     }
 
     public async Task<ImageGenerationProviderResponse> GenerateImageAsync(string optimizedPrompt, string negativePrompt, int seed)

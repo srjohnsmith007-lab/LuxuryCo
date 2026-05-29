@@ -35,7 +35,7 @@ public class GeminiImageProvider : IImageProvider
         _config = config;
         _logger = logger;
 
-        _apiKey = config["Gemini:ApiKey"] ?? string.Empty;
+        _apiKey = config["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("gemini__key") ?? string.Empty;
         // Modelo de generación de imágenes de Gemini
         _model = config["Gemini:ImageModel"] ?? "imagen-3.0-generate-002";
         _uploadDir = config["Storage:LocalPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "generated");

@@ -19,7 +19,7 @@ public class GeminiProvider : IAiProvider
     public GeminiProvider(HttpClient httpClient, IConfiguration config)
     {
         _httpClient = httpClient;
-        _apiKey = config["Gemini:ApiKey"] ?? string.Empty;
+        _apiKey = config["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("gemini__key") ?? string.Empty;
         _model = config["Gemini:Model"] ?? "gemini-1.5-flash";
     }
 

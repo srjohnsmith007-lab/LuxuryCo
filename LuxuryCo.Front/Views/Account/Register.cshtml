@@ -46,9 +46,9 @@
 
             <div class="mb-3 position-relative">
                 <label class="auth-label">Teléfono</label>
-                <input id="telefonoInput" name="Telefono" type="tel" class="auth-input" placeholder="Ej: +573000000000"
-                       pattern="^\+?\d{10,15}$" required />
-                <div id="telefonoError" class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un número válido sin espacios (10–15 dígitos, puedes incluir "+" al inicio).</div>
+                <input id="telefonoInput" name="Telefono" type="tel" class="auth-input" placeholder="Ej: 3000000000"
+                       pattern="^\d{10,15}$" required />
+                <div id="telefonoError" class="invalid-feedback" style="font-size: 0.75rem;">Ingresa solo dígitos sin espacios ni símbolos (mínimo 10 dígitos).</div>
             </div>
 
             <div class="mb-3 position-relative">
@@ -133,10 +133,11 @@
 
         /* ---- Helpers de teléfono ---- */
         function validateTelefono(value) {
-            if (value.length === 0) return 'El teléfono es obligatorio.';
-            if (/\s/.test(value))   return 'El teléfono no puede contener espacios. Escríbelo sin espacios.';
-            if (!/^\+?\d{10,15}$/.test(value))
-                return 'Ingresa un número válido sin espacios (10–15 dígitos, puedes incluir "+" al inicio).';
+            if (value.length === 0)    return 'El teléfono es obligatorio.';
+            if (/\s/.test(value))      return 'El teléfono no puede contener espacios.';
+            if (/[^\d]/.test(value))   return 'El teléfono solo puede contener números, sin símbolos ni letras.';
+            if (value.length < 10)     return 'El teléfono debe tener al menos 10 dígitos.';
+            if (value.length > 15)     return 'El teléfono no puede tener más de 15 dígitos.';
             return null;
         }
 

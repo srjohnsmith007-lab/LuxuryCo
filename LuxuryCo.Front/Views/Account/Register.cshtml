@@ -24,13 +24,13 @@
                     <label class="auth-label">Nombre</label>
                     <input name="Nombre" type="text" class="auth-input" placeholder="Carlos" 
                            pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
-                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un nombre válido.</div>
+                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un nombre válido (solo letras, sin símbolos ni caracteres como &amp; &lt; &gt;).</div>
                 </div>
                 <div class="col-6 position-relative">
                     <label class="auth-label">Apellido</label>
                     <input name="Apellido" type="text" class="auth-input" placeholder="García" 
                            pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
-                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un apellido válido.</div>
+                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un apellido válido (solo letras, sin símbolos ni caracteres como &amp; &lt; &gt;).</div>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@
                 <label class="auth-label">Correo Electrónico</label>
                 <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" 
                        pattern="^[a-zA-Z0-9._%+\-]+@@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required />
-                <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un correo sin espacios y con dominio válido (ej: usuario@gmail.com).</div>
+                <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un correo válido sin espacios ni caracteres peligrosos (ej: usuario@gmail.com).</div>
                 <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px;">
                     * Por favor usa un correo real, necesitará ser verificado.
                 </small>
@@ -146,6 +146,18 @@
             // Limpiar espacios en email y texto plano automáticamente
             if (input.type === 'email' || input.type === 'text') {
                 input.value = input.value.trim();
+            }
+
+            // Bloquear caracteres peligrosos en campos de texto y email
+            if (input.type === 'text' || input.type === 'email') {
+                if (DANGEROUS_CHARS.test(input.value)) {
+                    input.setCustomValidity('No se permiten caracteres peligrosos como: & < > / " \' ` \\');
+                } else {
+                    // Limpiar solo si no hay otro error custom ya puesto
+                    if (input.validationMessage.startsWith('No se permiten')) {
+                        input.setCustomValidity('');
+                    }
+                }
             }
 
             // Contraseña — validación custom

@@ -45,7 +45,11 @@ public class AiActionLog
     
     public bool Success { get; set; }
     
-    public string ErrorMessage { get; set; } = string.Empty;
+    public string? ErrorMessage { get; set; }
+    
+    // Enterprise Telemetry
+    [MaxLength(100)]
+    public string? TraceId { get; set; }
 
     [ForeignKey("UserId")]
     public Usuario? Usuario { get; set; }

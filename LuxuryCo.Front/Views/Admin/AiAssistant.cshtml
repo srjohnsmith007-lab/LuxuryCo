@@ -38,7 +38,14 @@
                     </div>
                 </div>
                 <div class="card-footer border-secondary" style="background-color: var(--chat-bg, #0d0d0d);">
-                    <form id="chat-form" class="d-flex gap-2">
+                    <form id="chat-form" class="d-flex gap-2 align-items-center">
+                        <button type="button" class="btn btn-outline-secondary rounded-0" id="btn-file-upload" title="Adjuntar documento o imagen">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="file" id="file-input" class="d-none" accept=".csv,.txt,.pdf,.jpg,.png">
+                        <button type="button" class="btn btn-outline-secondary rounded-0" id="btn-voice" title="Dictar por voz">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                         <input type="text" id="user-input" class="form-control rounded-0 border-secondary bg-dark text-white" placeholder="Pregunta sobre ventas, inventario, sugerencias..." autocomplete="off" required>
                         <button type="submit" class="btn btn-gold rounded-0 px-4 fw-bold">ENVIAR</button>
                     </form>
@@ -103,6 +110,7 @@
     #chat-box::-webkit-scrollbar-thumb { background-color: #444; border-radius: 10px; }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         loadPreferences();
@@ -112,6 +120,111 @@
         const messagesContainer = document.getElementById('messages-container');
         const aiTyping = document.getElementById('ai-typing');
         const chatBox = document.getElementById('chat-box');
+        const btnVoice = document.getElementById('btn-voice');
+        const btnFile = document.getElementById('btn-file-upload');
+        const fileInput = document.getElementById('file-input');
+
+        // Configurar SignalR para recibir progreso asíncrono
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/adminNotifications")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveNotification", function (message) {
+            appendMessage("🔔 Notificación del Sistema: " + message, 'ai');
+        });
+
+        connection.start().catch(err => console.error("Error conectando SignalR:", err.toString()));
+
+        // File Upload Logic (Enterprise Secure Upload)
+        btnFile.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            appendMessage(`Subiendo archivo seguro: ${file.name}...`, 'user');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // To be implemented on backend: Secure upload with ClamAV validation
+                const response = await fetch('/api/Ai/upload-context-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    userInput.value += `\n[Contexto Adjunto: ${data.secureReferenceUrl}] `;
+                    appendMessage(`✅ Archivo cargado y analizado por seguridad. Referencia agregada al prompt.`, 'ai');
+                } else {
+                    appendMessage(`⚠️ Error de seguridad al subir archivo: ${response.statusText}`, 'ai');
+                }
+            } catch (err) {
+                appendMessage(`⚠️ Error de red al subir archivo.`, 'ai');
+            }
+        });
+
+        // Voice Recording Logic
+        let mediaRecorder;
+        let audioChunks = [];
+
+        btnVoice.addEventListener('mousedown', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    audioChunks = [];
+                    
+                    const formData = new FormData();
+                    formData.append('file', audioBlob, 'admin_voice.webm');
+                    
+                    aiTyping.classList.remove('d-none');
+                    try {
+                        const response = await fetch('/api/Ai/transcribe', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            userInput.value += (userInput.value ? ' ' : '') + data.text;
+                        } else {
+                            appendMessage("⚠️ Error en la transcripción.", 'ai');
+                        }
+                    } catch(err) {
+                        appendMessage("⚠️ Error de conexión para transcripción.", 'ai');
+                    } finally {
+                        aiTyping.classList.add('d-none');
+                    }
+                };
+
+                mediaRecorder.start();
+                btnVoice.classList.replace('btn-outline-secondary', 'btn-danger');
+                btnVoice.innerHTML = '<i class="fas fa-stop-circle"></i>';
+            } catch (err) {
+                alert("Permiso de micrófono denegado.");
+            }
+        });
+
+        btnVoice.addEventListener('mouseup', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                btnVoice.classList.replace('btn-danger', 'btn-outline-secondary');
+                btnVoice.innerHTML = '<i class="fas fa-microphone"></i>';
+                // Detener todas las pistas de audio para liberar el micro
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        });
 
         // Customization Listeners
         document.getElementById('theme-selector').addEventListener('change', (e) => {

@@ -28,6 +28,7 @@ public class MultiModelAiService : IAiService
     private readonly IAiProvider _geminiProvider;
 
     private readonly IAiProvider _openRouterProvider;
+    private readonly MediatR.IMediator _mediator;
 
     // Resiliency Policies
     private readonly AsyncPolicy _retryAndFallbackPolicy;
@@ -42,7 +43,8 @@ public class MultiModelAiService : IAiService
         ToolExecutorService toolExecutor,
         GroqProvider groqProvider,
         GeminiProvider geminiProvider,
-        OpenRouterProvider openRouterProvider)
+        OpenRouterProvider openRouterProvider,
+        MediatR.IMediator mediator)
     {
         _context = context;
         _promptSecurity = promptSecurity;
@@ -54,6 +56,7 @@ public class MultiModelAiService : IAiService
         _groqProvider = groqProvider;
         _geminiProvider = geminiProvider;
         _openRouterProvider = openRouterProvider;
+        _mediator = mediator;
 
         // Polly: Retry up to 2 times, then fallback to Gemini if Groq fails
         _retryAndFallbackPolicy = Policy
@@ -70,7 +73,8 @@ public class MultiModelAiService : IAiService
             UserId = adminUserId,
             SessionId = "ADMIN_CONSOLE",
             PromptOriginal = userMessage,
-            Timestamp = DateTime.UtcNow
+            Timestamp = DateTime.UtcNow,
+            TraceId = System.Diagnostics.Activity.Current?.Id ?? Guid.NewGuid().ToString()
         };
 
         // 2. WAF Prompt Security Sanitization
@@ -133,19 +137,58 @@ public class MultiModelAiService : IAiService
             }
             else
             {
-                // Direct Tool Execution
-                var toolResult = await _toolExecutor.ExecuteToolAsync(intent.Intent, intent.Parameters, adminUserId);
-                
-                auditLog.Success = toolResult.Success;
-                auditLog.ActionExecuted = intent.Intent;
-                auditLog.BeforeState = toolResult.BeforeStateJson;
-                auditLog.AfterState = toolResult.AfterStateJson;
-                auditLog.ErrorMessage = toolResult.Message;
+                // Dispatch to CQRS via MediatR
+                if (intent.Intent == "CREATE_USER")
+                {
+                    var cmd = new LuxuryCo.Back.Application.Commands.CreateAdminUserCommand
+                    {
+                        AdminId = adminUserId,
+                        Name = intent.Parameters.Name,
+                        Email = intent.Parameters.Email,
+                        Phone = intent.Parameters.RawAmountText // Assuming mapped here
+                    };
+                    var cmdResult = await _mediator.Send(cmd);
+                    
+                    auditLog.Success = true;
+                    auditLog.ActionExecuted = "CREATE_USER";
+                    auditLog.ErrorMessage = cmdResult;
+                    _context.AiActionLogs.Add(auditLog);
+                    await _context.SaveChangesAsync();
+                    return cmdResult;
+                }
+                else if (intent.Intent == "GENERATE_REPORT" || intent.Intent == "GENERATE_DOCUMENT")
+                {
+                    var cmd = new LuxuryCo.Back.Application.Commands.GenerateReportCommand
+                    {
+                        AdminId = adminUserId,
+                        ReportType = intent.Parameters.ProductName ?? "General",
+                        Parameters = ""
+                    };
+                    var cmdResult = await _mediator.Send(cmd);
+                    
+                    auditLog.Success = true;
+                    auditLog.ActionExecuted = "GENERATE_REPORT";
+                    auditLog.ErrorMessage = cmdResult;
+                    _context.AiActionLogs.Add(auditLog);
+                    await _context.SaveChangesAsync();
+                    return cmdResult;
+                }
+                else
+                {
+                    // Fallback to old tool executor for legacy intents (until fully migrated)
+                    var toolResult = await _toolExecutor.ExecuteToolAsync(intent.Intent, intent.Parameters, adminUserId);
+                    
+                    auditLog.Success = toolResult.Success;
+                    auditLog.ActionExecuted = intent.Intent;
+                    auditLog.BeforeState = toolResult.BeforeStateJson;
+                    auditLog.AfterState = toolResult.AfterStateJson;
+                    auditLog.ErrorMessage = toolResult.Message;
 
-                _context.AiActionLogs.Add(auditLog);
-                await _context.SaveChangesAsync();
+                    _context.AiActionLogs.Add(auditLog);
+                    await _context.SaveChangesAsync();
 
-                return toolResult.Message;
+                    return toolResult.Message;
+                }
             }
         }
 

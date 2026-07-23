@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LuxuryCo.Database.Models;
 
-public class Usuario
+public class Usuario : IMultiTenantEntity
 {
     [Key]
     public int id_usuario { get; set; }
+    
+    public Guid TenantId { get; set; } = Guid.Empty; // Default to Empty for backward compatibility during migration
     [Required]
     [MaxLength(100)]
     public string nombre { get; set; }

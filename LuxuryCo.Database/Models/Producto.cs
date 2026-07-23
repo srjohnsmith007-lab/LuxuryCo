@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LuxuryCo.Database.Models;
 
-public class Producto
+public class Producto : IMultiTenantEntity
 {
     [Key]
     public int id_producto { get; set; }
+
+    public Guid TenantId { get; set; } = Guid.Empty;
     [Required]
     [MaxLength(150)]
     public string nombre { get; set; }

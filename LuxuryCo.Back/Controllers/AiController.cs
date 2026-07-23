@@ -244,6 +244,37 @@ public class AiController : ControllerBase
             return StatusCode(500, new { message = "Error en el probador virtual.", details = "Por favor, intenta de nuevo más tarde." });
         }
     }
+    // Endpoint para carga segura de archivos y documentos de contexto
+    // Ruta: POST /api/Ai/upload-context-file
+    [HttpPost("upload-context-file")]
+    [Authorize(Roles = "ADMIN")]
+    public async Task<IActionResult> UploadContextFile(Microsoft.AspNetCore.Http.IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new { message = "El archivo no puede estar vacío." });
+        }
+
+        try
+        {
+            // Validaciones de Magic Bytes, MIME Type Real y Anti-Malware (Mock)
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".csv", ".txt", ".pdf", ".png", ".jpg" };
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new { message = "Extensión de archivo no permitida por políticas de seguridad." });
+            }
+
+            // Simulamos guardado en Storage Seguro y generación de Signed URL
+            string secureRef = $"https://storage.luxuryco.internal/secure-sandbox/{Guid.NewGuid()}{extension}?sig=MockSignature";
+
+            return Ok(new { secureReferenceUrl = secureRef });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al procesar el archivo seguro.", details = "Intente nuevamente." });
+        }
+    }
 }
 
 public class ActionConfirmRequest

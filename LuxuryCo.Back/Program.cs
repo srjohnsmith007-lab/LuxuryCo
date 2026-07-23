@@ -3,6 +3,9 @@ using LuxuryCo.Database.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MassTransit;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 // Enable Legacy Timestamp Behavior to prevent DateTime Kind errors when saving to PostgreSQL
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -11,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAuthService, LuxuryCo.Back.Services.AuthService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IProductoService, LuxuryCo.Back.Services.ProductoService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IUsuarioService, LuxuryCo.Back.Services.UsuarioService>();
@@ -55,6 +59,43 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.DocumentGenerationService>();
 
 // Core Orchestrator
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();
+
+// Enterprise Architecture Configurations
+builder.Services.AddScoped<LuxuryCo.Back.Services.ITenantProvider, LuxuryCo.Back.Services.TenantProvider>();
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+// StackExchange.Redis
+var redisConn = builder.Configuration.GetConnectionString("RedisConnection") ?? "localhost:6379";
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConn;
+});
+
+// MassTransit (Message Broker)
+builder.Services.AddMassTransit(x =>
+{
+    // Add consumers here when created
+    // x.AddConsumer<ReportGeneratedConsumer>();
+
+    // Usamos InMemory para que funcione perfectamente en la web (Render) sin tener que pagar un servidor externo de RabbitMQ.
+    // Todos los mensajes se encolan en la memoria RAM del servidor de Render.
+    x.UsingInMemory((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
+// Hangfire (PostgreSQL)
+var dbConn = builder.Configuration.GetConnectionString("LuxuryCoDbConnection") ?? throw new InvalidOperationException("DB connection string not found.");
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(Hangfire.CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(dbConn)));
+
+builder.Services.AddHangfireServer();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache();
@@ -145,7 +186,34 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Security: Content Security Policy (CSP)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' ws: wss: https:;");
+    await next();
+});
+
+// Setup Hangfire Dashboard (restrict to Admins later)
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    // Authorization = new[] { new HangfireAuthorizationFilter() } // To be implemented
+});
+
 app.MapControllers();
+app.MapHub<LuxuryCo.Back.Hubs.AdminNotificationHub>("/hubs/adminNotifications");
+
+// Configurar Tareas Recurrentes de Fondo (Hangfire)
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<Hangfire.IRecurringJobManager>();
+    
+    // GDPR Cleanup Job: Se ejecuta todos los domingos a la medianoche
+    recurringJobManager.AddOrUpdate<LuxuryCo.Back.Services.GdprCleanupJob>(
+        "gdpr-cleanup",
+        job => job.ProcessDataRetentionPoliciesAsync(),
+        Hangfire.Cron.Weekly(System.DayOfWeek.Sunday)
+    );
+}
 
 // Seed Data para Administrador y Patches de DB procesado en Background para evitar bloquear Kestrel y el Puerto 7066
 _ = Task.Run(async () =>
@@ -180,8 +248,11 @@ _ = Task.Run(async () =>
                         ""IpAddress"" VARCHAR(45) NOT NULL DEFAULT '',
                         ""Success"" BOOLEAN NOT NULL,
                         ""ErrorMessage"" TEXT NOT NULL DEFAULT '',
+                        ""TraceId"" VARCHAR(100) NULL,
                         CONSTRAINT fk_ai_action_log_usuario FOREIGN KEY (""UserId"") REFERENCES usuario(id_usuario) ON DELETE SET NULL
                     );
+                    ALTER TABLE ai_action_log ADD COLUMN IF NOT EXISTS ""TraceId"" VARCHAR(100) NULL;
+                    
                     CREATE TABLE IF NOT EXISTS ai_image_generation (
                         ""Id"" SERIAL PRIMARY KEY,
                         ""UserId"" INTEGER NULL,

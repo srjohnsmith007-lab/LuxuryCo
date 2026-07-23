@@ -10,6 +10,7 @@ public class Producto : IMultiTenantEntity
     [Key]
     public int id_producto { get; set; }
 
+    [NotMapped] // TenantId existe en el modelo para compatibilidad Enterprise pero no en la DB actual
     public Guid TenantId { get; set; } = Guid.Empty;
     [Required]
     [MaxLength(150)]

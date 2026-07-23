@@ -10,7 +10,8 @@ public class Usuario : IMultiTenantEntity
     [Key]
     public int id_usuario { get; set; }
     
-    public Guid TenantId { get; set; } = Guid.Empty; // Default to Empty for backward compatibility during migration
+    [NotMapped] // TenantId existe en el modelo para compatibilidad Enterprise pero no en la DB actual
+    public Guid TenantId { get; set; } = Guid.Empty;
     [Required]
     [MaxLength(100)]
     public string nombre { get; set; }

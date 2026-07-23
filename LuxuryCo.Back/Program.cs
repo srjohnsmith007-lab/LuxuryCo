@@ -282,6 +282,12 @@ _ = Task.Run(async () =>
             try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE detalle_carrito ADD COLUMN IF NOT EXISTS talla character varying(10) NULL;"); } catch {}
             try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE \"DetallesCarrito\" ADD COLUMN IF NOT EXISTS talla character varying(10) NULL;"); } catch {}
 
+            // Multi-Tenant: Agregar TenantId a todas las tablas que lo requieren
+            // Esto soluciona el error "column u.TenantId does not exist"
+            try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE usuario ADD COLUMN IF NOT EXISTS \"TenantId\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';"); } catch (Exception ex) { Console.WriteLine("Patch TenantId usuario: " + ex.Message); }
+            try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE producto ADD COLUMN IF NOT EXISTS \"TenantId\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';"); } catch {}
+            try { await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(context.Database, "ALTER TABLE pedido ADD COLUMN IF NOT EXISTS \"TenantId\" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';"); } catch {}
+
             // Asegurar que existe el rol ADMIN
             var adminRole = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(context.Roles, r => r.nombre_rol == "ADMIN");
             if (adminRole == null)

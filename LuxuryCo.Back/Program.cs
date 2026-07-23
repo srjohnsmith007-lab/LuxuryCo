@@ -66,36 +66,30 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.ITenantProvider, LuxuryCo.Back
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
-// StackExchange.Redis
-var redisConn = builder.Configuration.GetConnectionString("RedisConnection") ?? "localhost:6379";
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = redisConn;
-});
+// Distributed Cache: Usa MemoryCache en entornos ligeros (Render Free Tier) para evitar
+// dependencia externa de Redis. En producción enterprise, cambiar a AddStackExchangeRedisCache.
+builder.Services.AddDistributedMemoryCache();
 
-// MassTransit (Message Broker)
-builder.Services.AddMassTransit(x =>
-{
-    // Add consumers here when created
-    // x.AddConsumer<ReportGeneratedConsumer>();
+// MassTransit: Desactivado temporalmente en Render Free Tier por límites de RAM.
+// El código de Domain Events y Consumers permanece en el proyecto listo para activarse
+// en un entorno con más recursos (ej. Render Pro, Azure, AWS).
+// Para activar: descomentar y agregar el paquete MassTransit.InMemory.
 
-    // Usamos InMemory para que funcione perfectamente en la web (Render) sin tener que pagar un servidor externo de RabbitMQ.
-    // Todos los mensajes se encolan en la memoria RAM del servidor de Render.
-    x.UsingInMemory((context, cfg) =>
-    {
-        cfg.ConfigureEndpoints(context);
-    });
-});
-
-// Hangfire (PostgreSQL)
+// Hangfire (PostgreSQL) - Envuelto en try-catch para degradación elegante
 var dbConn = builder.Configuration.GetConnectionString("LuxuryCoDbConnection") ?? throw new InvalidOperationException("DB connection string not found.");
-builder.Services.AddHangfire(configuration => configuration
-    .SetDataCompatibilityLevel(Hangfire.CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(dbConn)));
-
-builder.Services.AddHangfireServer();
+try
+{
+    builder.Services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(Hangfire.CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(dbConn)));
+    builder.Services.AddHangfireServer();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Hangfire no disponible, degradación elegante: {ex.Message}");
+}
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -194,27 +188,33 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Setup Hangfire Dashboard (restrict to Admins later)
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+// Hangfire Dashboard (solo si Hangfire se inicializó correctamente)
+try
 {
-    // Authorization = new[] { new HangfireAuthorizationFilter() } // To be implemented
-});
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        // Authorization = new[] { new HangfireAuthorizationFilter() } // To be implemented
+    });
+}
+catch { Console.WriteLine("Hangfire Dashboard no disponible."); }
 
 app.MapControllers();
 app.MapHub<LuxuryCo.Back.Hubs.AdminNotificationHub>("/hubs/adminNotifications");
 
-// Configurar Tareas Recurrentes de Fondo (Hangfire)
-using (var scope = app.Services.CreateScope())
+// Configurar Tareas Recurrentes de Fondo (Hangfire) - Solo si está disponible
+try
 {
-    var recurringJobManager = scope.ServiceProvider.GetRequiredService<Hangfire.IRecurringJobManager>();
-    
-    // GDPR Cleanup Job: Se ejecuta todos los domingos a la medianoche
-    recurringJobManager.AddOrUpdate<LuxuryCo.Back.Services.GdprCleanupJob>(
-        "gdpr-cleanup",
-        job => job.ProcessDataRetentionPoliciesAsync(),
-        Hangfire.Cron.Weekly(System.DayOfWeek.Sunday)
-    );
+    using (var scope = app.Services.CreateScope())
+    {
+        var recurringJobManager = scope.ServiceProvider.GetRequiredService<Hangfire.IRecurringJobManager>();
+        recurringJobManager.AddOrUpdate<LuxuryCo.Back.Services.GdprCleanupJob>(
+            "gdpr-cleanup",
+            job => job.ProcessDataRetentionPoliciesAsync(),
+            Hangfire.Cron.Weekly(System.DayOfWeek.Sunday)
+        );
+    }
 }
+catch { Console.WriteLine("Hangfire Jobs no configurados (degradación elegante)."); }
 
 // Seed Data para Administrador y Patches de DB procesado en Background para evitar bloquear Kestrel y el Puerto 7066
 _ = Task.Run(async () =>

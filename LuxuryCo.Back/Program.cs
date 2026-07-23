@@ -61,6 +61,7 @@ builder.Services.AddScoped<LuxuryCo.Back.Services.DocumentGenerationService>();
 builder.Services.AddScoped<LuxuryCo.Back.Services.IAiService, LuxuryCo.Back.Services.MultiModelAiService>();
 
 // Enterprise Architecture Configurations
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LuxuryCo.Back.Services.ITenantProvider, LuxuryCo.Back.Services.TenantProvider>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));

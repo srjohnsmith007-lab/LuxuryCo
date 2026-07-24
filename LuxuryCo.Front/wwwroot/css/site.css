@@ -365,13 +365,119 @@ hr { border-color: var(--border-light); opacity: 0.15; }
         opacity: 0;
     }
     10% {
-        opacity: 0.7;           /* aparece suavemente */
+        opacity: 0.7;
     }
     80% {
         opacity: 0.5;
     }
     100% {
         transform: translateY(-100vh) translateX(var(--deriva, 0px));
-        opacity: 0;             /* desaparece al llegar arriba */
+        opacity: 0;
     }
+}
+
+/* =====================================================
+   GRADIENT MENU (Navbar) — LuxuryCo Colors
+   ===================================================== */
+.menu-gradient {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-grad {
+    position: relative;
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    background: #111; /* Dark background instead of light */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    overflow: hidden;
+    transition: width 0.4s cubic-bezier(0.65, 0, 0.35, 1), background 0.4s ease;
+    flex-shrink: 0;
+    border: 1px solid #333;
+}
+
+.btn-grad:hover {
+    width: 140px;
+    border-color: transparent;
+}
+
+.btn-grad .grad-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, #a07800, #d4af37, #fff8c0, #a07800);
+    background-size: 300% 300%;
+    animation: shift 6s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.btn-grad:hover .grad-bg {
+    opacity: 1;
+}
+
+.btn-grad .glow {
+    position: absolute;
+    inset: -14px;
+    border-radius: 36px;
+    background: linear-gradient(120deg, #d4af37, #a07800);
+    filter: blur(20px);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
+}
+
+.btn-grad:hover .glow {
+    opacity: 0.55;
+}
+
+.btn-grad .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    width: 140px;
+    height: 100%;
+    padding-left: 12px;
+    flex-shrink: 0;
+}
+
+.btn-grad .icon-grad {
+    font-size: 1rem;
+    color: #888;
+    flex-shrink: 0;
+    transition: color 0.3s ease;
+    width: 16px;
+    text-align: center;
+}
+
+.btn-grad:hover .icon-grad {
+    color: #000; /* Invert color on hover because background becomes gold */
+}
+
+.btn-grad .label {
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    margin-left: 10px;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
+}
+
+.btn-grad:hover .label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@keyframes shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }

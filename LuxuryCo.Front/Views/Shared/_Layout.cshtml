@@ -32,14 +32,40 @@
     <div id="scroll-progress"></div>
     <header>
         <nav class="luxury-navbar">
-            <div class="nav-links d-none d-md-flex">
-                <a asp-controller="Shop" asp-action="Category" asp-route-id="Mujer" style="text-transform: uppercase;">Mujer</a>
-                <a asp-controller="Shop" asp-action="Category" asp-route-id="Hombre" style="text-transform: uppercase;">Hombre</a>
-                <a asp-controller="Shop" asp-action="Category" asp-route-id="Accesorios" style="text-transform: uppercase;">Accesorios</a>
+            <div class="nav-links d-none d-md-flex menu-gradient">
+                <a asp-controller="Shop" asp-action="Category" asp-route-id="Mujer" class="btn-grad">
+                    <div class="grad-bg"></div>
+                    <div class="glow"></div>
+                    <div class="content">
+                        <i class="fas fa-female icon-grad"></i>
+                        <span class="label">MUJER</span>
+                    </div>
+                </a>
+                <a asp-controller="Shop" asp-action="Category" asp-route-id="Hombre" class="btn-grad">
+                    <div class="grad-bg"></div>
+                    <div class="glow"></div>
+                    <div class="content">
+                        <i class="fas fa-male icon-grad"></i>
+                        <span class="label">HOMBRE</span>
+                    </div>
+                </a>
+                <a asp-controller="Shop" asp-action="Category" asp-route-id="Accesorios" class="btn-grad">
+                    <div class="grad-bg"></div>
+                    <div class="glow"></div>
+                    <div class="content">
+                        <i class="fas fa-gem icon-grad"></i>
+                        <span class="label">ACCESORIOS</span>
+                    </div>
+                </a>
                 @if (User.Identity.IsAuthenticated && User.IsInRole("ADMIN"))
                 {
-                    <a asp-controller="Admin" asp-action="Index" style="text-transform: uppercase; color: var(--color-gold); font-weight: 500;">
-                        <i class="fas fa-lock me-1"></i> Panel Admin
+                    <a asp-controller="Admin" asp-action="Index" class="btn-grad">
+                        <div class="grad-bg admin-bg"></div>
+                        <div class="glow admin-glow"></div>
+                        <div class="content">
+                            <i class="fas fa-lock icon-grad text-danger"></i>
+                            <span class="label text-danger">PANEL ADMIN</span>
+                        </div>
                     </a>
                 }
             </div>

@@ -336,3 +336,42 @@ hr { border-color: var(--border-light); opacity: 0.15; }
 .text-gold { color: var(--gold) !important; }
 .border-gold { border-color: var(--gold) !important; }
 .bg-luxury-card { background: var(--black-card) !important; }
+
+/* =====================================================
+   PARTÍCULAS DORADAS — LuxuryCo
+   Contenedor: posición relativa para contener partículas
+   ===================================================== */
+.hero-canvas {
+    position: absolute;
+    inset: 0;               /* cubre todo el contenedor padre */
+    overflow: hidden;
+    pointer-events: none;   /* no interfiere con clics */
+    z-index: 0;
+}
+
+.particula-dorada {
+    position: absolute;
+    bottom: -10px;          /* empieza fuera de la vista por abajo */
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff8c0, var(--gold) 60%, #a07800);
+    opacity: 0;
+    animation: flotar-particula linear infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes flotar-particula {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.7;           /* aparece suavemente */
+    }
+    80% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(var(--deriva, 0px));
+        opacity: 0;             /* desaparece al llegar arriba */
+    }
+}

@@ -6,6 +6,11 @@
 
     <!-- Ventana del Chat -->
     <div id="ai-stylist-box" class="chat-window shadow-lg d-none">
+        <!-- Widget AI Background Layers -->
+        <div class="widget-aurora"></div>
+        <div class="widget-aurora-mid"></div>
+        <div class="widget-dot-grid"></div>
+        <canvas class="widget-canvas" id="widget-nodes-canvas"></canvas>
         <div class="chat-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-gem text-gold me-2"></i>
@@ -156,9 +161,7 @@
         width: 560px;
         height: 520px;
         max-height: 80vh;
-        background-color: rgba(5, 5, 5, 0.92);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background-color: #06060a;
         border: 1px solid rgba(201, 168, 76, 0.25);
         box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.05) !important;
         border-radius: 16px;
@@ -170,6 +173,77 @@
         right: 0;
         transform-origin: bottom right;
         animation: scaleIn 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    /* ── Widget Aurora BG ── */
+    .widget-aurora {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        border-radius: 16px;
+        z-index: 0;
+    }
+    .widget-aurora::before {
+        content: '';
+        position: absolute;
+        width: 350px; height: 280px;
+        top: -80px; left: -60px;
+        background: radial-gradient(ellipse, rgba(212,175,55,0.14) 0%, rgba(139,105,20,0.05) 50%, transparent 75%);
+        animation: wAurora1 10s ease-in-out infinite alternate;
+        filter: blur(35px);
+    }
+    .widget-aurora::after {
+        content: '';
+        position: absolute;
+        width: 280px; height: 220px;
+        bottom: -40px; right: -40px;
+        background: radial-gradient(ellipse, rgba(80,50,255,0.12) 0%, rgba(60,180,255,0.06) 50%, transparent 75%);
+        animation: wAurora2 13s ease-in-out infinite alternate;
+        filter: blur(40px);
+    }
+    .widget-aurora-mid {
+        position: absolute;
+        width: 200px; height: 160px;
+        top: 40%; left: 30%;
+        background: radial-gradient(ellipse, rgba(0,200,150,0.07) 0%, transparent 75%);
+        animation: wAurora3 16s ease-in-out infinite alternate;
+        filter: blur(50px);
+        pointer-events: none;
+    }
+    .widget-dot-grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 24px 24px;
+        border-radius: 16px;
+    }
+    .widget-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        border-radius: 16px;
+    }
+    @@keyframes wAurora1 {
+        from { transform: translate(0,0) scale(1); opacity: 0.7; }
+        to   { transform: translate(60px,40px) scale(1.15); opacity: 1; }
+    }
+    @@keyframes wAurora2 {
+        from { transform: translate(0,0) scale(1.1); opacity: 0.5; }
+        to   { transform: translate(-40px,-30px) scale(0.9); opacity: 0.9; }
+    }
+    @@keyframes wAurora3 {
+        from { transform: translate(0,0); opacity: 0.3; }
+        to   { transform: translate(-25px, 40px); opacity: 0.7; }
+    }
+
+    /* Content above bg layers */
+    .chat-header, .tryon-panel, .chat-body, #stylist-typing, .chat-footer {
+        position: relative;
+        z-index: 1;
     }
 
     @@keyframes scaleIn {
@@ -1636,4 +1710,108 @@
             btn.innerText = 'Registrarme Seguramente';
         }
     }
+</script>
+
+<script>
+    /* ── Widget Neural Network Canvas ── */
+    (function initWidgetCanvas() {
+        function startCanvas() {
+            const canvas = document.getElementById('widget-nodes-canvas');
+            if (!canvas || canvas._widgetInitialized) return;
+            canvas._widgetInitialized = true;
+
+            const ctx = canvas.getContext('2d');
+            let W, H, nodes = [], animId;
+
+            const COLORS = [
+                'rgba(212,175,55,',
+                'rgba(100,80,255,',
+                'rgba(60,200,255,',
+                'rgba(0,220,150,',
+            ];
+
+            function resize() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                W = canvas.width = rect.width || 560;
+                H = canvas.height = rect.height || 520;
+            }
+
+            function makeNode() {
+                const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+                return {
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.4 + 0.5,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    color: c,
+                    alpha: Math.random() * 0.5 + 0.25,
+                    pulse: Math.random() * Math.PI * 2,
+                    pulseSpeed: Math.random() * 0.025 + 0.01
+                };
+            }
+
+            function init() {
+                resize();
+                nodes = [];
+                for (let i = 0; i < 40; i++) nodes.push(makeNode());
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                const LINK = 120;
+
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[i].x - nodes[j].x;
+                        const dy = nodes[i].y - nodes[j].y;
+                        const d = Math.sqrt(dx*dx + dy*dy);
+                        if (d < LINK) {
+                            const a = (1 - d / LINK) * 0.12;
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i].x, nodes[i].y);
+                            ctx.lineTo(nodes[j].x, nodes[j].y);
+                            ctx.strokeStyle = nodes[i].color + a + ')';
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                nodes.forEach(n => {
+                    n.pulse += n.pulseSpeed;
+                    const pa = n.alpha + Math.sin(n.pulse) * 0.18;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = n.color + pa + ')';
+                    ctx.fill();
+
+                    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 6);
+                    g.addColorStop(0, n.color + (pa * 0.35) + ')');
+                    g.addColorStop(1, n.color + '0)');
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r * 6, 0, Math.PI * 2);
+                    ctx.fillStyle = g;
+                    ctx.fill();
+
+                    n.x += n.vx; n.y += n.vy;
+                    if (n.x < -10) n.x = W + 10;
+                    if (n.x > W + 10) n.x = -10;
+                    if (n.y < -10) n.y = H + 10;
+                    if (n.y > H + 10) n.y = -10;
+                });
+
+                animId = requestAnimationFrame(draw);
+            }
+
+            init();
+            draw();
+        }
+
+        // Start when chat opens for the first time
+        const toggle = document.getElementById('ai-stylist-toggle');
+        if (toggle) {
+            toggle.addEventListener('click', startCanvas, { once: true });
+        }
+    })();
 </script>

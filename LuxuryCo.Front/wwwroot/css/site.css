@@ -892,3 +892,183 @@ hr { border-color: var(--border-light); opacity: 0.15; }
     letter-spacing: 2px;
     animation: palpitar 2s infinite;
 }
+
+/* =====================================================
+   UNIFIED ADMIN INTERFACE STYLES (Luxury Theme)
+   ===================================================== */
+.adm-page-bg {
+    background-color: #0d0d0f;
+    min-height: 100vh;
+    color: #f0f0f0;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    padding-bottom: 3rem;
+}
+
+.adm-page-header {
+    padding: 2rem 2.5rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.adm-page-title-area h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.adm-page-title-area p {
+    color: #888;
+    font-size: 0.85rem;
+    margin: 0.25rem 0 0;
+}
+
+.adm-container-card {
+    background: #141418;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    margin: 1.5rem 2.5rem 2.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.adm-container-card.no-padding {
+    padding: 0;
+}
+
+/* Tablas Premium */
+.adm-custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.adm-custom-table th {
+    background: #1c1c22;
+    color: #888;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.adm-custom-table td {
+    padding: 1rem 1.25rem;
+    font-size: 0.86rem;
+    color: #ddd;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+}
+
+.adm-custom-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.adm-custom-table tbody tr:hover {
+    background-color: rgba(212, 175, 55, 0.03);
+}
+
+.adm-custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Botones Premium */
+.btn-adm-gold {
+    background: #d4af37;
+    color: #000 !important;
+    border: 1px solid #d4af37;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+    cursor: pointer;
+}
+
+.btn-adm-gold:hover {
+    background: #f0c940;
+    border-color: #f0c940;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.btn-adm-outline {
+    background: transparent;
+    color: #ccc !important;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+    cursor: pointer;
+}
+
+.btn-adm-outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.btn-adm-danger-outline {
+    background: transparent;
+    color: #f87171 !important;
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    transition: all 0.25s;
+}
+
+.btn-adm-danger-outline:hover {
+    background: rgba(248, 113, 113, 0.1);
+    border-color: #f87171;
+    color: #fff !important;
+}
+
+/* Badges y estados */
+.adm-badge-active {
+    background: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.adm-badge-inactive {
+    background: rgba(255, 255, 255, 0.05);
+    color: #888;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}

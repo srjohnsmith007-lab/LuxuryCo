@@ -1,119 +1,691 @@
 @{
-    ViewData["Title"] = "Dashboard de Administración";
+    ViewData["Title"] = "Dashboard · Admin LuxuryCo";
 }
 
-<div class="container-fluid py-5" style="background-color: #000; min-height: 80vh; color: #fff;">
-    <div class="px-md-5 mb-5 text-center text-md-start">
-        <h1 class="display-4 fw-bold mb-3" style="font-family: 'Playfair Display', serif; letter-spacing: 2px;">
-            BIENVENIDO AL PANEL
-        </h1>
-        <p class="text-secondary fs-5" style="font-weight: 300;">
-            Centro de control y gestión de catálogo exclusivo.
-        </p>
-    </div>
-
-    <div class="row px-md-5 g-4">
-        <!-- Tarjeta Productos -->
-        <div class="col-md-4">
-            <a asp-action="Productos" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-box-open mb-4" style="font-size: 3.5rem; color: #d4af37;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #fff;">PRODUCTOS</h3>
-                        <p class="text-secondary mb-0">Gestiona el inventario, crea nuevos artículos y controla el stock.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Tarjeta Marcas -->
-        <div class="col-md-4">
-            <a asp-action="Marcas" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-tags mb-4" style="font-size: 3.5rem; color: #d4af37;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #fff;">MARCAS</h3>
-                        <p class="text-secondary mb-0">Administra los proveedores y diseñadores asociados a la tienda.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Tarjeta Usuarios -->
-        <div class="col-md-4">
-            <a asp-action="Usuarios" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-users mb-4" style="font-size: 3.5rem; color: #d4af37;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #fff;">USUARIOS</h3>
-                        <p class="text-secondary mb-0">Controla el acceso de clientes y otros administradores del sistema.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Tarjeta Sedes -->
-        <div class="col-md-4">
-            <a asp-action="Sedes" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-store-alt mb-4" style="font-size: 3.5rem; color: #d4af37;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #fff;">SEDES</h3>
-                        <p class="text-secondary mb-0">Gestor de sucursales físicas, puntos de venta y lugares de recogida.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Tarjeta Proveedores -->
-        <div class="col-md-4">
-            <a asp-action="Proveedores" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-truck mb-4" style="font-size: 3.5rem; color: #d4af37;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #fff;">PROVEEDORES</h3>
-                        <p class="text-secondary mb-0">Directorio de mayoristas y proveedores vinculados a tus productos.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Tarjeta Asistente IA -->
-        <div class="col-md-4">
-            <a asp-action="AiAssistant" class="text-decoration-none">
-                <div class="card h-100 admin-dashboard-card" style="border: 1px solid #C9A84C;">
-                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
-                        <i class="fas fa-robot mb-4" style="font-size: 3.5rem; color: #C9A84C;"></i>
-                        <h3 class="fw-bold mb-3" style="letter-spacing: 1px; color: #C9A84C;">ASISTENTE IA</h3>
-                        <p class="text-secondary mb-0">Habla con la inteligencia artificial para analizar ventas y tomar decisiones.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-</div>
-
 <style>
-    .admin-dashboard-card {
-        background-color: #111;
-        border: 1px solid #333;
-        border-radius: 0;
-        transition: all 0.3s ease;
+    /* ===================== ADMIN DASHBOARD ===================== */
+    :root {
+        --adm-bg: #0d0d0f;
+        --adm-surface: #141418;
+        --adm-surface2: #1c1c22;
+        --adm-border: rgba(255,255,255,0.07);
+        --adm-gold: #d4af37;
+        --adm-gold-dim: rgba(212,175,55,0.15);
+        --adm-text: #f0f0f0;
+        --adm-muted: #888;
+        --adm-green: #34d399;
+        --adm-green-dim: rgba(52,211,153,0.12);
+        --adm-red: #f87171;
+        --adm-red-dim: rgba(248,113,113,0.12);
+        --adm-blue: #60a5fa;
+        --adm-blue-dim: rgba(96,165,250,0.12);
+        --adm-purple: #a78bfa;
+        --adm-purple-dim: rgba(167,139,250,0.12);
+    }
+
+    .adm-wrapper {
+        background: var(--adm-bg);
+        min-height: 100vh;
+        color: var(--adm-text);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        padding: 2rem;
+    }
+
+    /* Header */
+    .adm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .adm-header-left h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--adm-text);
+        margin: 0;
+        letter-spacing: 1px;
+    }
+    .adm-header-left p {
+        color: var(--adm-muted);
+        font-size: 0.85rem;
+        margin: 0.2rem 0 0;
+    }
+    .adm-header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .adm-badge-live {
+        background: var(--adm-green-dim);
+        color: var(--adm-green);
+        border: 1px solid rgba(52,211,153,0.3);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .adm-badge-live::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--adm-green);
+        animation: pulse-green 1.5s infinite;
+        display: inline-block;
+    }
+    @keyframes pulse-green {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* Cards */
+    .adm-card {
+        background: var(--adm-surface);
+        border: 1px solid var(--adm-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: border-color 0.3s, transform 0.3s;
+    }
+    .adm-card:hover {
+        border-color: rgba(212,175,55,0.3);
+        transform: translateY(-2px);
+    }
+
+    /* KPI Grid */
+    .adm-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .adm-kpi {
+        background: var(--adm-surface);
+        border: 1px solid var(--adm-border);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s;
+        cursor: default;
+    }
+    .adm-kpi:hover {
+        border-color: rgba(212,175,55,0.3);
+        transform: translateY(-2px);
+    }
+    .adm-kpi-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    .adm-kpi-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+    }
+    .adm-kpi-info p {
+        font-size: 0.78rem;
+        color: var(--adm-muted);
+        margin: 4px 0 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .adm-kpi-trend {
+        margin-left: auto;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 8px;
+    }
+    .trend-up { background: var(--adm-green-dim); color: var(--adm-green); }
+    .trend-down { background: var(--adm-red-dim); color: var(--adm-red); }
+
+    /* Charts row */
+    .adm-charts-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 900px) {
+        .adm-charts-row { grid-template-columns: 1fr; }
+    }
+
+    .adm-card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--adm-text);
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .adm-card-title .period-select {
+        background: var(--adm-surface2);
+        border: 1px solid var(--adm-border);
+        color: var(--adm-muted);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 0.75rem;
         cursor: pointer;
     }
 
-    .admin-dashboard-card:hover {
-        background-color: #1a1a1a;
-        border-color: #d4af37;
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    /* Bottom row */
+    .adm-bottom-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
-    
-    .admin-dashboard-card i {
-        transition: transform 0.3s ease;
+    @media (max-width: 900px) {
+        .adm-bottom-row { grid-template-columns: 1fr; }
     }
-    
-    .admin-dashboard-card:hover i {
-        transform: scale(1.1);
+
+    /* Quick access */
+    .adm-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
+    @media (max-width: 700px) {
+        .adm-quick-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .adm-quick-btn {
+        background: var(--adm-surface);
+        border: 1px solid var(--adm-border);
+        border-radius: 14px;
+        padding: 1.2rem 1rem;
+        text-decoration: none;
+        color: var(--adm-text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s;
+        text-align: center;
+    }
+    .adm-quick-btn:hover {
+        border-color: var(--adm-gold);
+        background: var(--adm-gold-dim);
+        color: var(--adm-gold);
+        transform: translateY(-3px);
+    }
+    .adm-quick-btn i { font-size: 1.6rem; }
+    .adm-quick-btn span { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+
+    /* Activity feed */
+    .adm-activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--adm-border);
+    }
+    .adm-activity-item:last-child { border-bottom: none; }
+    .adm-activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .adm-activity-text { font-size: 0.82rem; color: var(--adm-text); line-height: 1.4; }
+    .adm-activity-time { font-size: 0.73rem; color: var(--adm-muted); margin-top: 2px; }
+
+    /* Top products table */
+    .adm-table { width: 100%; border-collapse: collapse; }
+    .adm-table th {
+        text-align: left;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--adm-muted);
+        padding: 0 0 0.75rem;
+        border-bottom: 1px solid var(--adm-border);
+    }
+    .adm-table td {
+        padding: 0.75rem 0;
+        font-size: 0.84rem;
+        border-bottom: 1px solid var(--adm-border);
+        vertical-align: middle;
+    }
+    .adm-table tr:last-child td { border-bottom: none; }
+    .adm-table .prod-bar-bg {
+        background: var(--adm-surface2);
+        border-radius: 4px;
+        height: 6px;
+        width: 80px;
+    }
+    .adm-table .prod-bar { height: 6px; border-radius: 4px; background: var(--adm-gold); }
 </style>
+
+<div class="adm-wrapper">
+
+    <!-- HEADER -->
+    <div class="adm-header">
+        <div class="adm-header-left">
+            <h1><i class="fas fa-gem me-2" style="color:var(--adm-gold); font-size:1.4rem;"></i>Dashboard</h1>
+            <p>Panel de control · LuxuryCo Admin · <span id="adm-date"></span></p>
+        </div>
+        <div class="adm-header-right">
+            <span class="adm-badge-live">DEMO EN VIVO</span>
+        </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="adm-kpi-grid">
+        <div class="adm-kpi">
+            <div class="adm-kpi-icon" style="background:var(--adm-gold-dim); color:var(--adm-gold);">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div class="adm-kpi-info">
+                <h3 id="kpi-orders">—</h3>
+                <p>Pedidos Hoy</p>
+            </div>
+            <div class="adm-kpi-trend trend-up" id="kpi-orders-trend">+12%</div>
+        </div>
+        <div class="adm-kpi">
+            <div class="adm-kpi-icon" style="background:var(--adm-blue-dim); color:var(--adm-blue);">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="adm-kpi-info">
+                <h3 id="kpi-visitors">—</h3>
+                <p>Visitantes Hoy</p>
+            </div>
+            <div class="adm-kpi-trend trend-up" id="kpi-visitors-trend">+8%</div>
+        </div>
+        <div class="adm-kpi">
+            <div class="adm-kpi-icon" style="background:var(--adm-green-dim); color:var(--adm-green);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="adm-kpi-info">
+                <h3 id="kpi-revenue">—</h3>
+                <p>Ingresos Este Mes</p>
+            </div>
+            <div class="adm-kpi-trend trend-up" id="kpi-revenue-trend">+22%</div>
+        </div>
+        <div class="adm-kpi">
+            <div class="adm-kpi-icon" style="background:var(--adm-purple-dim); color:var(--adm-purple);">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <div class="adm-kpi-info">
+                <h3 id="kpi-products">—</h3>
+                <p>Productos en Catálogo</p>
+            </div>
+            <div class="adm-kpi-trend trend-up">Activo</div>
+        </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="adm-charts-row">
+        <!-- Actividad semanal -->
+        <div class="adm-card">
+            <div class="adm-card-title">
+                <span><i class="fas fa-chart-line me-2" style="color:var(--adm-gold);"></i>Actividad de Usuarios — Últimas 4 semanas</span>
+                <select class="period-select" id="chart-period-select">
+                    <option value="semanas">Por semana</option>
+                    <option value="meses">Por mes</option>
+                </select>
+            </div>
+            <canvas id="chartActividad" height="100"></canvas>
+        </div>
+        <!-- Distribución -->
+        <div class="adm-card">
+            <div class="adm-card-title">
+                <span><i class="fas fa-chart-pie me-2" style="color:var(--adm-gold);"></i>Distribución por Categoría</span>
+            </div>
+            <canvas id="chartDonut" height="180"></canvas>
+            <div style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem;" id="donut-legend"></div>
+        </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="adm-bottom-row">
+        <!-- Top productos -->
+        <div class="adm-card">
+            <div class="adm-card-title">
+                <span><i class="fas fa-star me-2" style="color:var(--adm-gold);"></i>Productos Más Populares (demo)</span>
+            </div>
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Vistas</th>
+                        <th>Popularidad</th>
+                    </tr>
+                </thead>
+                <tbody id="top-products-body"></tbody>
+            </table>
+        </div>
+        <!-- Activity Feed -->
+        <div class="adm-card">
+            <div class="adm-card-title">
+                <span><i class="fas fa-bell me-2" style="color:var(--adm-gold);"></i>Actividad Reciente (demo)</span>
+            </div>
+            <div id="activity-feed"></div>
+        </div>
+    </div>
+
+    <!-- Comparativa mensual -->
+    <div class="adm-card" style="margin-bottom:1.5rem;">
+        <div class="adm-card-title">
+            <span><i class="fas fa-chart-bar me-2" style="color:var(--adm-gold);"></i>Comparativa de Tráfico — Este año vs. año anterior</span>
+        </div>
+        <canvas id="chartComparativa" height="80"></canvas>
+    </div>
+
+    <!-- ACCESO RÁPIDO -->
+    <div class="adm-card-title" style="margin-bottom:0.75rem;">
+        <span style="font-size:1rem; font-weight:700; color:var(--adm-text);">
+            <i class="fas fa-th-large me-2" style="color:var(--adm-gold);"></i>Acceso Rápido
+        </span>
+    </div>
+    <div class="adm-quick-grid">
+        <a asp-action="Productos" class="adm-quick-btn">
+            <i class="fas fa-box-open" style="color:#d4af37;"></i>
+            <span>Productos</span>
+        </a>
+        <a asp-action="Marcas" class="adm-quick-btn">
+            <i class="fas fa-tags" style="color:#60a5fa;"></i>
+            <span>Marcas</span>
+        </a>
+        <a asp-action="Usuarios" class="adm-quick-btn">
+            <i class="fas fa-users" style="color:#34d399;"></i>
+            <span>Usuarios</span>
+        </a>
+        <a asp-action="Sedes" class="adm-quick-btn">
+            <i class="fas fa-store-alt" style="color:#a78bfa;"></i>
+            <span>Sedes</span>
+        </a>
+        <a asp-action="Proveedores" class="adm-quick-btn">
+            <i class="fas fa-truck" style="color:#f87171;"></i>
+            <span>Proveedores</span>
+        </a>
+        <a asp-action="AiAssistant" class="adm-quick-btn" style="border-color:rgba(212,175,55,0.4);">
+            <i class="fas fa-robot" style="color:#d4af37;"></i>
+            <span>Asistente IA</span>
+        </a>
+    </div>
+
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ── Fecha actual ──────────────────────────────────────
+    const now = new Date();
+    document.getElementById('adm-date').textContent =
+        now.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // ── KPIs animados (demo) ──────────────────────────────
+    function animateCount(elId, target, prefix='', suffix='') {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        let current = 0;
+        const step = Math.ceil(target / 60);
+        const timer = setInterval(() => {
+            current = Math.min(current + step, target);
+            el.textContent = prefix + current.toLocaleString() + suffix;
+            if (current >= target) clearInterval(timer);
+        }, 20);
+    }
+    animateCount('kpi-orders', 47);
+    animateCount('kpi-visitors', 1284);
+    animateCount('kpi-revenue', 38450, '$', ' USD');
+    animateCount('kpi-products', 124);
+
+    // ── Paleta Chart.js ───────────────────────────────────
+    Chart.defaults.color = '#888';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+    // ── Gráfico Actividad (línea) ─────────────────────────
+    const semanas = {
+        labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
+                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
+                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
+                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+        thisYear:  [120,145,132,180,200,230,210,195,220,240,215,260,290,275,240,260,285,305,290,320,310,280,305,330,315,360,380,355],
+        lastYear:  [100,115,108,140,160,175,165,150,170,185,165,200,220,210,185,200,220,240,225,250,240,215,235,255,242,278,294,275],
+    };
+    const meses = {
+        labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+        thisYear:  [2800,3100,2950,3400,3700,4200,4500,4300,4700,5100,4900,5500],
+        lastYear:  [2200,2450,2300,2700,2900,3300,3500,3300,3600,3900,3750,4200],
+    };
+
+    const ctxLine = document.getElementById('chartActividad').getContext('2d');
+    const gradGold = ctxLine.createLinearGradient(0,0,0,250);
+    gradGold.addColorStop(0,'rgba(212,175,55,0.25)');
+    gradGold.addColorStop(1,'rgba(212,175,55,0.01)');
+    const gradBlue = ctxLine.createLinearGradient(0,0,0,250);
+    gradBlue.addColorStop(0,'rgba(96,165,250,0.2)');
+    gradBlue.addColorStop(1,'rgba(96,165,250,0.01)');
+
+    const lineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: semanas.labels,
+            datasets: [
+                {
+                    label: 'Este año',
+                    data: semanas.thisYear,
+                    borderColor: '#d4af37',
+                    backgroundColor: gradGold,
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true,
+                },
+                {
+                    label: 'Año anterior',
+                    data: semanas.lastYear,
+                    borderColor: '#60a5fa',
+                    backgroundColor: gradBlue,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true,
+                    borderDash: [5, 3],
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    labels: { color: '#aaa', font: { size: 12 }, boxWidth: 12 }
+                },
+                tooltip: {
+                    backgroundColor: '#1c1c22',
+                    borderColor: 'rgba(212,175,55,0.3)',
+                    borderWidth: 1,
+                    titleColor: '#d4af37',
+                    bodyColor: '#ccc',
+                }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { maxTicksLimit: 7 } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' } }
+            }
+        }
+    });
+
+    // Cambiar periodo
+    document.getElementById('chart-period-select').addEventListener('change', function () {
+        const data = this.value === 'meses' ? meses : semanas;
+        lineChart.data.labels = data.labels;
+        lineChart.data.datasets[0].data = data.thisYear;
+        lineChart.data.datasets[1].data = data.lastYear;
+        lineChart.update('active');
+    });
+
+    // ── Donut ─────────────────────────────────────────────
+    const donutData = {
+        labels: ['Mujer', 'Hombre', 'Accesorios', 'Joyería'],
+        data:   [42, 28, 18, 12],
+        colors: ['#d4af37','#60a5fa','#34d399','#a78bfa'],
+    };
+    const ctxDonut = document.getElementById('chartDonut').getContext('2d');
+    new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+            labels: donutData.labels,
+            datasets: [{
+                data: donutData.data,
+                backgroundColor: donutData.colors,
+                borderColor: '#141418',
+                borderWidth: 3,
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c1c22',
+                    borderColor: 'rgba(212,175,55,0.3)',
+                    borderWidth: 1,
+                    titleColor: '#d4af37',
+                    bodyColor: '#ccc',
+                    callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+                }
+            }
+        }
+    });
+    // Leyenda manual
+    const legend = document.getElementById('donut-legend');
+    donutData.labels.forEach((l, i) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;';
+        row.innerHTML = `
+            <span style="display:flex;align-items:center;gap:8px;">
+                <span style="width:10px;height:10px;border-radius:3px;background:${donutData.colors[i]};display:inline-block;"></span>
+                ${l}
+            </span>
+            <span style="color:${donutData.colors[i]};font-weight:700;">${donutData.data[i]}%</span>`;
+        legend.appendChild(row);
+    });
+
+    // ── Barras comparativa mensual ────────────────────────
+    const ctxBar = document.getElementById('chartComparativa').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+            datasets: [
+                {
+                    label: 'Este año',
+                    data: [2800,3100,2950,3400,3700,4200,4500,4300,4700,5100,4900,5500],
+                    backgroundColor: 'rgba(212,175,55,0.75)',
+                    borderRadius: 6,
+                    barPercentage: 0.5,
+                },
+                {
+                    label: 'Año anterior',
+                    data: [2200,2450,2300,2700,2900,3300,3500,3300,3600,3900,3750,4200],
+                    backgroundColor: 'rgba(96,165,250,0.5)',
+                    borderRadius: 6,
+                    barPercentage: 0.5,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: '#aaa', font: { size: 12 }, boxWidth: 12 } },
+                tooltip: {
+                    backgroundColor: '#1c1c22',
+                    borderColor: 'rgba(212,175,55,0.3)',
+                    borderWidth: 1,
+                    titleColor: '#d4af37',
+                    bodyColor: '#ccc',
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#888' } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#888' } }
+            }
+        }
+    });
+
+    // ── Top productos (demo) ──────────────────────────────
+    const topProducts = [
+        { name: 'Vestido Noir Élite', cat: 'Mujer',       views: 842, pct: 90 },
+        { name: 'Reloj Prestige S9',  cat: 'Accesorios',  views: 710, pct: 76 },
+        { name: 'Saco Urbano X',      cat: 'Hombre',      views: 634, pct: 68 },
+        { name: 'Collar Gold Chain',  cat: 'Joyería',     views: 521, pct: 55 },
+        { name: 'Cartera Slim Luxe',  cat: 'Hombre',      views: 480, pct: 51 },
+    ];
+    const tbody = document.getElementById('top-products-body');
+    topProducts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong style="color:#f0f0f0;">${p.name}</strong></td>
+            <td><span style="font-size:0.72rem;background:rgba(212,175,55,0.1);color:#d4af37;padding:2px 8px;border-radius:6px;">${p.cat}</span></td>
+            <td style="color:#aaa;">${p.views.toLocaleString()}</td>
+            <td>
+                <div class="prod-bar-bg">
+                    <div class="prod-bar" style="width:${p.pct}%;"></div>
+                </div>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+
+    // ── Activity Feed (demo) ──────────────────────────────
+    const activities = [
+        { color: '#34d399', text: 'Nuevo usuario registrado: <strong>carlos@mail.com</strong>', time: 'hace 3 min' },
+        { color: '#d4af37', text: 'Producto <strong>Vestido Noir Élite</strong> marcado como favorito', time: 'hace 8 min' },
+        { color: '#60a5fa', text: 'Visita al catálogo de <strong>Accesorios</strong> desde móvil', time: 'hace 15 min' },
+        { color: '#a78bfa', text: 'Admin actualizó precio de <strong>Reloj Prestige S9</strong>', time: 'hace 22 min' },
+        { color: '#f87171', text: 'Sesión expirada para <strong>guest_user_48</strong>', time: 'hace 30 min' },
+        { color: '#34d399', text: '<strong>1,284</strong> visitantes activos en el sitio ahora mismo', time: 'hace 1 min' },
+    ];
+    const feed = document.getElementById('activity-feed');
+    activities.forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'adm-activity-item';
+        div.innerHTML = `
+            <div class="adm-activity-dot" style="background:${a.color};"></div>
+            <div>
+                <div class="adm-activity-text">${a.text}</div>
+                <div class="adm-activity-time">${a.time}</div>
+            </div>`;
+        feed.appendChild(div);
+    });
+
+    // ── Simular "tiempo real" en KPI visitantes ───────────
+    setInterval(() => {
+        const el = document.getElementById('kpi-visitors');
+        if (el) {
+            const base = 1284;
+            const variation = Math.floor(Math.random() * 20) - 10;
+            el.textContent = (base + variation).toLocaleString();
+        }
+    }, 4000);
+
+});
+</script>
+}

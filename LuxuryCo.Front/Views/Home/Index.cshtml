@@ -98,6 +98,22 @@
         justify-content: center;
     }
     
+    .recs-card-image {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        overflow: hidden;
+        background: #0a0a0a;
+    }
+
+    .recs-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        display: block;
+    }
+
     .animated-word {
         position: absolute;
         opacity: 0;
@@ -201,7 +217,8 @@
                     const imageUrl = p.imagenPrincipalUrl ? p.imagenPrincipalUrl : 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop';
                     
                     el.innerHTML = `
-                        <div class="recs-card-image" style="background-image: url('${imageUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center top; background-color: #111;">
+                        <div class="recs-card-image">
+                            <img src="${imageUrl}" alt="${p.nombre}" loading="lazy">
                             <div class="recs-card-overlay"></div>
                         </div>
                         <div class="recs-card-label">
@@ -377,16 +394,16 @@
             // CIRCULAR GALLERY (MARCAS) LOGIC
             // ==========================================
             const galleryData = [
-                { common: "GUCCI", binomial: "Italian Luxury House", url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "PRADA", binomial: "Milan Fashion", url: "https://images.unsplash.com/photo-1579632483866-9e90954b83fb?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "LOUIS VUITTON", binomial: "Paris Heritage", url: "https://images.unsplash.com/photo-1548624149-f9b1859aa7d0?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "GUCCI", binomial: "Italian Luxury House", url: "https://images.unsplash.com/photo-1564859228273-274232fdb516?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "PRADA", binomial: "Milan Fashion", url: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "LOUIS VUITTON", binomial: "Paris Heritage", url: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
                 { common: "ROLEX", binomial: "Swiss Mastery", url: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "CARTIER", binomial: "Paris Fine Jewelry", url: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "DIOR", binomial: "French Elegance", url: "https://images.unsplash.com/photo-1588829447225-b4618e7e31b8?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "CARTIER", binomial: "Paris Fine Jewelry", url: "https://images.unsplash.com/photo-1599643478514-4a11011c75c8?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "DIOR", binomial: "French Elegance", url: "https://images.unsplash.com/photo-1631214499113-722a46e16f73?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
                 { common: "CHANEL", binomial: "Timeless Parisian", url: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "BALENCIAGA", binomial: "Avant-Garde", url: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "HERMÈS", binomial: "Artisan Leather", url: "https://images.unsplash.com/photo-1598532163257-ae3c6b2524b6?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
-                { common: "YSL", binomial: "Yves Saint Laurent", url: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "BALENCIAGA", binomial: "Avant-Garde", url: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "HERMÈS", binomial: "Artisan Leather", url: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
+                { common: "YSL", binomial: "Yves Saint Laurent", url: "https://images.unsplash.com/photo-1618333302170-17011d619df8?w=700&auto=format&fit=crop&q=80", by: "LuxuryCo" },
             ];
 
             const radius = 480;

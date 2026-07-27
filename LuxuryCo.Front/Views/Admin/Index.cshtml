@@ -1,5 +1,5 @@
-@{
-    ViewData["Title"] = "Dashboard · Admin LuxuryCo";
+﻿@{
+    ViewData["Title"] = "Dashboard Â· Admin LuxuryCo";
 }
 
 <style>
@@ -80,7 +80,7 @@
         animation: pulse-green 1.5s infinite;
         display: inline-block;
     }
-    @keyframes pulse-green {
+    @@keyframes pulse-green {
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.5; transform: scale(0.8); }
     }
@@ -160,7 +160,7 @@
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
-    @media (max-width: 900px) {
+    @@media (max-width: 900px) {
         .adm-charts-row { grid-template-columns: 1fr; }
     }
 
@@ -190,7 +190,7 @@
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
-    @media (max-width: 900px) {
+    @@media (max-width: 900px) {
         .adm-bottom-row { grid-template-columns: 1fr; }
     }
 
@@ -201,7 +201,7 @@
         gap: 0.75rem;
         margin-bottom: 1.5rem;
     }
-    @media (max-width: 700px) {
+    @@media (max-width: 700px) {
         .adm-quick-grid { grid-template-columns: repeat(2, 1fr); }
     }
     .adm-quick-btn {
@@ -279,7 +279,7 @@
     <div class="adm-header">
         <div class="adm-header-left">
             <h1><i class="fas fa-gem me-2" style="color:var(--adm-gold); font-size:1.4rem;"></i>Dashboard</h1>
-            <p>Panel de control · LuxuryCo Admin · <span id="adm-date"></span></p>
+            <p>Panel de control Â· LuxuryCo Admin Â· <span id="adm-date"></span></p>
         </div>
         <div class="adm-header-right">
             <span class="adm-badge-live">DEMO EN VIVO</span>
@@ -293,7 +293,7 @@
                 <i class="fas fa-shopping-bag"></i>
             </div>
             <div class="adm-kpi-info">
-                <h3 id="kpi-orders">—</h3>
+                <h3 id="kpi-orders">â€”</h3>
                 <p>Pedidos Hoy</p>
             </div>
             <div class="adm-kpi-trend trend-up" id="kpi-orders-trend">+12%</div>
@@ -303,7 +303,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="adm-kpi-info">
-                <h3 id="kpi-visitors">—</h3>
+                <h3 id="kpi-visitors">â€”</h3>
                 <p>Visitantes Hoy</p>
             </div>
             <div class="adm-kpi-trend trend-up" id="kpi-visitors-trend">+8%</div>
@@ -313,7 +313,7 @@
                 <i class="fas fa-dollar-sign"></i>
             </div>
             <div class="adm-kpi-info">
-                <h3 id="kpi-revenue">—</h3>
+                <h3 id="kpi-revenue">â€”</h3>
                 <p>Ingresos Este Mes</p>
             </div>
             <div class="adm-kpi-trend trend-up" id="kpi-revenue-trend">+22%</div>
@@ -323,8 +323,8 @@
                 <i class="fas fa-box-open"></i>
             </div>
             <div class="adm-kpi-info">
-                <h3 id="kpi-products">—</h3>
-                <p>Productos en Catálogo</p>
+                <h3 id="kpi-products">â€”</h3>
+                <p>Productos en CatÃ¡logo</p>
             </div>
             <div class="adm-kpi-trend trend-up">Activo</div>
         </div>
@@ -335,7 +335,7 @@
         <!-- Actividad semanal -->
         <div class="adm-card">
             <div class="adm-card-title">
-                <span><i class="fas fa-chart-line me-2" style="color:var(--adm-gold);"></i>Actividad de Usuarios — Últimas 4 semanas</span>
+                <span><i class="fas fa-chart-line me-2" style="color:var(--adm-gold);"></i>Actividad de Usuarios â€” Ãšltimas 4 semanas</span>
                 <select class="period-select" id="chart-period-select">
                     <option value="semanas">Por semana</option>
                     <option value="meses">Por mes</option>
@@ -343,10 +343,10 @@
             </div>
             <canvas id="chartActividad" height="100"></canvas>
         </div>
-        <!-- Distribución -->
+        <!-- DistribuciÃ³n -->
         <div class="adm-card">
             <div class="adm-card-title">
-                <span><i class="fas fa-chart-pie me-2" style="color:var(--adm-gold);"></i>Distribución por Categoría</span>
+                <span><i class="fas fa-chart-pie me-2" style="color:var(--adm-gold);"></i>DistribuciÃ³n por CategorÃ­a</span>
             </div>
             <canvas id="chartDonut" height="180"></canvas>
             <div style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem;" id="donut-legend"></div>
@@ -358,13 +358,13 @@
         <!-- Top productos -->
         <div class="adm-card">
             <div class="adm-card-title">
-                <span><i class="fas fa-star me-2" style="color:var(--adm-gold);"></i>Productos Más Populares (demo)</span>
+                <span><i class="fas fa-star me-2" style="color:var(--adm-gold);"></i>Productos MÃ¡s Populares (demo)</span>
             </div>
             <table class="adm-table">
                 <thead>
                     <tr>
                         <th>Producto</th>
-                        <th>Categoría</th>
+                        <th>CategorÃ­a</th>
                         <th>Vistas</th>
                         <th>Popularidad</th>
                     </tr>
@@ -384,15 +384,15 @@
     <!-- Comparativa mensual -->
     <div class="adm-card" style="margin-bottom:1.5rem;">
         <div class="adm-card-title">
-            <span><i class="fas fa-chart-bar me-2" style="color:var(--adm-gold);"></i>Comparativa de Tráfico — Este año vs. año anterior</span>
+            <span><i class="fas fa-chart-bar me-2" style="color:var(--adm-gold);"></i>Comparativa de TrÃ¡fico â€” Este aÃ±o vs. aÃ±o anterior</span>
         </div>
         <canvas id="chartComparativa" height="80"></canvas>
     </div>
 
-    <!-- ACCESO RÁPIDO -->
+    <!-- ACCESO RÃPIDO -->
     <div class="adm-card-title" style="margin-bottom:0.75rem;">
         <span style="font-size:1rem; font-weight:700; color:var(--adm-text);">
-            <i class="fas fa-th-large me-2" style="color:var(--adm-gold);"></i>Acceso Rápido
+            <i class="fas fa-th-large me-2" style="color:var(--adm-gold);"></i>Acceso RÃ¡pido
         </span>
     </div>
     <div class="adm-quick-grid">
@@ -429,12 +429,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ── Fecha actual ──────────────────────────────────────
+    // â”€â”€ Fecha actual â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const now = new Date();
     document.getElementById('adm-date').textContent =
         now.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-    // ── KPIs animados (demo) ──────────────────────────────
+    // â”€â”€ KPIs animados (demo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function animateCount(elId, target, prefix='', suffix='') {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -451,16 +451,16 @@ document.addEventListener("DOMContentLoaded", function () {
     animateCount('kpi-revenue', 38450, '$', ' USD');
     animateCount('kpi-products', 124);
 
-    // ── Paleta Chart.js ───────────────────────────────────
+    // â”€â”€ Paleta Chart.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     Chart.defaults.color = '#888';
     Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
 
-    // ── Gráfico Actividad (línea) ─────────────────────────
+    // â”€â”€ GrÃ¡fico Actividad (lÃ­nea) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const semanas = {
-        labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
-                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
-                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom',
-                 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+        labels: ['Lun','Mar','MiÃ©','Jue','Vie','SÃ¡b','Dom',
+                 'Lun','Mar','MiÃ©','Jue','Vie','SÃ¡b','Dom',
+                 'Lun','Mar','MiÃ©','Jue','Vie','SÃ¡b','Dom',
+                 'Lun','Mar','MiÃ©','Jue','Vie','SÃ¡b','Dom'],
         thisYear:  [120,145,132,180,200,230,210,195,220,240,215,260,290,275,240,260,285,305,290,320,310,280,305,330,315,360,380,355],
         lastYear:  [100,115,108,140,160,175,165,150,170,185,165,200,220,210,185,200,220,240,225,250,240,215,235,255,242,278,294,275],
     };
@@ -484,7 +484,7 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: semanas.labels,
             datasets: [
                 {
-                    label: 'Este año',
+                    label: 'Este aÃ±o',
                     data: semanas.thisYear,
                     borderColor: '#d4af37',
                     backgroundColor: gradGold,
@@ -495,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     fill: true,
                 },
                 {
-                    label: 'Año anterior',
+                    label: 'AÃ±o anterior',
                     data: semanas.lastYear,
                     borderColor: '#60a5fa',
                     backgroundColor: gradBlue,
@@ -539,9 +539,9 @@ document.addEventListener("DOMContentLoaded", function () {
         lineChart.update('active');
     });
 
-    // ── Donut ─────────────────────────────────────────────
+    // â”€â”€ Donut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const donutData = {
-        labels: ['Mujer', 'Hombre', 'Accesorios', 'Joyería'],
+        labels: ['Mujer', 'Hombre', 'Accesorios', 'JoyerÃ­a'],
         data:   [42, 28, 18, 12],
         colors: ['#d4af37','#60a5fa','#34d399','#a78bfa'],
     };
@@ -588,7 +588,7 @@ document.addEventListener("DOMContentLoaded", function () {
         legend.appendChild(row);
     });
 
-    // ── Barras comparativa mensual ────────────────────────
+    // â”€â”€ Barras comparativa mensual â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const ctxBar = document.getElementById('chartComparativa').getContext('2d');
     new Chart(ctxBar, {
         type: 'bar',
@@ -596,14 +596,14 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
             datasets: [
                 {
-                    label: 'Este año',
+                    label: 'Este aÃ±o',
                     data: [2800,3100,2950,3400,3700,4200,4500,4300,4700,5100,4900,5500],
                     backgroundColor: 'rgba(212,175,55,0.75)',
                     borderRadius: 6,
                     barPercentage: 0.5,
                 },
                 {
-                    label: 'Año anterior',
+                    label: 'AÃ±o anterior',
                     data: [2200,2450,2300,2700,2900,3300,3500,3300,3600,3900,3750,4200],
                     backgroundColor: 'rgba(96,165,250,0.5)',
                     borderRadius: 6,
@@ -631,12 +631,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ── Top productos (demo) ──────────────────────────────
+    // â”€â”€ Top productos (demo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const topProducts = [
-        { name: 'Vestido Noir Élite', cat: 'Mujer',       views: 842, pct: 90 },
+        { name: 'Vestido Noir Ã‰lite', cat: 'Mujer',       views: 842, pct: 90 },
         { name: 'Reloj Prestige S9',  cat: 'Accesorios',  views: 710, pct: 76 },
         { name: 'Saco Urbano X',      cat: 'Hombre',      views: 634, pct: 68 },
-        { name: 'Collar Gold Chain',  cat: 'Joyería',     views: 521, pct: 55 },
+        { name: 'Collar Gold Chain',  cat: 'JoyerÃ­a',     views: 521, pct: 55 },
         { name: 'Cartera Slim Luxe',  cat: 'Hombre',      views: 480, pct: 51 },
     ];
     const tbody = document.getElementById('top-products-body');
@@ -654,13 +654,13 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.appendChild(tr);
     });
 
-    // ── Activity Feed (demo) ──────────────────────────────
+    // â”€â”€ Activity Feed (demo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const activities = [
         { color: '#34d399', text: 'Nuevo usuario registrado: <strong>carlos@mail.com</strong>', time: 'hace 3 min' },
-        { color: '#d4af37', text: 'Producto <strong>Vestido Noir Élite</strong> marcado como favorito', time: 'hace 8 min' },
-        { color: '#60a5fa', text: 'Visita al catálogo de <strong>Accesorios</strong> desde móvil', time: 'hace 15 min' },
-        { color: '#a78bfa', text: 'Admin actualizó precio de <strong>Reloj Prestige S9</strong>', time: 'hace 22 min' },
-        { color: '#f87171', text: 'Sesión expirada para <strong>guest_user_48</strong>', time: 'hace 30 min' },
+        { color: '#d4af37', text: 'Producto <strong>Vestido Noir Ã‰lite</strong> marcado como favorito', time: 'hace 8 min' },
+        { color: '#60a5fa', text: 'Visita al catÃ¡logo de <strong>Accesorios</strong> desde mÃ³vil', time: 'hace 15 min' },
+        { color: '#a78bfa', text: 'Admin actualizÃ³ precio de <strong>Reloj Prestige S9</strong>', time: 'hace 22 min' },
+        { color: '#f87171', text: 'SesiÃ³n expirada para <strong>guest_user_48</strong>', time: 'hace 30 min' },
         { color: '#34d399', text: '<strong>1,284</strong> visitantes activos en el sitio ahora mismo', time: 'hace 1 min' },
     ];
     const feed = document.getElementById('activity-feed');
@@ -676,7 +676,7 @@ document.addEventListener("DOMContentLoaded", function () {
         feed.appendChild(div);
     });
 
-    // ── Simular "tiempo real" en KPI visitantes ───────────
+    // â”€â”€ Simular "tiempo real" en KPI visitantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     setInterval(() => {
         const el = document.getElementById('kpi-visitors');
         if (el) {
@@ -689,3 +689,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 }
+

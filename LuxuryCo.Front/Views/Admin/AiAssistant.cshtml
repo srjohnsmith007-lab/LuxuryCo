@@ -150,59 +150,112 @@
         30% { transform: translateY(-6px); }
     }
 
-    /* Input area */
+    /* Input area - New Elegant Design */
     .ai-input-area {
-        padding: 1rem 1.25rem;
-        border-top: 1px solid rgba(255,255,255,0.07);
+        padding: 1.25rem;
+        background: transparent;
         flex-shrink: 0;
     }
-    .ai-input-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    .chat-bar {
         background: #0d0d0f;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px;
-        padding: 6px 6px 6px 12px;
-        transition: border-color 0.2s;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 16px 18px 12px 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        transition: border-color 0.25s, box-shadow 0.25s;
     }
-    .ai-input-row:focus-within { border-color: rgba(212,175,55,0.5); }
-    .ai-input-row input {
-        flex: 1;
+    .chat-bar:focus-within {
+        border-color: rgba(212,175,55,0.4);
+        box-shadow: 0 10px 30px rgba(212,175,55,0.08);
+    }
+    .chat-input-wrapper {
+        margin-bottom: 12px;
+    }
+    .chat-input-wrapper input {
+        width: 100%;
         background: transparent;
         border: none;
         outline: none;
-        color: #f0f0f0;
-        font-size: 0.88rem;
-        padding: 6px 0;
+        color: #fff;
+        font-size: 0.95rem;
+        padding: 4px 0;
     }
-    .ai-input-row input::placeholder { color: #555; }
-    .ai-icon-btn {
-        background: transparent;
-        border: none;
+    .chat-input-wrapper input::placeholder {
         color: #555;
-        width: 34px; height: 34px;
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.9rem;
     }
-    .ai-icon-btn:hover { background: rgba(255,255,255,0.07); color: #aaa; }
-    .ai-send-btn {
+    .chat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chat-icons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .chat-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 50%;
+        cursor: pointer;
+        color: #8b93a1;
+        transition: all 0.25s ease;
+        padding: 0;
+    }
+    .icon-btn:hover {
+        color: #d4af37;
+        background: rgba(212,175,55,0.1);
+        border-color: rgba(212,175,55,0.2);
+        transform: translateY(-1px);
+    }
+    .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .send-btn-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
         background: #d4af37;
-        color: #000;
         border: none;
-        width: 36px; height: 36px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
         cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.85rem;
-        font-weight: 700;
-        flex-shrink: 0;
+        color: #000;
+        transition: all 0.25s ease;
+        padding: 0;
     }
-    .ai-send-btn:hover { background: #f0c940; transform: scale(1.05); }
+    .send-btn-icon:hover {
+        background: #f0c940;
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(212,175,55,0.3);
+    }
+    .send-btn-icon svg {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
 
     /* Sidebar */
     .ai-sidebar {
@@ -303,18 +356,26 @@
 
             <div class="ai-input-area">
                 <form id="chat-form">
-                    <div class="ai-input-row">
-                        <button type="button" class="ai-icon-btn" id="btn-file-upload" title="Adjuntar archivo">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <input type="file" id="file-input" class="d-none" accept=".csv,.txt,.pdf,.jpg,.png">
-                        <button type="button" class="ai-icon-btn" id="btn-voice" title="Dictar por voz">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <input type="text" id="user-input" placeholder="Pregunta sobre ventas, inventario, sugerencias..." autocomplete="off" required>
-                        <button type="submit" class="ai-send-btn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    <div class="chat-bar">
+                        <div class="chat-input-wrapper">
+                            <input type="text" id="user-input" placeholder="Pregunta sobre ventas, inventario, sugerencias..." autocomplete="off" required>
+                        </div>
+                        <div class="chat-row">
+                            <div class="chat-icons">
+                                <button type="button" class="icon-btn" id="btn-file-upload" title="Adjuntar archivo">
+                                    <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                </button>
+                                <input type="file" id="file-input" class="d-none" accept=".csv,.txt,.pdf,.jpg,.png">
+                            </div>
+                            <div class="chat-actions-right">
+                                <button type="button" class="icon-btn" id="btn-voice" title="Dictar por voz">
+                                    <svg viewBox="0 0 24 24" id="mic-svg"><path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                </button>
+                                <button type="submit" class="send-btn-icon" title="Enviar mensaje">
+                                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -430,15 +491,15 @@
                     } catch(err) {} finally { aiTyping.classList.add('d-none'); }
                 };
                 mediaRecorder.start();
-                btnVoice.querySelector('i').className = 'fas fa-stop-circle';
                 btnVoice.style.color = '#f87171';
+                btnVoice.style.backgroundColor = 'rgba(248,113,113,0.1)';
             } catch(err) { alert("Permiso de microfono denegado."); }
         });
         btnVoice.addEventListener('mouseup', function() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                btnVoice.querySelector('i').className = 'fas fa-microphone';
                 btnVoice.style.color = '';
+                btnVoice.style.backgroundColor = '';
                 mediaRecorder.stream.getTracks().forEach(function(t){ t.stop(); });
             }
         });

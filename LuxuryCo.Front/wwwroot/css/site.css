@@ -653,3 +653,230 @@ hr { border-color: var(--border-light); opacity: 0.15; }
     letter-spacing: 1px;
     text-transform: uppercase;
 }
+
+/* =====================================================
+   CIRCULAR TESTIMONIALS (Modelos)
+   ===================================================== */
+.testimonial-container {
+    width: 100%;
+    max-width: 56rem;
+    padding: 2rem;
+    margin-bottom: 5rem;
+}
+
+.testimonial-grid {
+    display: grid;
+    gap: 3rem;
+}
+
+@media (min-width: 768px) {
+    .testimonial-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+    }
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 24rem;
+    perspective: 1000px;
+}
+
+.testimonial-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    transition: transform 0.8s cubic-bezier(.4,2,.3,1), opacity 0.8s cubic-bezier(.4,2,.3,1);
+}
+
+.testimonial-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.testimonial-content .name {
+    font-weight: bold;
+    margin: 0 0 0.25rem 0;
+    color: var(--gold);
+    font-size: 28px;
+    font-family: var(--font-display);
+}
+
+.testimonial-content .designation {
+    margin: 0 0 2rem 0;
+    color: #999;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.testimonial-content .quote {
+    line-height: 1.75;
+    color: #ddd;
+    font-size: 18px;
+    margin: 0;
+}
+
+.testimonial-content .quote span {
+    display: inline-block;
+    transition: filter 0.22s ease, opacity 0.22s ease, transform 0.22s ease;
+}
+
+.arrow-buttons {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 3rem;
+}
+
+@media (min-width: 768px) {
+    .arrow-buttons { padding-top: 0; margin-top: 2.5rem; }
+}
+
+.arrow-button {
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid var(--gold);
+    background: transparent;
+}
+
+.arrow-button:hover {
+    background-color: var(--gold);
+}
+
+.arrow-button svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--gold);
+    transition: fill 0.3s;
+}
+
+.arrow-button:hover svg {
+    fill: #000;
+}
+
+
+/* =====================================================
+   CIRCULAR GALLERY 3D (Marcas)
+   ===================================================== */
+.scroll-spacer {
+    width: 100%;
+    height: 250vh; /* Ajustado para que no sea tan largo el scroll */
+}
+
+.sticky-stage {
+    width: 100%;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: transparent;
+}
+
+.gallery-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 2000px;
+}
+
+.gallery-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.gallery-item {
+    position: absolute;
+    width: 260px;
+    height: 340px;
+    left: 50%;
+    top: 50%;
+    margin-left: -130px;
+    margin-top: -170px;
+    transition: opacity 0.3s linear;
+}
+
+.gallery-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 45px rgba(212,175,55,0.15);
+    border: 1px solid rgba(212,175,55,0.2);
+    background: rgba(0,0,0,0.5);
+}
+
+.gallery-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+.gallery-card .card-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1.5rem 1rem 1rem 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+    color: #fff;
+}
+
+.gallery-card h2 {
+    font-size: 1.5rem;
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.gallery-card em {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    font-style: italic;
+    color: #ccc;
+}
+
+.gallery-card .by {
+    font-size: 0.7rem;
+    opacity: 0.65;
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 3rem;
+    z-index: 10;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+    animation: palpitar 2s infinite;
+}

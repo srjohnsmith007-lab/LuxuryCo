@@ -57,6 +57,24 @@
     </div>
 </div>
 
+<!-- Floating Recommendations Widget (Bottom Left) -->
+<div id="floating-recs-widget" class="floating-widget">
+    <div class="widget-icon">
+        <i class="fas fa-gem text-gold"></i>
+    </div>
+    <div class="widget-text">Recomendaciones del día</div>
+</div>
+
+<!-- Recommendations Overlay -->
+<div id="recs-overlay" class="recs-overlay d-none">
+    <button id="close-recs" class="close-btn"><i class="fas fa-times"></i></button>
+    <div class="stage">
+        <h3 class="recs-title">Recomendaciones del día</h3>
+        <div class="stack-wrapper" id="recs-stack"></div>
+        <div class="hint">Haz clic en la carta frontal para ver la siguiente</div>
+    </div>
+</div>
+
 <style>
     .hover-zoom:hover {
         transform: scale(1.05);
@@ -114,6 +132,102 @@
                 }, 50);
                 
             }, 2500); // Change word every 2.5 seconds
+            
+            // Lógica del Widget de Recomendaciones
+            const widget = document.getElementById('floating-recs-widget');
+            const overlay = document.getElementById('recs-overlay');
+            const closeBtn = document.getElementById('close-recs');
+            const stack = document.getElementById('recs-stack');
+            
+            let products = [];
+            let order = [];
+            
+            widget.addEventListener('click', () => {
+                overlay.classList.remove('d-none');
+                if (products.length === 0) {
+                    fetchProducts();
+                }
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                overlay.classList.add('d-none');
+            });
+            
+            async function fetchProducts() {
+                try {
+                    const res = await fetch('https://luxuryco.onrender.com/api/producto');
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Tomar 5 aleatorios
+                        products = data.sort(() => 0.5 - Math.random()).slice(0, 5);
+                        order = Array.from({length: products.length}, (_, i) => i);
+                        renderStack();
+                    }
+                } catch(e) {
+                    console.error('Error cargando recomendaciones', e);
+                }
+            }
+            
+            function renderStack() {
+                stack.innerHTML = '';
+                order.forEach((cardIndex, depth) => {
+                    const p = products[cardIndex];
+                    const el = document.createElement('div');
+                    el.className = 'recs-card';
+                    
+                    const offsetX = depth * 10;
+                    const offsetY = depth * -6;
+                    const rotate = depth * 4.5;
+                    const scale = 1 - depth * 0.035;
+
+                    el.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotate}deg) scale(${scale})`;
+                    el.style.zIndex = 100 - depth;
+                    el.style.boxShadow = depth === 0
+                        ? '0 14px 34px rgba(0,0,0,0.5), 0 3px 10px rgba(0,0,0,0.3)'
+                        : '0 6px 16px rgba(0,0,0,0.3)';
+
+                    const imageUrl = p.imagenUrl ? p.imagenUrl : 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop';
+                    
+                    el.innerHTML = `
+                        <div class="recs-card-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                            <div class="recs-card-overlay"></div>
+                        </div>
+                        <div class="recs-card-label">
+                            ${p.nombre}
+                            <span class="recs-card-sub">$${p.precio.toLocaleString()} USD</span>
+                        </div>
+                    `;
+
+                    if (depth === 0) {
+                        el.addEventListener('click', (e) => {
+                            if (e.target.tagName.toLowerCase() !== 'a') {
+                                cycle();
+                            }
+                        });
+                        
+                        const link = document.createElement('a');
+                        link.href = `/Shop/Product/${p.id_producto}`;
+                        link.className = 'recs-btn-link';
+                        link.innerHTML = 'Ir al producto';
+                        el.appendChild(link);
+                    }
+
+                    stack.appendChild(el);
+                });
+            }
+
+            function cycle() {
+                if(order.length === 0) return;
+                const front = stack.querySelector('.recs-card');
+                front.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease';
+                front.style.transform += ' translate(120px, 40px) rotate(22deg)';
+                front.style.opacity = '0';
+
+                setTimeout(() => {
+                    order.push(order.shift());
+                    renderStack();
+                }, 230);
+            }
         });
     </script>
 }

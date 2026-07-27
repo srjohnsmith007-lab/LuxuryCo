@@ -481,3 +481,165 @@ hr { border-color: var(--border-light); opacity: 0.15; }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+
+/* =====================================================
+   FLOATING RECOMMENDATIONS WIDGET (Abanico)
+   ===================================================== */
+.floating-widget {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #111;
+    border: 1px solid var(--gold);
+    border-radius: 30px;
+    padding: 10px 20px 10px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.floating-widget:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+}
+
+.floating-widget .widget-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #333;
+}
+
+.floating-widget .widget-text {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Recommendations Overlay */
+.recs-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recs-overlay .close-btn {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.recs-overlay .close-btn:hover { color: var(--gold); }
+
+.recs-title {
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Fan Stack Component */
+.stack-wrapper {
+    position: relative;
+    width: 320px;
+    height: 440px;
+}
+
+.recs-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 320px;
+    height: 440px;
+    border-radius: 12px;
+    background: #111;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    cursor: pointer;
+    transform-origin: bottom center;
+    user-select: none;
+}
+
+.recs-card-image {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.recs-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 100%);
+}
+
+.recs-card-label {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.recs-card-sub {
+    display: block;
+    color: var(--gold);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.recs-btn-link {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 3;
+    background: var(--gold);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background 0.2s;
+}
+.recs-btn-link:hover {
+    background: #fff;
+    color: #000;
+}
+
+.hint {
+    margin-top: 30px;
+    color: #888;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}

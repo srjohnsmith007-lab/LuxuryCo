@@ -70,9 +70,12 @@
                                     </span>
                                 </td>
                                 <td style="padding-right: 2rem;" class="text-end">
-                                    <button class="btn btn-sm btn-outline-warning rounded-circle" title="Ver Detalles del Pedido" onclick="verDetallePedido(@p.IdPedido, '@p.NombreUsuario', '@p.EmailUsuario', '@p.FechaPedido.ToString("dd/MM/yyyy HH:mm")', '@p.DireccionEnvio', '@string.Format("{0:N0}", p.Total)')">
+                                    <button class="btn btn-sm btn-outline-warning rounded-circle me-1" title="Ver Detalles del Pedido" onclick="verDetallePedido(@p.IdPedido, '@p.NombreUsuario', '@p.EmailUsuario', '@p.FechaPedido.ToString("dd/MM/yyyy HH:mm")', '@p.DireccionEnvio', '@string.Format("{0:N0}", p.Total)')">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    <a asp-action="Facturas" asp-route-highlight="factura-@(p.IdPedido + 4000)" class="btn btn-sm btn-warning fw-bold px-2 py-1" title="Ver Factura de este Pedido">
+                                        <i class="fas fa-file-invoice me-1"></i> Factura
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -144,7 +147,10 @@
                     <span class="h5 mb-0 fw-bold text-warning" id="mdlTotal"></span>
                 </div>
             </div>
-            <div class="modal-footer border-secondary">
+            <div class="modal-footer border-secondary justify-content-between">
+                <button type="button" class="btn btn-warning btn-sm fw-bold" id="btnMdlVerFactura" onclick="irAFacturaModal()">
+                    <i class="fas fa-file-invoice me-1"></i> Ver Factura de este Pedido
+                </button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -152,7 +158,9 @@
 </div>
 
 <script>
+    var currentMdlPedidoId = 0;
     function verDetallePedido(id, cliente, email, fecha, direccion, total) {
+        currentMdlPedidoId = id;
         document.getElementById("mdlPedidoId").innerText = "#PED-" + id;
         document.getElementById("mdlClienteNombre").innerText = cliente;
         document.getElementById("mdlClienteEmail").innerText = email;
@@ -162,5 +170,9 @@
         
         var modal = new bootstrap.Modal(document.getElementById('modalDetallePedido'));
         modal.show();
+    }
+
+    function irAFacturaModal() {
+        window.location.href = '/Admin/Facturas';
     }
 </script>

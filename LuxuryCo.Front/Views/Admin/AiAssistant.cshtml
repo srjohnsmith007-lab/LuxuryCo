@@ -473,16 +473,13 @@
             <div class="ai-panel">
                 <div class="ai-panel-title"><i class="fas fa-bolt"></i>Preguntas Rapidas</div>
                 <div class="ai-suggestion" onclick="sendSuggestion(this)">
-                    <i class="fas fa-arrow-right"></i>Cuantos productos hay en inventario?
+                    <i class="fas fa-file-excel" style="color:#21a366;"></i>Generar reporte de ventas en Excel
                 </div>
                 <div class="ai-suggestion" onclick="sendSuggestion(this)">
-                    <i class="fas fa-arrow-right"></i>Que marcas tenemos disponibles?
+                    <i class="fas fa-boxes" style="color:#d4af37;"></i>Exportar inventario y alertas de stock
                 </div>
                 <div class="ai-suggestion" onclick="sendSuggestion(this)">
-                    <i class="fas fa-arrow-right"></i>Cuantos usuarios estan registrados?
-                </div>
-                <div class="ai-suggestion" onclick="sendSuggestion(this)">
-                    <i class="fas fa-arrow-right"></i>Cuales son los productos mas caros?
+                    <i class="fas fa-users" style="color:#60a5fa;"></i>Descargar reporte de usuarios registrados
                 </div>
                 <div class="ai-suggestion" onclick="sendSuggestion(this)">
                     <i class="fas fa-arrow-right"></i>Que sedes estan activas?
@@ -645,10 +642,36 @@
 
         var div = document.createElement('div');
         div.className = 'chat-msg msg-' + sender;
-        var formatted = text
+
+        var cleanText = text;
+        var reportTagMatch = text.match(/\[\[DOWNLOAD_REPORT:(.*?)\]\]/);
+        var reportType = reportTagMatch ? reportTagMatch[1] : null;
+
+        if (reportType) {
+            cleanText = cleanText.replace(/\[\[DOWNLOAD_REPORT:(.*?)\]\]/g, '');
+        }
+
+        var formatted = cleanText
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
+
         div.innerHTML = formatted;
+
+        if (reportType) {
+            var downloadBtnContainer = document.createElement('div');
+            downloadBtnContainer.style.marginTop = '12px';
+            downloadBtnContainer.style.paddingTop = '10px';
+            downloadBtnContainer.style.borderTop = '1px solid rgba(212,175,55,0.2)';
+            
+            var titleText = reportType === 'VENTAS' ? 'Ventas' : (reportType === 'INVENTARIO' ? 'Inventario' : 'Usuarios');
+            var iconClass = reportType === 'VENTAS' ? 'fa-chart-line' : (reportType === 'INVENTARIO' ? 'fa-boxes' : 'fa-users');
+
+            downloadBtnContainer.innerHTML = '<a href="/Admin/ExportReport?type=' + reportType + '" target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #d4af37, #aa820a); color: #000; font-weight: 700; border-radius: 8px; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(212,175,55,0.25);">' +
+                '<i class="fas ' + iconClass + '"></i> Descargar Reporte de ' + titleText + ' (Excel/CSV) <i class="fas fa-download"></i></a>';
+
+            div.appendChild(downloadBtnContainer);
+        }
+
         document.getElementById('messages-container').appendChild(div);
         document.getElementById('chat-box').scrollTop = 999999;
     }

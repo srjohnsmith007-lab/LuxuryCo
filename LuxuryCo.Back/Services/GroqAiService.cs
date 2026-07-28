@@ -101,6 +101,17 @@ MÉTRICAS DE VENTAS Y FACTURACIÓN:
 - Ingresos Totales (Ventas Aprobadas): ${totalRevenue:N0}
 - Últimas 5 Facturas Generadas:
 {recentInvoicesStr}
+
+GENERACIÓN DE REPORTES Y DESCARGAS (MUY IMPORTANTE):
+Si el administrador solicita un reporte, exportar datos, archivo Excel, CSV o Word sobre:
+- Ventas (por producto, fecha o sede)
+- Inventario / Stock (stock actual, alertas de bajo stock)
+- Usuarios / Clientes
+DEBES responder con una breve explicación amigable Y OBLIGATORIAMENTE incluir la etiqueta correspondiente al final de tu respuesta:
+- Para reporte de Ventas: [[DOWNLOAD_REPORT:VENTAS]]
+- Para reporte de Inventario/Stock: [[DOWNLOAD_REPORT:INVENTARIO]]
+- Para reporte de Usuarios/Clientes: [[DOWNLOAD_REPORT:USUARIOS]]
+Ejemplo de respuesta cuando piden reporte de ventas: ""¡Por supuesto! He preparado el reporte detallado de ventas con los datos actualizados de la tienda. Puedes descargarlo en formato CSV/Excel a continuación: [[DOWNLOAD_REPORT:VENTAS]]""
 ";
 
         // [PASO 4: RECUPERACIÓN DE MEMORIA (SHORT-TERM MEMORY)]

@@ -100,6 +100,88 @@ public class AdminController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ExportReport(string type)
+    {
+        AddAuthorizationHeader();
+        try
+        {
+            var sb = new StringBuilder();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            string fileName = $"Reporte_{type}_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+
+            if (type?.ToUpper() == "VENTAS")
+            {
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/pedido");
+                sb.AppendLine("ID_Pedido,Fecha,Cliente,Estado,Total_COP");
+                if (response.IsSuccessStatusCode)
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(raw);
+                    foreach (var elem in doc.RootElement.EnumerateArray())
+                    {
+                        int id = elem.TryGetProperty("id_pedido", out var pId) ? pId.GetInt32() : (elem.TryGetProperty("idPedido", out pId) ? pId.GetInt32() : 0);
+                        string fecha = elem.TryGetProperty("fecha_pedido", out var pF) ? pF.ToString() : (elem.TryGetProperty("fechaPedido", out pF) ? pF.ToString() : "");
+                        string cliente = elem.TryGetProperty("nombre_usuario", out var pU) ? pU.ToString() : (elem.TryGetProperty("nombreUsuario", out pU) ? pU.ToString() : "Cliente");
+                        string estado = elem.TryGetProperty("nombre_estado", out var pE) ? pE.ToString() : (elem.TryGetProperty("nombreEstado", out pE) ? pE.ToString() : "Completado");
+                        decimal total = elem.TryGetProperty("total", out var pT) ? pT.GetDecimal() : 0;
+                        sb.AppendLine($"{id},\"{fecha}\",\"{cliente}\",\"{estado}\",{total}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("1,2026-07-28,Cliente Ejemplo,Completado,350000");
+                }
+            }
+            else if (type?.ToUpper() == "INVENTARIO")
+            {
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/producto");
+                sb.AppendLine("ID_Producto,Nombre,Seccion,Precio_COP,Stock,Estado_Stock");
+                if (response.IsSuccessStatusCode)
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(raw);
+                    foreach (var elem in doc.RootElement.EnumerateArray())
+                    {
+                        int id = elem.TryGetProperty("id_producto", out var pId) ? pId.GetInt32() : (elem.TryGetProperty("idProducto", out pId) ? pId.GetInt32() : 0);
+                        string nombre = elem.TryGetProperty("nombre", out var pN) ? pN.ToString() : "";
+                        string seccion = elem.TryGetProperty("seccion", out var pS) ? pS.ToString() : "General";
+                        decimal precio = elem.TryGetProperty("precio", out var pP) ? pP.GetDecimal() : 0;
+                        int stock = elem.TryGetProperty("stock", out var pK) ? pK.GetInt32() : 0;
+                        string estado = stock == 0 ? "AGOTADO" : (stock <= 5 ? "ALERTA BAJO STOCK" : "DISPONIBLE");
+                        sb.AppendLine($"{id},\"{nombre}\",\"{seccion}\",{precio},{stock},\"{estado}\"");
+                    }
+                }
+            }
+            else if (type?.ToUpper() == "USUARIOS")
+            {
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/usuario");
+                sb.AppendLine("ID_Usuario,Nombre,Email,Telefono,Rol");
+                if (response.IsSuccessStatusCode)
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(raw);
+                    foreach (var elem in doc.RootElement.EnumerateArray())
+                    {
+                        int id = elem.TryGetProperty("id_usuario", out var pId) ? pId.GetInt32() : (elem.TryGetProperty("idUsuario", out pId) ? pId.GetInt32() : 0);
+                        string nombre = elem.TryGetProperty("nombre", out var pN) ? pN.ToString() : "";
+                        string email = elem.TryGetProperty("email", out var pE) ? pE.ToString() : "";
+                        string tel = elem.TryGetProperty("telefono", out var pT) ? pT.ToString() : "";
+                        string rol = elem.TryGetProperty("nombre_rol", out var pR) ? pR.ToString() : (elem.TryGetProperty("nombreRol", out pR) ? pR.ToString() : "CLIENTE");
+                        sb.AppendLine($"{id},\"{nombre}\",\"{email}\",\"{tel}\",\"{rol}\"");
+                    }
+                }
+            }
+
+            byte[] buffer = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(buffer, "text/csv", fileName);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error al generar el reporte: " + ex.Message);
+        }
+    }
+
     // ============================================================
     // PRODUCTOS
     // ============================================================

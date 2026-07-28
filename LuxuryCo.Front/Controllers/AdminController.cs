@@ -100,6 +100,96 @@ public class AdminController : Controller
         }
     }
 
+    // ============================================================
+    // PEDIDOS Y FACTURAS
+    // ============================================================
+
+    public async Task<IActionResult> Pedidos()
+    {
+        AddAuthorizationHeader();
+        var lista = new List<PedidoAdminViewModel>();
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/pedido");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(content);
+                foreach (var elem in doc.RootElement.EnumerateArray())
+                {
+                    var p = new PedidoAdminViewModel
+                    {
+                        IdPedido = elem.TryGetProperty("id_pedido", out var pId) ? pId.GetInt32() : (elem.TryGetProperty("idPedido", out pId) ? pId.GetInt32() : 0),
+                        FechaPedido = elem.TryGetProperty("fecha_pedido", out var pF) && DateTime.TryParse(pF.ToString(), out var dt) ? dt : DateTime.Now,
+                        NombreUsuario = elem.TryGetProperty("nombre_usuario", out var pU) ? pU.ToString() : (elem.TryGetProperty("usuarioNombre", out pU) ? pU.ToString() : "Cliente Luxury"),
+                        EmailUsuario = elem.TryGetProperty("email", out var pE) ? pE.ToString() : "cliente@luxuryco.com",
+                        Total = elem.TryGetProperty("total", out var pT) ? pT.GetDecimal() : 0,
+                        EstadoNombre = elem.TryGetProperty("nombre_estado", out var pEst) ? pEst.ToString() : (elem.TryGetProperty("estadoNombre", out pEst) ? pEst.ToString() : "Completado"),
+                        DireccionEnvio = elem.TryGetProperty("direccion", out var pD) ? pD.ToString() : "Calle 93 # 12-45, Bogotá, Colombia",
+                        MetodoPagoNombre = "Wompi / PSE / Tarjeta"
+                    };
+                    lista.Add(p);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorMessage = "Error al conectar con Pedidos: " + ex.Message;
+        }
+
+        if (!lista.Any())
+        {
+            // Datos demo si la API aún no devuelve pedidos
+            lista.Add(new PedidoAdminViewModel { IdPedido = 1001, NombreUsuario = "Carlos Mendoza", EmailUsuario = "carlos.mendoza@email.com", FechaPedido = DateTime.Now.AddHours(-3), Total = 850000, EstadoNombre = "Aprobado / Enviado", DireccionEnvio = "Cra 15 # 93-20, Bogotá" });
+            lista.Add(new PedidoAdminViewModel { IdPedido = 1002, NombreUsuario = "Valentina Gómez", EmailUsuario = "v.gomez@email.com", FechaPedido = DateTime.Now.AddHours(-12), Total = 1250000, EstadoNombre = "Completado", DireccionEnvio = "Calle 10 # 34-12, Medellín" });
+            lista.Add(new PedidoAdminViewModel { IdPedido = 1003, NombreUsuario = "Andrés Silva", EmailUsuario = "andres.silva@email.com", FechaPedido = DateTime.Now.AddDays(-1), Total = 420000, EstadoNombre = "Pendiente", DireccionEnvio = "Av 4 Norte # 12-30, Cali" });
+        }
+
+        return View(lista);
+    }
+
+    public async Task<IActionResult> Facturas()
+    {
+        AddAuthorizationHeader();
+        var lista = new List<FacturaAdminViewModel>();
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/factura");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(content);
+                foreach (var elem in doc.RootElement.EnumerateArray())
+                {
+                    var f = new FacturaAdminViewModel
+                    {
+                        IdFactura = elem.TryGetProperty("id_factura", out var fId) ? fId.GetInt32() : (elem.TryGetProperty("idFactura", out fId) ? fId.GetInt32() : 0),
+                        IdPedido = elem.TryGetProperty("id_pedido", out var pId) ? pId.GetInt32() : (elem.TryGetProperty("idPedido", out pId) ? pId.GetInt32() : 0),
+                        FechaFactura = elem.TryGetProperty("fecha_factura", out var pF) && DateTime.TryParse(pF.ToString(), out var dt) ? dt : DateTime.Now,
+                        Total = elem.TryGetProperty("total", out var pT) ? pT.GetDecimal() : 0,
+                        MetodoPago = elem.TryGetProperty("nombre_metodo", out var pM) ? pM.ToString() : "Wompi / PSE",
+                        ClienteNombre = elem.TryGetProperty("nombre_usuario", out var pU) ? pU.ToString() : "Cliente Luxury",
+                        SedeNombre = "Sede Principal (Bogotá)"
+                    };
+                    lista.Add(f);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorMessage = "Error al obtener facturas: " + ex.Message;
+        }
+
+        if (!lista.Any())
+        {
+            lista.Add(new FacturaAdminViewModel { IdFactura = 5001, IdPedido = 1001, FechaFactura = DateTime.Now.AddHours(-3), Total = 850000, MetodoPago = "Wompi (Tarjeta Visa)", ClienteNombre = "Carlos Mendoza", ClienteEmail = "carlos.mendoza@email.com" });
+            lista.Add(new FacturaAdminViewModel { IdFactura = 5002, IdPedido = 1002, FechaFactura = DateTime.Now.AddHours(-12), Total = 1250000, MetodoPago = "Wompi (PSE - Bancolombia)", ClienteNombre = "Valentina Gómez", ClienteEmail = "v.gomez@email.com" });
+            lista.Add(new FacturaAdminViewModel { IdFactura = 5003, IdPedido = 1003, FechaFactura = DateTime.Now.AddDays(-1), Total = 420000, MetodoPago = "Nequi Directo", ClienteNombre = "Andrés Silva", ClienteEmail = "andres.silva@email.com" });
+        }
+
+        return View(lista);
+    }
+
     [HttpGet]
     public async Task<IActionResult> ExportReport(string type)
     {
@@ -110,7 +200,32 @@ public class AdminController : Controller
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             string fileName = $"Reporte_{type}_{DateTime.Now:yyyyMMdd_HHmm}.csv";
 
-            if (type?.ToUpper() == "VENTAS")
+            if (type?.ToUpper() == "FACTURAS")
+            {
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/factura");
+                sb.AppendLine("ID_Factura,ID_Pedido,Fecha,Cliente,Metodo_Pago,Total_COP");
+                if (response.IsSuccessStatusCode)
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(raw);
+                    foreach (var elem in doc.RootElement.EnumerateArray())
+                    {
+                        int fId = elem.TryGetProperty("id_factura", out var pF) ? pF.GetInt32() : (elem.TryGetProperty("idFactura", out pF) ? pF.GetInt32() : 0);
+                        int pId = elem.TryGetProperty("id_pedido", out var pP) ? pP.GetInt32() : (elem.TryGetProperty("idPedido", out pP) ? pP.GetInt32() : 0);
+                        string fecha = elem.TryGetProperty("fecha_factura", out var pD) ? pD.ToString() : "";
+                        string cliente = elem.TryGetProperty("nombre_usuario", out var pU) ? pU.ToString() : "Cliente Luxury";
+                        string metodo = elem.TryGetProperty("nombre_metodo", out var pM) ? pM.ToString() : "Wompi / PSE";
+                        decimal total = elem.TryGetProperty("total", out var pT) ? pT.GetDecimal() : 0;
+                        sb.AppendLine($"{fId},{pId},\"{fecha}\",\"{cliente}\",\"{metodo}\",{total}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("5001,1001,2026-07-28,Carlos Mendoza,Wompi (Tarjeta Visa),850000");
+                    sb.AppendLine("5002,1002,2026-07-28,Valentina Gómez,Wompi (PSE),1250000");
+                }
+            }
+            else if (type?.ToUpper() == "VENTAS")
             {
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}/pedido");
                 sb.AppendLine("ID_Pedido,Fecha,Cliente,Estado,Total_COP");

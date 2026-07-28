@@ -663,8 +663,8 @@
             downloadBtnContainer.style.paddingTop = '10px';
             downloadBtnContainer.style.borderTop = '1px solid rgba(212,175,55,0.2)';
             
-            var titleText = reportType === 'VENTAS' ? 'Ventas' : (reportType === 'INVENTARIO' ? 'Inventario' : 'Usuarios');
-            var iconClass = reportType === 'VENTAS' ? 'fa-chart-line' : (reportType === 'INVENTARIO' ? 'fa-boxes' : 'fa-users');
+            var titleText = reportType === 'VENTAS' ? 'Ventas' : (reportType === 'INVENTARIO' ? 'Inventario' : (reportType === 'FACTURAS' ? 'Facturas' : 'Usuarios'));
+            var iconClass = reportType === 'VENTAS' ? 'fa-chart-line' : (reportType === 'INVENTARIO' ? 'fa-boxes' : (reportType === 'FACTURAS' ? 'fa-file-invoice-dollar' : 'fa-users'));
 
             downloadBtnContainer.innerHTML = '<a href="/Admin/ExportReport?type=' + reportType + '" target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #d4af37, #aa820a); color: #000; font-weight: 700; border-radius: 8px; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(212,175,55,0.25);">' +
                 '<i class="fas ' + iconClass + '"></i> Descargar Reporte de ' + titleText + ' (Excel/CSV) <i class="fas fa-download"></i></a>';

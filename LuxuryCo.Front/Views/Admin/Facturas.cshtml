@@ -1,0 +1,192 @@
+@using LuxuryCo.Front.ViewModels
+@model List<FacturaAdminViewModel>
+@{
+    ViewData["Title"] = "Gestión de Facturas · Admin LuxuryCo";
+}
+
+<div class="adm-page-bg">
+    <div class="adm-page-header">
+        <div class="adm-page-title-area">
+            <h1><i class="fas fa-file-invoice-dollar me-2" style="color:var(--adm-gold, #d4af37);"></i>FACTURAS DE VENTA</h1>
+            <p>Historial y comprobantes fiscales de facturación electrónica de la tienda.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportReport" asp-route-type="FACTURAS" class="btn-adm-gold">
+                <i class="fas fa-file-excel me-1"></i> DESCARGAR REPORTES FACTURAS
+            </a>
+        </div>
+    </div>
+
+    <!-- Pestañas de Navegación Admin -->
+    <partial name="_AdminNav" />
+
+    <div class="adm-container-card no-padding">
+        <div class="table-responsive">
+            <table class="adm-custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 120px; padding-left: 2rem;">FACTURA</th>
+                        <th>PEDIDO</th>
+                        <th>FECHA FACTURACIÓN</th>
+                        <th>CLIENTE / COMPRADOR</th>
+                        <th>MÉTODO PAGO</th>
+                        <th class="text-end">TOTAL FACTURADO</th>
+                        <th style="padding-right: 2rem;" class="text-end">ACCIONES / IMPRIMIR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        @foreach (var f in Model)
+                        {
+                            <tr id="factura-@f.IdFactura">
+                                <td style="padding-left: 2rem;" class="fw-bold text-warning">#FAC-@f.IdFactura</td>
+                                <td class="text-secondary fw-bold">#PED-@f.IdPedido</td>
+                                <td>
+                                    <div class="text-white small"><i class="far fa-calendar-alt me-1 text-warning"></i>@f.FechaFactura.ToString("dd/MM/yyyy HH:mm")</div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div class="fw-bold text-white">@f.ClienteNombre</div>
+                                        <div class="small text-secondary"><i class="far fa-envelope me-1"></i>@f.ClienteEmail</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark border border-secondary text-info px-2 py-1">
+                                        <i class="fas fa-shield-alt me-1"></i>@f.MetodoPago
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold text-warning" style="font-size: 1rem;">
+                                    $@string.Format("{0:N0}", f.Total)
+                                </td>
+                                <td style="padding-right: 2rem;" class="text-end">
+                                    <button class="btn btn-sm btn-warning fw-bold px-3 py-1 me-1" onclick="imprimirFactura(@f.IdFactura, @f.IdPedido, '@f.ClienteNombre', '@f.FechaFactura.ToString("dd/MM/yyyy HH:mm")', '@f.MetodoPago', '@string.Format("{0:N0}", f.Total)')">
+                                        <i class="fas fa-print me-1"></i> Ver Factura
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-secondary">
+                                <i class="fas fa-file-invoice fa-3x mb-3 d-block opacity-25"></i>
+                                No hay facturas emitidas registradas.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Factura Imprimible de Lujo LuxuryCo -->
+<div class="modal fade" id="modalImprimirFactura" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-white text-dark border-0 rounded-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-gem text-warning fa-2x me-2"></i>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" style="font-family: 'Playfair Display', serif; letter-spacing: 2px;">LUXURY CO.</h5>
+                        <small class="text-warning" style="font-size: 0.75rem;">FACTURA ELECTRÓNICA DE VENTA</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="facturaPrintArea">
+                <div class="d-flex justify-content-between border-bottom pb-3 mb-4">
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">LUXURY CO. S.A.S.</h6>
+                        <small class="text-muted d-block">NIT: 901.458.922-1</small>
+                        <small class="text-muted d-block">Sede Principal: Calle 93 # 12-45, Bogotá D.C.</small>
+                        <small class="text-muted d-block">Contacto: soporte@luxuryco.com | (+57) 300 000 0000</small>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="fw-bold text-dark mb-0" id="facNumTitle">FAC-000</h5>
+                        <small class="text-muted d-block" id="facFechaTitle">Fecha: --/--/----</small>
+                        <span class="badge bg-success mt-2">PAGADO VIA WOMPI</span>
+                    </div>
+                </div>
+
+                <div class="row mb-4 p-3 rounded" style="background-color: #f8f9fa;">
+                    <div class="col-6">
+                        <small class="text-uppercase text-muted fw-bold d-block mb-1">FACTURADO A:</small>
+                        <strong class="text-dark d-block" id="facClienteNombre">Cliente</strong>
+                        <span class="small text-muted" id="facClienteDoc">CC / NIT: Registrado</span>
+                    </div>
+                    <div class="col-6 text-end">
+                        <small class="text-uppercase text-muted fw-bold d-block mb-1">FORMA DE PAGO:</small>
+                        <strong class="text-dark d-block" id="facMetodoPago">Wompi / PSE</strong>
+                        <span class="small text-muted">Estado: Transacción Aprobada</span>
+                    </div>
+                </div>
+
+                <table class="table table-bordered table-sm mb-4">
+                    <thead class="table-light">
+                        <tr class="small text-uppercase">
+                            <th>Descripción Prenda / Servicio</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-end">Precio Unit.</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chaqueta Cuero Premium Luxury Collection</td>
+                            <td class="text-center">1</td>
+                            <td class="text-end" id="facPrecioUnit">$0</td>
+                            <td class="text-end fw-bold" id="facSubtotal">$0</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="row justify-content-end mb-4">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="small text-muted">Subtotal:</span>
+                            <span class="small text-dark fw-bold" id="facCalcSubtotal">$0</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="small text-muted">IVA (19% Incluido):</span>
+                            <span class="small text-dark fw-bold" id="facCalcIva">$0</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-2 border-dark">
+                            <strong class="text-dark">TOTAL FACTURA:</strong>
+                            <strong class="text-dark h5 mb-0" id="facCalcTotal">$0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center border-top pt-3 text-muted small">
+                    <p class="mb-1">Gracias por su compra en <strong>LuxuryCo</strong>. Comprobante digital verificado por la DIAN mediante protocolo Supabase SSL.</p>
+                    <small>Generado automáticamente mediante Inteligencia Artificial & Wompi Payment Gateway.</small>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-dark btn-sm fw-bold" onclick="window.print()"><i class="fas fa-print me-1"></i> Imprimir / Guardar PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function imprimirFactura(idFac, idPed, cliente, fecha, metodo, total) {
+        document.getElementById("facNumTitle").innerText = "FACTURA #FAC-" + idFac;
+        document.getElementById("facFechaTitle").innerText = "Fecha: " + fecha;
+        document.getElementById("facClienteNombre").innerText = cliente;
+        document.getElementById("facMetodoPago").innerText = metodo;
+
+        document.getElementById("facPrecioUnit").innerText = "$" + total;
+        document.getElementById("facSubtotal").innerText = "$" + total;
+        document.getElementById("facCalcSubtotal").innerText = "$" + total;
+        document.getElementById("facCalcIva").innerText = "$0 (Incluido)";
+        document.getElementById("facCalcTotal").innerText = "$" + total;
+
+        var modal = new bootstrap.Modal(document.getElementById('modalImprimirFactura'));
+        modal.show();
+    }
+</script>

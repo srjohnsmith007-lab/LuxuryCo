@@ -277,10 +277,11 @@
     .msg-bubble {
         max-width: 85%;
         padding: 10px 14px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.9rem;
-        line-height: 1.4;
+        line-height: 1.5;
         word-wrap: break-word;
+        margin-bottom: 6px;
     }
 
     .ai-bubble {
@@ -296,6 +297,12 @@
         color: white;
         margin-left: auto;
         border-bottom-right-radius: 0;
+    }
+
+    /* Gap mayor cuando cambia el hablante */
+    .msg-bubble.user-bubble + .msg-bubble.ai-bubble,
+    .msg-bubble.ai-bubble  + .msg-bubble.user-bubble {
+        margin-top: 12px;
     }
 
     /* Línea de Carga (Typing Indicator) */

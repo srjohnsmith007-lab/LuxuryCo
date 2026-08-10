@@ -121,7 +121,13 @@ var options = new Supabase.SupabaseOptions
 builder.Services.AddSingleton(provider => new Supabase.Client(supabaseUrl, supabaseKey, options));
 
 // Authentication & JWT
-var keyParam = builder.Configuration["Jwt:Key"] ?? "ThisIsASecretKey1234567890OuchNeedMoreCharacters";
+// Fail-closed: sin Jwt:Key configurada (o variable de entorno Jwt__Key) la API no arranca.
+var keyParam = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("Jwt:Key no esta configurada. Define la variable de entorno Jwt__Key con una clave de firma fuerte (min. 32 caracteres).");
+if (keyParam.Length < 32)
+{
+    throw new InvalidOperationException("Jwt:Key debe tener al menos 32 caracteres.");
+}
 var key = Encoding.ASCII.GetBytes(keyParam);
 builder.Services.AddAuthentication(x =>
 {

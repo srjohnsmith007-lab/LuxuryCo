@@ -11,15 +11,15 @@ namespace LuxuryCo.Front.Controllers;
 public class CartController : Controller
 {
     private readonly HttpClient _httpClient;
-    private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api/carrito";
+    private readonly IConfiguration _config;
+    private readonly string _apiBaseUrl;
 
-    public CartController()
+    public CartController(IConfiguration config)
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        };
-        _httpClient = new HttpClient(handler);
+        _config = config;
+        _httpClient = new HttpClient();
+        var baseApiUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
+        _apiBaseUrl = $"{baseApiUrl}/carrito";
     }
 
     private void AddAuthorizationHeader()

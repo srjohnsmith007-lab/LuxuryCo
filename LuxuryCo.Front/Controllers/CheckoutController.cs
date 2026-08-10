@@ -11,16 +11,17 @@ namespace LuxuryCo.Front.Controllers;
 public class CheckoutController : Controller
 {
     private readonly HttpClient _httpClient;
-    private readonly string _apiCheckoutUrl = "https://luxuryco.onrender.com/api/checkout/process";
-    private readonly string _apiCartUrl = "https://luxuryco.onrender.com/api/carrito";
+    private readonly IConfiguration _config;
+    private readonly string _apiCheckoutUrl;
+    private readonly string _apiCartUrl;
 
-    public CheckoutController()
+    public CheckoutController(IConfiguration config)
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        };
-        _httpClient = new HttpClient(handler);
+        _config = config;
+        _httpClient = new HttpClient();
+        var baseApiUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
+        _apiCheckoutUrl = $"{baseApiUrl}/checkout/process";
+        _apiCartUrl = $"{baseApiUrl}/carrito";
     }
 
     private void AddAuthorizationHeader()

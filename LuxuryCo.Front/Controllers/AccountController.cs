@@ -9,13 +9,18 @@ namespace LuxuryCo.Front.Controllers
     {
         private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
         private readonly LuxuryCo.Database.Data.LuxuryCoDbContext _context;
+        private readonly IConfiguration _config;
+        private readonly string _apiBaseUrl;
 
         public AccountController(
             Microsoft.AspNetCore.Hosting.IWebHostEnvironment env,
-            LuxuryCo.Database.Data.LuxuryCoDbContext context)
+            LuxuryCo.Database.Data.LuxuryCoDbContext context,
+            IConfiguration config)
         {
             _env = env;
             _context = context;
+            _config = config;
+            _apiBaseUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
         }
 
         [HttpGet]
@@ -38,8 +43,7 @@ namespace LuxuryCo.Front.Controllers
                 var requestBody = new StringContent(
                     JsonSerializer.Serialize(new { email = model.Email, password = model.Password }),
                     System.Text.Encoding.UTF8, "application/json");
-
-                var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/login", requestBody);
+                var response = await client.PostAsync($"{_apiBaseUrl}/auth/login", requestBody);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -146,7 +150,7 @@ namespace LuxuryCo.Front.Controllers
                 };
                 var content = new StringContent(JsonSerializer.Serialize(requestObj), System.Text.Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/register", content);
+                var response = await client.PostAsync($"{_apiBaseUrl}/auth/register", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -295,7 +299,7 @@ namespace LuxuryCo.Front.Controllers
             using var client = new System.Net.Http.HttpClient();
             var content = new StringContent(JsonSerializer.Serialize(new { email = model.Email }), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/forgot-password", content);
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/forgot-password", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -327,7 +331,7 @@ namespace LuxuryCo.Front.Controllers
                 newPassword = model.NewPassword
             }), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("https://luxuryco.onrender.com/api/auth/reset-password", content);
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/reset-password", content);
 
             if (response.IsSuccessStatusCode)
             {

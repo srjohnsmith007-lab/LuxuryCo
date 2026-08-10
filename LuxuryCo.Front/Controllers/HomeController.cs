@@ -10,16 +10,15 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly HttpClient _httpClient;
-    private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api";
+    private readonly IConfiguration _config;
+    private readonly string _apiBaseUrl;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IConfiguration config)
     {
         _logger = logger;
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        };
-        _httpClient = new HttpClient(handler);
+        _config = config;
+        _httpClient = new HttpClient();
+        _apiBaseUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
     }
 
     // Endpoint "Proxy" (Puente) para el chat del Estilista

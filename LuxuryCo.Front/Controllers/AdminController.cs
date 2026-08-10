@@ -13,16 +13,15 @@ public class AdminController : Controller
 {
     private readonly HttpClient _httpClient;
     private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
-    private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api";
+    private readonly IConfiguration _config;
+    private readonly string _apiBaseUrl;
 
-    public AdminController(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
+    public AdminController(Microsoft.AspNetCore.Hosting.IWebHostEnvironment env, IConfiguration config)
     {
         _env = env;
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-        };
-        _httpClient = new HttpClient(handler);
+        _config = config;
+        _httpClient = new HttpClient();
+        _apiBaseUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
     }
 
     private void AddAuthorizationHeader()

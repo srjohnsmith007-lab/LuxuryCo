@@ -7,15 +7,14 @@ namespace LuxuryCo.Front.Controllers
     public class ShopController : Controller
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl = "https://luxuryco.onrender.com/api";
+        private readonly IConfiguration _config;
+        private readonly string _apiBaseUrl;
 
-        public ShopController()
+        public ShopController(IConfiguration config)
         {
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
-            };
-            _httpClient = new HttpClient(handler);
+            _config = config;
+            _httpClient = new HttpClient();
+            _apiBaseUrl = _config["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api";
         }
 
         // GET: /Shop/Category/Hombre  or /Shop/Category/Todos

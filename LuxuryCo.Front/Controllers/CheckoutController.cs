@@ -53,6 +53,7 @@ public class CheckoutController : Controller
             }
 
             ViewBag.CartSummary = cart;
+            ViewBag.WompiPublicKey = _config["Wompi:PublicKey"] ?? "";
         }
 
         return View(new CheckoutRequestViewModel());

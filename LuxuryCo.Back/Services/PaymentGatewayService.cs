@@ -29,7 +29,7 @@ public class PaymentGatewayService : IPaymentGatewayService
 
         try
         {
-            string baseUrl = _config["Wompi:BaseUrl"] ?? "https://production.wompi.co/v1";
+            string baseUrl = _config["Wompi:BaseUrl"] ?? "https://sandbox.wompi.co/v1";
             string privateKey = _config["Wompi:PrivateKey"] ?? Environment.GetEnvironmentVariable("Wompi__PrivateKey") ?? "";
 
             using var client = new HttpClient();

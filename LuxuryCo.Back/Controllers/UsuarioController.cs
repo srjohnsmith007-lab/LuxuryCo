@@ -62,7 +62,7 @@ public class UsuarioController : ControllerBase
             var tel = u.telefono ?? "";
             var estado = u.activo == true ? "Activo" : "Inactivo";
             var rol = u.Rol?.nombre_rol ?? "Cliente";
-            var fecha = u.fecha_registro?.ToString("yyyy-MM-dd HH:mm") ?? "";
+            var fecha = u.fecha_registro.ToString("yyyy-MM-dd HH:mm");
             builder.AppendLine($"{u.id_usuario},{nombre},{email},{tel},{estado},{rol},{fecha}");
         }
 

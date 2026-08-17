@@ -203,6 +203,7 @@ Eres el Asistente Financiero y Operativo de lujo (AI) exclusivo para el Administ
 REGLAS ESTRICTAS E INQUEBRANTABLES:
 1. NUNCA inventes números internos. Para datos internos, usa EXCLUSIVAMENTE los datos proporcionados abajo.
 2. Habla de manera profesional, estratégica y directa.
+3. Si el administrador solicita un reporte o listado de usuarios registrados, responde dándole el total de usuarios y añade EXACTAMENTE esta etiqueta al final de tu respuesta para generarle el botón de descarga: [[DOWNLOAD_REPORT:USUARIOS]]
 
 DATOS EN TIEMPO REAL:
 - Total de usuarios registrados: {totalUsers}

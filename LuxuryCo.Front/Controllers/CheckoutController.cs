@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using LuxuryCo.Front.ViewModels;
@@ -52,8 +53,29 @@ public class CheckoutController : Controller
                 return RedirectToAction("Index", "Cart");
             }
 
+            // Calcular el total igual que en la vista (subtotal + IVA 19% + envío)
+            decimal envio = cart.Total > 500000 ? 0 : 25000;
+            decimal iva = cart.Total * 0.19m;
+            decimal totalFinal = cart.Total + iva + envio;
+            long amountInCents = (long)(totalFinal * 100);
+
+            // Generar referencia única para esta sesión de pago
+            var reference = Guid.NewGuid().ToString();
+
+            // Generar firma de integridad SHA256 requerida por Wompi
+            // Fórmula: SHA256(reference + amountInCents + "COP" + integritySecret)
+            var integritySecret = _config["Wompi:IntegritySecret"] 
+                ?? Environment.GetEnvironmentVariable("Wompi__IntegritySecret") 
+                ?? "";
+            var rawSignature = $"{reference}{amountInCents}COP{integritySecret}";
+            var signatureBytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawSignature));
+            var signature = Convert.ToHexString(signatureBytes).ToLower();
+
             ViewBag.CartSummary = cart;
             ViewBag.WompiPublicKey = _config["Wompi:PublicKey"] ?? "";
+            ViewBag.WompiReference = reference;
+            ViewBag.WompiAmountInCents = amountInCents;
+            ViewBag.WompiSignature = signature;
         }
 
         return View(new CheckoutRequestViewModel());

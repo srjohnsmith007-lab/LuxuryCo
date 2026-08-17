@@ -5,6 +5,10 @@
     decimal envio = cart != null && cart.Total > 500000 ? 0 : 25000;
     decimal iva = cart != null ? cart.Total * 0.19m : 0;
     decimal totalFinal = cart != null ? cart.Total + iva + envio : 0;
+    // Valores calculados y firmados desde el servidor
+    string wompiRef = ViewBag.WompiReference ?? Guid.NewGuid().ToString();
+    long wompiAmount = ViewBag.WompiAmountInCents ?? (long)(totalFinal * 100);
+    string wompiSig = ViewBag.WompiSignature ?? "";
 }
 
 <div class="container-fluid py-5" style="background-color: #000; min-height: 100vh; color: #fff;">
@@ -150,15 +154,19 @@
 
             var checkout = new WidgetCheckout({
                 currency: 'COP',
-                amountInCents: @Html.Raw((totalFinal * 100).ToString("0")),
-                reference: document.getElementById('IdempotencyKey').value,
-                publicKey: '@ViewBag.WompiPublicKey'
+                amountInCents: @Html.Raw(wompiAmount.ToString()),
+                reference: '@Html.Raw(wompiRef)',
+                publicKey: '@ViewBag.WompiPublicKey',
+                signature: {
+                    integrity: '@Html.Raw(wompiSig)'
+                }
             });
 
             checkout.open(function (result) {
                 var transaction = result.transaction;
                 if(transaction.status === 'APPROVED') {
                     document.getElementById("CardToken").value = transaction.id;
+                    document.getElementById("IdempotencyKey").value = '@Html.Raw(wompiRef)';
                     
                     document.getElementById("btnPagar").classList.add("d-none");
                     document.getElementById("loadingSpinner").classList.remove("d-none");

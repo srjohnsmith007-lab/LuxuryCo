@@ -196,6 +196,7 @@ public class MultiModelAiService : IAiService
         // Build Prompt Context (RAG: catalog & metrics)
         var totalProducts = await _context.Productos.CountAsync();
         var totalStock = await _context.Productos.SumAsync(p => (int?)p.stock) ?? 0;
+        var totalUsers = await _context.Usuarios.CountAsync();
         
         string systemPrompt = $@"
 Eres el Asistente Financiero y Operativo de lujo (AI) exclusivo para el Administrador de la marca 'LuxuryCo'.
@@ -204,6 +205,7 @@ REGLAS ESTRICTAS E INQUEBRANTABLES:
 2. Habla de manera profesional, estratégica y directa.
 
 DATOS EN TIEMPO REAL:
+- Total de usuarios registrados: {totalUsers}
 - Total de productos en catálogo: {totalProducts}
 - Unidades totales de ropa en stock: {totalStock}
 ";

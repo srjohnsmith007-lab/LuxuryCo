@@ -6,34 +6,44 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     // ── GSAP ScrollTrigger: [data-reveal] + [data-parallax] ──
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    var gsapOK = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
+
+    if (gsapOK) {
         gsap.registerPlugin(ScrollTrigger);
 
-        document.querySelectorAll('[data-reveal]').forEach(el => {
-            const direction = el.dataset.reveal || 'up';
-            const delay = parseFloat(el.dataset.revealDelay) || 0;
-            const fromVars = { opacity: 0, duration: 0.8, delay, ease: 'power3.out' };
+        try {
+            document.querySelectorAll('[data-reveal]').forEach(el => {
+                const direction = el.dataset.reveal || 'up';
+                const delay = parseFloat(el.dataset.revealDelay) || 0;
+                const fromVars = { opacity: 0, duration: 0.8, delay, ease: 'power3.out' };
 
-            if (direction === 'up') fromVars.y = 40;
-            else if (direction === 'down') fromVars.y = -40;
-            else if (direction === 'left') fromVars.x = 40;
-            else if (direction === 'right') fromVars.x = -40;
-            else if (direction === 'scale') fromVars.scale = 0.92;
+                if (direction === 'up') fromVars.y = 40;
+                else if (direction === 'down') fromVars.y = -40;
+                else if (direction === 'left') fromVars.x = 40;
+                else if (direction === 'right') fromVars.x = -40;
+                else if (direction === 'scale') fromVars.scale = 0.92;
 
-            gsap.from(el, {
-                ...fromVars,
-                scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+                gsap.from(el, {
+                    ...fromVars,
+                    scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+                });
             });
-        });
 
-        document.querySelectorAll('[data-parallax]').forEach(el => {
-            const speed = parseFloat(el.dataset.parallax) || 0.3;
-            gsap.to(el, {
-                y: () => speed * 100,
-                ease: 'none',
-                scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1 }
+            document.querySelectorAll('[data-parallax]').forEach(el => {
+                const speed = parseFloat(el.dataset.parallax) || 0.3;
+                gsap.to(el, {
+                    y: () => speed * 100,
+                    ease: 'none',
+                    scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1 }
+                });
             });
-        });
+        } catch (err) {
+            console.error('GSAP animation error:', err);
+            document.querySelectorAll('[data-reveal]').forEach(el => { el.style.opacity = 1; });
+        }
+    } else {
+        // Fallback: hacer visibles los elementos si GSAP no cargó (evita página en blanco)
+        document.querySelectorAll('[data-reveal]').forEach(el => { el.style.opacity = 1; });
     }
 
     // ── Scroll Progress Bar ──

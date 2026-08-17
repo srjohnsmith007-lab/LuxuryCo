@@ -145,12 +145,30 @@
     .recs-card-image img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 
     .brands-slide {
-        display: flex; align-items: center; justify-content: center;
-        padding: 1.5rem 2rem; opacity: 0.45; transition: opacity 0.4s ease;
-        filter: grayscale(80%);
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+        height: 220px; position: relative; overflow: hidden; border-radius: 8px;
+        cursor: pointer; border: 1px solid var(--border);
+        transition: transform 0.4s ease, border-color 0.4s ease;
     }
-    .brands-slide:hover { opacity: 1; filter: grayscale(0%); }
-    .brands-slide img { height: 40px; width: auto; object-fit: contain; filter: brightness(0) invert(1); }
+    .brands-slide:hover { transform: translateY(-6px); border-color: var(--gold); }
+    .brands-slide .brand-bg {
+        position: absolute; inset: 0;
+        background-size: cover; background-position: center top;
+        filter: brightness(0.5) grayscale(30%);
+        transition: filter 0.4s ease, transform 0.4s ease;
+    }
+    .brands-slide:hover .brand-bg { filter: brightness(0.65) grayscale(0%); transform: scale(1.05); }
+    .brands-slide .brand-info {
+        position: relative; z-index: 2; padding: 1rem 1.2rem;
+        width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    }
+    .brands-slide .brand-name {
+        font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 3px;
+        text-transform: uppercase; color: #fff; font-weight: 600;
+    }
+    .brands-slide .brand-sub {
+        font-size: 0.65rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-top: 2px;
+    }
 
     @@keyframes bounce-down {
         0%, 100% { transform: translateX(-50%) translateY(0); }
@@ -196,13 +214,15 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ─── Load Featured Products from API ───
-    fetch('/api/producto')
+    // ─── Load Featured Products from API (Backend) ───
+    const backendUrl = document.querySelector('meta[name="api-base-url"]')?.content || 'https://luxuryco.onrender.com/api';
+    fetch(`${backendUrl}/producto`)
         .then(r => r.ok ? r.json() : [])
         .then(products => {
             const wrapper = document.getElementById('featured-wrapper');
             if (!wrapper || !products.length) return;
             const featured = products.filter(p => p.activo && p.stock > 0).slice(0, 12);
+            if (!featured.length) return;
             wrapper.innerHTML = featured.map(p => {
                 const img = p.imagenPrincipalUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600&auto=format&fit=crop';
                 return `
@@ -222,43 +242,64 @@ document.addEventListener("DOMContentLoaded", function() {
                     </a>
                 </div>`;
             }).join('');
+
+            // Re-inicializar Swiper con productos reales
+            if (typeof Swiper !== 'undefined') {
+                new Swiper('#featured-swiper', {
+                    slidesPerView: 1.3,
+                    centeredSlides: true,
+                    spaceBetween: 20,
+                    loop: featured.length > 3,
+                    autoplay: { delay: 4000, disableOnInteraction: false },
+                    pagination: { el: '.swiper-pagination', clickable: true },
+                    breakpoints: {
+                        576:  { slidesPerView: 2,   spaceBetween: 24 },
+                        768:  { slidesPerView: 2.5, spaceBetween: 28 },
+                        1024: { slidesPerView: 3.2, spaceBetween: 32 },
+                        1280: { slidesPerView: 4,   spaceBetween: 28 }
+                    }
+                });
+            }
         })
         .catch(() => {});
 
     // ─── Brands Swiper ───
     const brands = [
-        { name: 'GUCCI',       sub: 'Italian Luxury · Since 1921',     img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80' },
-        { name: 'PRADA',       sub: 'Milan Fashion · Since 1913',      img: '/images/prada.jpg' },
-        { name: 'LOUIS VUITTON', sub: 'Paris Heritage · Since 1854',   img: '/images/LOUIS VUITTON.webp' },
-        { name: 'ROLEX',       sub: 'Swiss Mastery · Since 1905',      img: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&auto=format&fit=crop&q=80' },
-        { name: 'CARTIER',     sub: 'Fine Jewelry · Since 1847',       img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&auto=format&fit=crop&q=80' },
-        { name: 'DIOR',        sub: 'French Elegance · Since 1946',     img: '/images/dior.webp' },
-        { name: 'CHANEL',      sub: 'Timeless Parisian · Since 1910',   img: '/images/chanel.jpg' },
-        { name: 'BALENCIAGA',  sub: 'Avant-Garde · Since 1919',        img: '/images/balensiaga.avif' },
-        { name: 'HERMÈS',      sub: 'Artisan Leather · Since 1837',     img: '/images/hermes.webp' },
-        { name: 'YSL',         sub: 'Yves Saint Laurent · Since 1961',  img: '/images/ysl.jpg' },
+        { name: 'GUCCI',         sub: 'Italian Luxury · Since 1921',     img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=600&auto=format&fit=crop' },
+        { name: 'PRADA',         sub: 'Milan Fashion · Since 1913',      img: '/images/prada.jpg' },
+        { name: 'LOUIS VUITTON', sub: 'Paris Heritage · Since 1854',     img: '/images/LOUIS VUITTON.webp' },
+        { name: 'ROLEX',         sub: 'Swiss Mastery · Since 1905',      img: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=600&auto=format&fit=crop' },
+        { name: 'CARTIER',       sub: 'Fine Jewelry · Since 1847',       img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=600&auto=format&fit=crop' },
+        { name: 'DIOR',          sub: 'French Elegance · Since 1946',    img: '/images/dior.webp' },
+        { name: 'CHANEL',        sub: 'Timeless Parisian · Since 1910',  img: '/images/chanel.jpg' },
+        { name: 'BALENCIAGA',    sub: 'Avant-Garde · Since 1919',        img: '/images/balensiaga.avif' },
+        { name: 'HERMÈS',        sub: 'Artisan Leather · Since 1837',    img: '/images/hermes.webp' },
+        { name: 'YSL',           sub: 'Yves Saint Laurent · Since 1961', img: '/images/ysl.jpg' },
     ];
 
     const brandsWrapper = document.getElementById('brands-wrapper');
     if (brandsWrapper && typeof Swiper !== 'undefined') {
         brandsWrapper.innerHTML = brands.map(b => `
             <div class="swiper-slide brands-slide">
-                <img src="${b.img}" alt="${b.name}" loading="lazy" title="${b.name} — ${b.sub}">
+                <div class="brand-bg" style="background-image: url('${b.img}')"></div>
+                <div class="brand-info">
+                    <div class="brand-name">${b.name}</div>
+                    <div class="brand-sub">${b.sub}</div>
+                </div>
             </div>
         `).join('');
 
         new Swiper('#brands-swiper', {
-            slidesPerView: 2.5,
-            centeredSlides: true,
+            slidesPerView: 1.5,
             spaceBetween: 16,
             loop: true,
-            autoplay: { delay: 0, disableOnInteraction: false, reverseDirection: true },
-            speed: 3000,
-            freeMode: true,
+            autoplay: { delay: 2800, disableOnInteraction: false },
+            speed: 800,
             breakpoints: {
-                576:  { slidesPerView: 3.5, spaceBetween: 20 },
-                768:  { slidesPerView: 4.5, spaceBetween: 24 },
-                1024: { slidesPerView: 5.5, spaceBetween: 28 },
+                576:  { slidesPerView: 2.2, spaceBetween: 20 },
+                768:  { slidesPerView: 3.2, spaceBetween: 24 },
+                1024: { slidesPerView: 4.2, spaceBetween: 28 },
+                1280: { slidesPerView: 5,   spaceBetween: 28 }
             }
         });
     }

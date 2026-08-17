@@ -26,6 +26,8 @@
     {
         <meta name="luxuryco-user-id" content="0" />
     }
+    @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+    <meta name="api-base-url" content="@(Configuration["ApiBaseUrl"] ?? "https://luxuryco.onrender.com/api")" />
 </head>
 <body>
     <!-- Scroll Progress Bar -->

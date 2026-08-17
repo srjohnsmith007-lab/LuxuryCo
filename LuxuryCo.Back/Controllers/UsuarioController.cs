@@ -44,6 +44,31 @@ public class UsuarioController : ControllerBase
         }
     }
 
+    [HttpGet("export/csv")]
+    public async Task<IActionResult> ExportToCsv()
+    {
+        var usuarios = await _context.Usuarios
+            .Include(u => u.Rol)
+            .OrderByDescending(u => u.fecha_registro)
+            .ToListAsync();
+
+        var builder = new System.Text.StringBuilder();
+        builder.AppendLine("ID,Nombre,Email,Teléfono,Estado,Rol,Fecha de Registro");
+        foreach (var u in usuarios)
+        {
+            var nombre = u.nombre?.Replace(",", " ") ?? "";
+            var email = u.email?.Replace(",", " ") ?? "";
+            var tel = u.telefono ?? "";
+            var estado = u.activo == true ? "Activo" : "Inactivo";
+            var rol = u.Rol?.nombre_rol ?? "Cliente";
+            var fecha = u.fecha_registro?.ToString("yyyy-MM-dd HH:mm") ?? "";
+            builder.AppendLine($"{u.id_usuario},{nombre},{email},{tel},{estado},{rol},{fecha}");
+        }
+
+        var csvBytes = System.Text.Encoding.UTF8.GetBytes(builder.ToString());
+        return File(csvBytes, "text/csv", $"Reporte_Usuarios_{DateTime.Now:yyyyMMdd_HHmm}.csv");
+    }
+
     // GET api/usuario - Listar todos (para el panel admin)
     [HttpGet]
     public async Task<IActionResult> GetAll()

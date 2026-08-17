@@ -43,6 +43,27 @@ public class AdminController : Controller
         return View();
     }
 
+    [HttpGet]
+    public async Task<IActionResult> DownloadUsersReport()
+    {
+        AddAuthorizationHeader();
+        var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Usuario/export/csv");
+        
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsByteArrayAsync();
+            var contentDisposition = response.Content.Headers.ContentDisposition;
+            string fileName = contentDisposition?.FileNameStar ?? 
+                            contentDisposition?.FileName?.Trim('"') ?? 
+                            $"Reporte_Usuarios_{DateTime.Now:yyyyMMdd}.csv";
+                            
+            return File(content, "text/csv", fileName);
+        }
+        
+        TempData["ErrorMessage"] = "No se pudo descargar el reporte.";
+        return RedirectToAction("Usuarios");
+    }
+
     public IActionResult AiAssistant()
     {
         return View();

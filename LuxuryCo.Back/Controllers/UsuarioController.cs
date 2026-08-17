@@ -44,6 +44,7 @@ public class UsuarioController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "ADMIN")]
     [HttpGet("export/csv")]
     public async Task<IActionResult> ExportToCsv()
     {

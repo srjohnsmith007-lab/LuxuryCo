@@ -124,10 +124,10 @@
 
 <style>
     :root {
-        --chat-primary: #000000;
-        --chat-secondary: #1a1a1a;
-        --chat-accent: #C9A84C;
-        --chat-text: #e0e0e0;
+        --chat-primary: var(--black);
+        --chat-secondary: var(--black-card);
+        --chat-accent: var(--gold);
+        --chat-text: var(--text);
     }
 
     .floating-chat-container {
@@ -172,10 +172,9 @@
         bottom: 60px;
         right: 0;
         transform-origin: bottom right;
-        animation: scaleIn 0.3s cubic-bezier(0.19, 1, 0.22, 1);
     }
 
-    /* ── Widget Aurora BG ── */
+    /* Widget aurora backgrounds */
     .widget-aurora {
         position: absolute;
         inset: 0;
@@ -1084,6 +1083,10 @@
         chatToggle.addEventListener('click', () => {
             chatBox.classList.toggle('d-none');
             if (!chatBox.classList.contains('d-none')) {
+                // GSAP entrance animation
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo(chatBox, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(1.7)' });
+                }
                 if (!chatGreetingShown) {
                     chatGreetingShown = true;
                     const history = loadHistory();
@@ -1099,7 +1102,11 @@
         });
 
         chatClose.addEventListener('click', () => {
-            chatBox.classList.add('d-none');
+            if (typeof gsap !== 'undefined') {
+                gsap.to(chatBox, { scale: 0.5, opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => { chatBox.classList.add('d-none'); gsap.set(chatBox, { clearProps: 'all' }); } });
+            } else {
+                chatBox.classList.add('d-none');
+            }
         });
 
         // Enviar mensaje
@@ -1210,6 +1217,38 @@
         
         bubble.innerHTML = formattedText;
         stylistMessages.appendChild(bubble);
+
+        // Typing animation for AI messages using GSAP
+        if (sender === 'ai' && typeof gsap !== 'undefined') {
+            const fullHTML = bubble.innerHTML;
+            bubble.innerHTML = '';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullHTML;
+            const textNodes = [];
+            function collectText(node) {
+                if (node.nodeType === 3) { textNodes.push({ type: 'text', parent: node.parentNode, text: node.textContent }); }
+                else if (node.nodeType === 1 && node.tagName !== 'SCRIPT') {
+                    Array.from(node.childNodes).forEach(collectText);
+                }
+            }
+            collectText(tempDiv);
+            if (textNodes.length > 0) {
+                let charIndex = 0;
+                const totalChars = textNodes.reduce((sum, n) => sum + n.text.length, 0);
+                const typingTL = gsap.timeline();
+                textNodes.forEach(node => {
+                    for (let i = 0; i < node.text.length; i++) {
+                        charIndex++;
+                        typingTL.to(bubble, {
+                            duration: 0,
+                            onComplete: () => {
+                                bubble.innerHTML = fullHTML.substring(0, charIndex);
+                            }
+                        }, charIndex * 0.012);
+                    }
+                });
+            }
+        }
 
         // Solo guardar en historial si el flag está activado y NO es trigger de imagen
         if (saveHistory && !text.includes('[[IMAGE_GEN_TRIGGER:')) {

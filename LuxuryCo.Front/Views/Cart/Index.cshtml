@@ -3,21 +3,23 @@
     ViewData["Title"] = "Tu Carrito";
 }
 
-<div class="container-fluid py-5" style="background-color: #000; min-height: 100vh; color: #fff;">
+<div class="container-fluid py-5" style="background-color: var(--black); min-height: 100vh; color: var(--text);">
     <div class="container">
-        <h1 class="display-5 fw-bold mb-5" style="font-family: 'Playfair Display', serif; letter-spacing: 2px; border-bottom: 1px solid #222; padding-bottom: 20px;">CARRITO DE COMPRAS</h1>
+        <h1 class="display-5 fw-bold mb-5" style="font-family: var(--font-display); letter-spacing: 2px; border-bottom: 1px solid var(--border); padding-bottom: 20px;" data-reveal="up">CARRITO DE COMPRAS</h1>
 
         @if (TempData["CartMessage"] != null)
         {
-            <div class="alert alert-success bg-dark text-success border-success rounded-0 mb-4 shadow-sm">
-                <i class="fas fa-check-circle me-2"></i> @TempData["CartMessage"]
+            <div class="toast-luxury show toast-success mb-4" data-reveal="up">
+                <i class="fas fa-check-circle" style="color:var(--gold);margin-right:10px;"></i> @TempData["CartMessage"]
             </div>
+            <script>setTimeout(() => document.querySelector('.toast-luxury.show')?.classList.remove('show'), 3000);</script>
         }
         @if (TempData["CartError"] != null)
         {
-            <div class="alert alert-danger bg-dark text-danger border-danger rounded-0 mb-4 shadow-sm">
-                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["CartError"]
+            <div class="toast-luxury show toast-error mb-4" data-reveal="up">
+                <i class="fas fa-exclamation-triangle" style="color:var(--danger);margin-right:10px;"></i> @TempData["CartError"]
             </div>
+            <script>setTimeout(() => document.querySelector('.toast-luxury.show')?.classList.remove('show'), 3000);</script>
         }
 
         @if (Model != null && Model.Detalles.Any())
@@ -27,38 +29,38 @@
                 <div class="col-lg-8">
                     @foreach (var item in Model.Detalles)
                     {
-                        <div class="d-flex align-items-center py-4 border-bottom border-zinc-800" style="border-color: #222 !important;">
-                            <div class="flex-shrink-0" style="width: 120px; height: 150px; background: #111 url('@(string.IsNullOrEmpty(item.ImagenUrl) ? "https://via.placeholder.com/150" : item.ImagenUrl)') center/cover no-repeat;">
+                        <div class="d-flex align-items-center py-4" style="border-bottom: 1px solid var(--border);" data-reveal="up">
+                            <div class="flex-shrink-0" style="width: 120px; height: 150px; background: var(--black-card) url('@(string.IsNullOrEmpty(item.ImagenUrl) ? "https://via.placeholder.com/150" : item.ImagenUrl)') center/cover no-repeat;">
                             </div>
                             <div class="flex-grow-1 ms-4">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h5 class="fw-bold mb-1" style="letter-spacing: 1px;">@item.NombreProducto</h5>
-                                        <p class="text-secondary small mb-1">Marca: @item.MarcaNombre</p>
+                                        <h5 class="fw-bold mb-1" style="font-family: var(--font-display); letter-spacing: 1px;">@item.NombreProducto</h5>
+                                        <p class="small mb-1" style="color: var(--text-muted);">Marca: @item.MarcaNombre</p>
                                         @if (!string.IsNullOrEmpty(item.Talla))
                                         {
-                                            <p class="text-secondary small mb-1">Talla: <strong class="text-white">@item.Talla</strong></p>
+                                            <p class="small mb-1" style="color: var(--text-muted);">Talla: <strong style="color: var(--text);">@item.Talla</strong></p>
                                         }
-                                        <p class="text-secondary small mb-3">Ref: #@item.IdProducto</p>
+                                        <p class="small mb-3" style="color: var(--text-muted);">Ref: #@item.IdProducto</p>
                                     </div>
-                                    <h5 class="fw-bold text-light">$@(string.Format("{0:N0}", item.PrecioUnitario))</h5>
+                                    <h5 class="fw-bold" style="color: var(--text);">$@(string.Format("{0:N0}", item.PrecioUnitario))</h5>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <form asp-action="Update" method="post" class="d-flex align-items-center">
                                         <input type="hidden" name="id" value="@item.IdProducto" />
                                         <div class="input-group input-group-sm" style="width: 120px;">
-                                            <button type="submit" name="quantity" value="@(item.Cantidad - 1)" class="btn btn-outline-secondary border-secondary text-white rounded-0">-</button>
-                                            <input type="text" class="form-control bg-transparent border-secondary text-white text-center rounded-0 fw-bold" value="@item.Cantidad" readonly />
-                                            <button type="submit" name="quantity" value="@(item.Cantidad + 1)" class="btn btn-outline-secondary border-secondary text-white rounded-0">+</button>
+                                            <button type="submit" name="quantity" value="@(item.Cantidad - 1)" class="btn btn-outline-secondary text-white rounded-0" style="border-color: var(--border-light);">-</button>
+                                            <input type="text" class="form-control text-white text-center rounded-0 fw-bold" value="@item.Cantidad" readonly style="background: var(--black-card); border-color: var(--border-light);" />
+                                            <button type="submit" name="quantity" value="@(item.Cantidad + 1)" class="btn btn-outline-secondary text-white rounded-0" style="border-color: var(--border-light);">+</button>
                                         </div>
                                     </form>
 
                                     <div class="d-flex align-items-center gap-4">
-                                        <div class="fw-bold text-light" style="font-size: 1.1em;">Total: $@(string.Format("{0:N0}", item.Subtotal))</div>
+                                        <div class="fw-bold" style="font-size: 1.1em; color: var(--text);">Total: $@(string.Format("{0:N0}", item.Subtotal))</div>
                                         <form asp-action="Remove" method="post">
                                             <input type="hidden" name="id" value="@item.IdDetalleCarrito" />
-                                            <button type="submit" class="btn btn-link text-secondary text-decoration-none small p-0 hover-danger">
+                                            <button type="submit" class="btn btn-link text-decoration-none small p-0" style="color: var(--text-muted);" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'">
                                                 <i class="fas fa-trash-alt me-1"></i> ELIMINAR
                                             </button>
                                         </form>
@@ -68,8 +70,8 @@
                         </div>
                     }
 
-                    <div class="mt-4">
-                        <a asp-controller="Shop" asp-action="Category" class="text-secondary text-decoration-none small fw-bold" style="letter-spacing: 1px;">
+                    <div class="mt-4" data-reveal="up">
+                        <a asp-controller="Shop" asp-action="Category" class="text-decoration-none small fw-bold" style="color: var(--text-muted); letter-spacing: 1px;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
                             <i class="fas fa-chevron-left me-2"></i> CONTINUAR COMPRANDO
                         </a>
                     </div>
@@ -77,35 +79,35 @@
 
                 <!-- Resumen de Pedido -->
                 <div class="col-lg-4">
-                    <div class="card bg-zinc-900 border-0 rounded-0 p-4 sticky-top" style="background-color: #0c0c0c; border: 1px solid #1a1a1a !important; top: 120px;">
-                        <h4 class="fw-bold mb-4 text-white" style="font-family: 'Playfair Display', serif;">RESUMEN DE ORDEN</h4>
+                    <div class="card border-0 rounded-0 p-4 sticky-top" style="background-color: var(--black-card); border: 1px solid var(--border) !important; top: 120px;" data-reveal="left">
+                        <h4 class="fw-bold mb-4" style="font-family: var(--font-display); color: var(--text);">RESUMEN DE ORDEN</h4>
                         
-                        <div class="d-flex justify-content-between mb-3 text-secondary">
+                        <div class="d-flex justify-content-between mb-3" style="color: var(--text-muted);">
                             <span>Artículos (@Model.TotalItems)</span>
                             <span>$@(string.Format("{0:N0}", Model.Total))</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3 text-secondary">
+                        <div class="d-flex justify-content-between mb-3" style="color: var(--text-muted);">
                             <span>Envío Estándar</span>
-                            <span class="text-success small fw-bold">GRATIS</span>
+                            <span class="small fw-bold" style="color: var(--success);">GRATIS</span>
                         </div>
                         
-                        <hr style="border-color: #333;">
+                        <hr style="border-color: var(--border);" />
                         
-                        <div class="d-flex justify-content-between mb-4 text-white">
-                            <span class="h5 fw-bold">TOTAL FINAL</span>
-                            <span class="h5 fw-bold" style="color: var(--gold, #d4af37);">$@(string.Format("{0:N0}", Model.Total))</span>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5 fw-bold" style="color: var(--text);">TOTAL FINAL</span>
+                            <span class="h5 fw-bold" style="color: var(--gold);">$@(string.Format("{0:N0}", Model.Total))</span>
                         </div>
 
-                        <a asp-controller="Checkout" asp-action="Index" class="btn btn-light w-100 py-3 fw-bold rounded-0 text-dark mb-3 text-decoration-none text-center" style="letter-spacing: 2px;">
+                        <a asp-controller="Checkout" asp-action="Index" class="btn-gold-luxury w-100 py-3 text-center">
                             PAGAR AHORA <i class="fas fa-lock ms-2"></i>
                         </a>
 
-                        <div class="mt-2 text-center text-secondary small">
+                        <div class="mt-2 text-center small" style="color: var(--text-muted);">
                             <i class="fas fa-shield-alt me-1"></i> Transacción segura y cifrada
                         </div>
 
                         <div class="mt-4 text-center">
-                            <img src="https://luxuryaccesories.co/cdn/shop/files/metodos-pago.png" class="img-fluid opacity-50 hover-opacity-100 transition-all" style="max-height: 25px; filter: grayscale(100%); transition: all 0.3s ease;" alt="Pagos">
+                            <img src="https://luxuryaccesories.co/cdn/shop/files/metodos-pago.png" class="img-fluid" style="max-height: 25px; filter: grayscale(100%); opacity: 0.5; transition: all 0.3s ease;" onmouseover="this.style.filter='grayscale(0%)';this.style.opacity='1'" onmouseout="this.style.filter='grayscale(100%)';this.style.opacity='0.5'" alt="Pagos">
                         </div>
                     </div>
                 </div>
@@ -113,15 +115,14 @@
         }
         else
         {
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-bag fa-4x text-secondary mb-4 opacity-25" style="color: #333 !important;"></i>
-                <h3 class="fw-bold mb-3 text-white" style="font-family: 'Playfair Display', serif;">TU CARRITO ESTÁ VACÍO</h3>
-                <p class="text-secondary mb-5">Parece que aún no has añadido ningún tesoro exclusivo a tu colección.</p>
-                <a asp-controller="Shop" asp-action="Category" class="btn btn-outline-light px-5 py-3 rounded-0 fw-bold" style="letter-spacing: 2px; border-width: 2px;">
+            <div class="text-center py-5" data-reveal="scale">
+                <i class="fas fa-shopping-bag fa-4x mb-4" style="color: var(--gold); opacity: 0.3;"></i>
+                <h3 class="fw-bold mb-3" style="font-family: var(--font-display); color: var(--text);">TU CARRITO ESTÁ VACÍO</h3>
+                <p class="mb-5" style="color: var(--text-muted);">Parece que aún no has añadido ningún tesoro exclusivo a tu colección.</p>
+                <a asp-controller="Shop" asp-action="Category" class="btn-gold-luxury">
                     EXPLORAR COLECCIÓN
                 </a>
             </div>
         }
     </div>
 </div>
-

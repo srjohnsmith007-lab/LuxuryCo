@@ -362,3 +362,6 @@ MigrationBackup/
 FodyWeavers.xsd
 LuxuryCo.Back/appsettings.Development.json
 LuxuryCo.Front/appsettings.Development.json
+
+# AI Skills (UI UX Pro Max)
+.opencode/

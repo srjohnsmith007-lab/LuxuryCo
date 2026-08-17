@@ -5,93 +5,146 @@
     decimal envio = cart != null && cart.Total > 500000 ? 0 : 25000;
     decimal iva = cart != null ? cart.Total * 0.19m : 0;
     decimal totalFinal = cart != null ? cart.Total + iva + envio : 0;
-    // Valores calculados y firmados desde el servidor
     string wompiRef = ViewBag.WompiReference ?? Guid.NewGuid().ToString();
     long wompiAmount = ViewBag.WompiAmountInCents ?? (long)(totalFinal * 100);
     string wompiSig = ViewBag.WompiSignature ?? "";
 }
 
-<div class="container-fluid py-5" style="background-color: #000; min-height: 100vh; color: #fff;">
+<style>
+    .checkout-input {
+        width: 100%; background: var(--black-soft); border: 1px solid var(--border-light);
+        color: var(--text); padding: 12px 16px; font-size: 0.88rem;
+        font-family: var(--font-ui); outline: none; transition: border-color 0.25s;
+    }
+    .checkout-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.12); }
+    .checkout-input::placeholder { color: #555; }
+    .checkout-label {
+        display: block; font-size: 0.72rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--text-secondary); margin-bottom: 7px;
+    }
+    .checkout-step-title {
+        font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+        color: var(--gold); padding-bottom: 10px;
+        border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+        display: flex; align-items: center; gap: 12px;
+    }
+    .checkout-step-title .step-num {
+        width: 28px; height: 28px; border-radius: 50%; background: var(--gold);
+        color: var(--black); display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .wompi-card {
+        background: var(--black-soft); border: 1px solid var(--border);
+        padding: 1.5rem; border-radius: 8px;
+    }
+</style>
+
+<div style="background-color: var(--black); min-height: 100vh; color: var(--text); padding: 3rem 0;">
     <div class="container">
-        <div class="text-center mb-5">
-            <h1 class="display-6 fw-bold" style="font-family: 'Playfair Display', serif; letter-spacing: 2px;">FINALIZAR COMPRA</h1>
-            <p class="text-secondary">Información encriptada mediante protocolo SSL de 256 bits.</p>
+        <div class="text-center mb-5" data-reveal="up">
+            <h1 class="display-6 fw-bold" style="font-family: var(--font-display); letter-spacing: 2px;">FINALIZAR COMPRA</h1>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Información encriptada mediante protocolo SSL de 256 bits.</p>
         </div>
 
         @if (TempData["CheckoutError"] != null)
         {
-            <div class="alert alert-danger bg-dark text-danger border-danger rounded-0 mb-4 shadow-sm">
-                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["CheckoutError"]
+            <div class="toast-luxury show toast-error mb-4" data-reveal="up">
+                <i class="fas fa-exclamation-triangle" style="color:var(--danger);margin-right:10px;"></i> @TempData["CheckoutError"]
             </div>
         }
+
+        <!-- Stepper -->
+        <div class="stepper mb-5" data-reveal="up" data-reveal-delay="0.1">
+            <div class="stepper-step active">
+                <div class="stepper-circle">1</div>
+                <span class="stepper-label">Envío</span>
+            </div>
+            <div class="stepper-line"></div>
+            <div class="stepper-step">
+                <div class="stepper-circle">2</div>
+                <span class="stepper-label">Pago</span>
+            </div>
+            <div class="stepper-line"></div>
+            <div class="stepper-step">
+                <div class="stepper-circle">3</div>
+                <span class="stepper-label">Confirmación</span>
+            </div>
+        </div>
 
         <div class="row g-5">
             <!-- Checkout Form -->
             <div class="col-lg-7">
                 <form asp-action="PlaceOrder" method="post" id="checkoutForm">
-                    <!-- IDEMPOTENCY TOKEN & WOMPI TX ID -->
                     <input type="hidden" asp-for="IdempotencyKey" id="IdempotencyKey" />
                     <input type="hidden" asp-for="CardToken" id="CardToken" value="" />
 
-                    <!-- PASO 1: ENVÍO -->
-                    <h4 class="fw-bold mb-4" style="border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--gold, #d4af37);">1. Detalles de Envío</h4>
-                    
-                    <div class="row g-3 mb-5">
-                        <div class="col-12">
-                            <label class="form-label text-secondary small">Dirección de Entrega</label>
-                            <input asp-for="DireccionLinea1" class="form-control bg-dark border-secondary text-white rounded-0 py-3" placeholder="Ej. Calle 123 #45-67" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary small">Ciudad</label>
-                            <input asp-for="Ciudad" class="form-control bg-dark border-secondary text-white rounded-0 py-3" placeholder="Bogotá, Medellín..." required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary small">Código Postal</label>
-                            <input asp-for="CodigoPostal" class="form-control bg-dark border-secondary text-white rounded-0 py-3" placeholder="Postcode" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary small">Teléfono de Contacto</label>
-                            <input asp-for="Telefono" class="form-control bg-dark border-secondary text-white rounded-0 py-3" placeholder="(+57) 300 000 0000" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-secondary small">Instrucciones Adicionales</label>
-                            <input asp-for="Referencias" class="form-control bg-dark border-secondary text-white rounded-0 py-3" placeholder="Ej. Dejar en recepción" />
-                        </div>
-                    </div>
-
-                    <!-- PASO 2: PAGO (WOMPI INTEGRATION) -->
-                    <h4 class="fw-bold mb-4" style="border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--gold, #d4af37);">2. Método de Pago</h4>
-                    <div class="p-4 mb-4" style="background-color: #0a0a0a; border: 1px solid #222; border-radius: 8px;">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="text-white fw-bold"><i class="fas fa-shield-alt me-2 text-warning"></i> Pasarela Oficial Wompi Colombia</span>
-                            <span class="badge bg-dark border border-secondary text-warning" style="font-size: 0.75rem;">
-                                Transacción Segura SSL 256-bit
-                            </span>
+                    <!-- Step 1: Envío -->
+                    <div data-reveal="up" data-reveal-delay="0.2">
+                        <div class="checkout-step-title">
+                            <span class="step-num">1</span> Detalles de Envío
                         </div>
                         
-                        <div class="text-center py-4">
-                            <i class="fas fa-lock fa-3x text-secondary mb-3"></i>
-                            <p class="text-white">Serás redirigido de forma segura a Wompi para ingresar tus datos bancarios.</p>
-                            <p class="text-secondary small">Aceptamos Visa, Mastercard, Nequi, PSE y Bancolombia.</p>
+                        <div class="row g-3 mb-5">
+                            <div class="col-12">
+                                <label class="checkout-label">Dirección de Entrega</label>
+                                <input asp-for="DireccionLinea1" class="checkout-input" placeholder="Ej. Calle 123 #45-67" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="checkout-label">Ciudad</label>
+                                <input asp-for="Ciudad" class="checkout-input" placeholder="Bogotá, Medellín..." required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="checkout-label">Código Postal</label>
+                                <input asp-for="CodigoPostal" class="checkout-input" placeholder="Postcode" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="checkout-label">Teléfono de Contacto</label>
+                                <input asp-for="Telefono" class="checkout-input" placeholder="(+57) 300 000 0000" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="checkout-label">Instrucciones Adicionales</label>
+                                <input asp-for="Referencias" class="checkout-input" placeholder="Ej. Dejar en recepción" />
+                            </div>
                         </div>
                     </div>
 
-                    <button type="button" id="btnPagar" class="btn btn-warning w-100 py-3 fw-bold rounded-0 text-dark mt-3" style="letter-spacing: 2px; background: linear-gradient(135deg, #d4af37, #f0c940); border: none;">
-                        <i class="fas fa-lock me-2"></i> CONTINUAR AL PAGO
-                    </button>
-                    <div id="loadingSpinner" class="text-center mt-3 d-none">
-                        <div class="spinner-border text-warning" role="status">
-                            <span class="visually-hidden">Procesando...</span>
+                    <!-- Step 2: Pago -->
+                    <div data-reveal="up" data-reveal-delay="0.3">
+                        <div class="checkout-step-title">
+                            <span class="step-num">2</span> Método de Pago
                         </div>
-                        <p class="text-secondary small mt-2">Conectando de forma segura con la pasarela de pagos Wompi Colombia...</p>
+                        <div class="wompi-card mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="fw-bold" style="color: var(--text);"><i class="fas fa-shield-alt me-2" style="color: var(--gold);"></i> Pasarela Oficial Wompi Colombia</span>
+                                <span style="font-size: 0.75rem; color: var(--gold); border: 1px solid var(--border-light); padding: 4px 10px;">
+                                    Transacción Segura SSL 256-bit
+                                </span>
+                            </div>
+                            
+                            <div class="text-center py-4">
+                                <i class="fas fa-lock fa-3x mb-3" style="color: var(--text-muted);"></i>
+                                <p style="color: var(--text);">Serás redirigido de forma segura a Wompi para ingresar tus datos bancarios.</p>
+                                <p style="color: var(--text-muted); font-size: 0.82rem;">Aceptamos Visa, Mastercard, Nequi, PSE y Bancolombia.</p>
+                            </div>
+                        </div>
+
+                        <button type="button" id="btnPagar" class="btn-gold-luxury w-100 py-3 mt-3">
+                            <i class="fas fa-lock me-2"></i> CONTINUAR AL PAGO
+                        </button>
+                        <div id="loadingSpinner" class="text-center mt-3 d-none">
+                            <div class="spinner-border" style="color: var(--gold);" role="status">
+                                <span class="visually-hidden">Procesando...</span>
+                            </div>
+                            <p class="small mt-2" style="color: var(--text-muted);">Conectando de forma segura con la pasarela de pagos Wompi Colombia...</p>
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Resumen Right Sidebar -->
+            <!-- Resumen -->
             <div class="col-lg-5">
-                <div class="card border-0 rounded-0 p-4 sticky-top" style="background-color: #0c0c0c; border: 1px solid #1a1a1a !important; top: 100px;">
-                    <h4 class="fw-bold mb-4 text-white" style="font-family: 'Playfair Display', serif;">TU ORDEN</h4>
+                <div class="card border-0 rounded-0 p-4 sticky-top" style="background-color: var(--black-card); border: 1px solid var(--border) !important; top: 100px;" data-reveal="left" data-reveal-delay="0.2">
+                    <h4 class="fw-bold mb-4" style="font-family: var(--font-display); color: var(--text);">TU ORDEN</h4>
                     
                     @if (cart != null)
                     {
@@ -99,33 +152,33 @@
                             @foreach(var item in cart.Detalles)
                             {
                                 <div class="d-flex align-items-center mb-3">
-                                    <div style="width: 50px; height: 60px; background: #222 url('@(string.IsNullOrEmpty(item.ImagenUrl) ? "" : item.ImagenUrl)') center/cover;"></div>
+                                    <div style="width: 50px; height: 60px; background: var(--black-card2) url('@(string.IsNullOrEmpty(item.ImagenUrl) ? "" : item.ImagenUrl)') center/cover;"></div>
                                     <div class="ms-3 flex-grow-1">
-                                        <div class="text-white small fw-bold">@item.NombreProducto</div>
-                                        <div class="text-secondary" style="font-size: 0.75rem;">Cant: @item.Cantidad x $@string.Format("{0:N0}", item.PrecioUnitario)</div>
+                                        <div class="small fw-bold" style="color: var(--text);">@item.NombreProducto</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Cant: @item.Cantidad x $@string.Format("{0:N0}", item.PrecioUnitario)</div>
                                     </div>
                                 </div>
                             }
                         </div>
                         
-                        <hr style="border-color: #333;">
+                        <hr style="border-color: var(--border);" />
                         
-                        <div class="d-flex justify-content-between mb-2 text-secondary small">
+                        <div class="d-flex justify-content-between mb-2 small" style="color: var(--text-muted);">
                             <span>Subtotal Neto</span>
                             <span>$@(string.Format("{0:N0}", cart.Total))</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 text-secondary small">
+                        <div class="d-flex justify-content-between mb-2 small" style="color: var(--text-muted);">
                             <span>IVA (19%)</span>
                             <span>$@(string.Format("{0:N0}", iva))</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-4 text-secondary small">
-                            <span>Envío Domicilio Seguro</span>
-                            <span class="@(envio == 0 ? "text-success fw-bold" : "")">@(envio == 0 ? "GRATIS" : "$" + string.Format("{0:N0}", envio))</span>
+                        <div class="d-flex justify-content-between mb-4 small">
+                            <span style="color: var(--text-muted);">Envío Domicilio Seguro</span>
+                            <span class="@(envio == 0 ? "fw-bold" : "")" style="@(envio == 0 ? "color: var(--success);" : "color: var(--text-muted);")">@(envio == 0 ? "GRATIS" : "$" + string.Format("{0:N0}", envio))</span>
                         </div>
                         
-                        <div class="d-flex justify-content-between text-white border-top pt-3 mt-2" style="border-color: #333 !important;">
-                            <span class="h5 fw-bold">TOTAL GASTO</span>
-                            <span class="h5 fw-bold" style="color: var(--gold, #d4af37);">$@(string.Format("{0:N0}", totalFinal))</span>
+                        <div class="d-flex justify-content-between border-top pt-3 mt-2" style="border-color: var(--border) !important;">
+                            <span class="h5 fw-bold" style="color: var(--text);">TOTAL GASTO</span>
+                            <span class="h5 fw-bold" style="color: var(--gold);">$@(string.Format("{0:N0}", totalFinal))</span>
                         </div>
                     }
                 </div>
@@ -137,7 +190,6 @@
 @section Scripts {
     <script type="text/javascript" src="https://checkout.wompi.co/widget.js"></script>
     <script>
-        // Set un UUID para prevenir recargas o doble clic si no existiera
         if (!document.getElementById("IdempotencyKey").value) {
             document.getElementById("IdempotencyKey").value = crypto.randomUUID();
         }
@@ -145,21 +197,15 @@
         document.getElementById("btnPagar").addEventListener("click", function(e) {
             e.preventDefault();
             
-            // Validar el formulario (dirección, teléfono, etc.) antes de abrir el pago
             var form = document.getElementById("checkoutForm");
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
             var checkout = new WidgetCheckout({
                 currency: 'COP',
                 amountInCents: @Html.Raw(wompiAmount.ToString()),
                 reference: '@Html.Raw(wompiRef)',
                 publicKey: '@ViewBag.WompiPublicKey',
-                signature: {
-                    integrity: '@Html.Raw(wompiSig)'
-                }
+                signature: { integrity: '@Html.Raw(wompiSig)' }
             });
 
             checkout.open(function (result) {
@@ -167,10 +213,8 @@
                 if(transaction.status === 'APPROVED') {
                     document.getElementById("CardToken").value = transaction.id;
                     document.getElementById("IdempotencyKey").value = '@Html.Raw(wompiRef)';
-                    
                     document.getElementById("btnPagar").classList.add("d-none");
                     document.getElementById("loadingSpinner").classList.remove("d-none");
-                    
                     form.submit();
                 } else {
                     alert("El pago no fue aprobado o fue cancelado. Estado: " + transaction.status);

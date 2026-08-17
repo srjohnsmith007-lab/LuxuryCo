@@ -2,528 +2,322 @@
     ViewData["Title"] = "Inicio";
 }
 
-<!-- Hero Section -->
-<div class="hero-section position-relative" style="height: calc(100vh - 80px); background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop'); background-size: cover; background-position: center top;">
-    <!-- Capa de Partículas Doradas -->
+<!-- ═══════════════════════════════════════════════════════
+     HERO — Full-screen with GSAP parallax + animated words
+     ═══════════════════════════════════════════════════════ -->
+<section class="hero-section position-relative" style="height: 100vh; overflow: hidden;">
+    <div class="hero-bg" data-parallax="0.4" style="position: absolute; inset: -60px; background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop'); background-size: cover; background-position: center top;"></div>
     <div class="hero-canvas" id="capa-particulas" style="position:absolute; z-index:1;"></div>
-    
-    <!-- Subtle Gradient Overlay for Text Readability -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);"></div>
-    
+    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);"></div>
+
     <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center px-3" style="z-index: 10;">
-        <h1 class="text-white mb-3 d-flex flex-column align-items-center w-100" style="font-family: 'Playfair Display', serif; font-size: 4rem; letter-spacing: 4px; text-transform: uppercase; line-height: 1.2;">
-            <span style="font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 10px;">LuxuryCo es</span>
-            <div class="animated-words-container text-gold" style="height: 1.2em; overflow: hidden; position: relative; width: 100vw; max-width: 100%;">
+        <div data-reveal="up" data-reveal-delay="0.1">
+            <p style="font-family: var(--font-ui); font-size: 0.75rem; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem;">Nueva Colección 2026</p>
+        </div>
+        <h1 data-reveal="up" data-reveal-delay="0.2" class="text-white mb-3 d-flex flex-column align-items-center w-100" style="font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.2rem); letter-spacing: 4px; text-transform: uppercase; line-height: 1.15;">
+            <span style="font-size: clamp(1.2rem, 2.5vw, 2rem); letter-spacing: 2px; margin-bottom: 8px; font-weight: 300;">LuxuryCo es</span>
+            <div class="animated-words-container" style="height: 1.2em; overflow: hidden; position: relative; width: 100vw; max-width: 100%;">
                 <span class="animated-word active">Elegancia</span>
                 <span class="animated-word">Exclusividad</span>
                 <span class="animated-word">Sofisticación</span>
                 <span class="animated-word">Vanguardia</span>
             </div>
         </h1>
-        <p class="text-white-50 mb-5" style="letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; max-width: 600px;">Descubre la elegancia redefinida. Piezas exclusivas diseñadas para inspirar y cautivar.</p>
-        <a href="/Shop/Category/Todos" class="btn btn-gold" style="width: auto; padding: 1rem 3rem;">Explorar Ahora</a>
+        <p data-reveal="up" data-reveal-delay="0.35" class="text-white-50 mb-5" style="letter-spacing: 2px; text-transform: uppercase; font-size: 0.85rem; max-width: 540px;">Descubre la elegancia redefinida. Piezas exclusivas diseñadas para inspirar y cautivar.</p>
+        <div data-reveal="up" data-reveal-delay="0.5">
+            <a href="/Shop/Category/Todos" class="btn-gold-luxury">EXPLORAR AHORA <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i></a>
+        </div>
     </div>
-</div>
 
-<!-- Título de Sección Modelos -->
-<div class="container-fluid text-center mt-5 pt-5">
-    <h2 class="recs-title" style="margin-bottom: 20px;">Nuestros Embajadores</h2>
-    <p class="text-white-50" style="letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">La elegancia personificada en quienes representan nuestras marcas</p>
-</div>
-
-<!-- Testimonials Section (Modelos) -->
-<div class="testimonial-container mx-auto">
-  <div class="testimonial-grid">
-    <div class="image-container" id="imageContainer"></div>
-    <div class="testimonial-content">
-      <div id="textBlock">
-        <h3 class="name" id="name"></h3>
-        <p class="designation" id="designation"></p>
-        <p class="quote" id="quote"></p>
-      </div>
-      <div class="arrow-buttons">
-        <button class="arrow-button" id="prevBtn" aria-label="Anterior">
-          <svg viewBox="0 0 512 512"><path d="M257.5 445c-8.8 0-17.5-3.4-24-10.1L45.9 246.4c-6.4-6.7-9.9-15.5-9.9-24.8 0-9.3 3.5-18.1 9.9-24.8L233.5 12.3c13.3-13.9 35.4-14.4 49.3-1.1 13.9 13.3 14.4 35.4 1.1 49.3L128.7 221.6l155.2 161.1c13.3 13.9 12.8 36-1.1 49.3-6.8 6.5-15.5 9.7-24.3 9.7z"/></svg>
-        </button>
-        <button class="arrow-button" id="nextBtn" aria-label="Siguiente">
-          <svg viewBox="0 0 512 512"><path d="M255.5 445c-8.8 0-17.5-3.2-24.3-9.7-13.9-13.3-14.4-35.4-1.1-49.3l155.2-161.1L230.1 63.8c-13.3-13.9-12.8-36 1.1-49.3 13.9-13.3 36-12.8 49.3 1.1l187.6 195.6c6.4 6.7 9.9 15.5 9.9 24.8 0 9.3-3.5 18.1-9.9 24.8L279.5 434.9c-6.5 6.7-15.2 10.1-24 10.1z"/></svg>
-        </button>
-      </div>
+    <div style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center;">
+        <div data-reveal="up" data-reveal-delay="0.8" style="animation: bounce-down 2s ease-in-out infinite;">
+            <i class="fas fa-chevron-down" style="color: var(--gold); font-size: 1.2rem; opacity: 0.6;"></i>
+        </div>
     </div>
-  </div>
-</div>
+</section>
 
-<!-- Título de Sección Marcas -->
-<div class="container-fluid text-center mt-5 pt-5">
-    <h2 class="recs-title" style="margin-bottom: 20px;">Marcas Exclusivas</h2>
-    <p class="text-white-50" style="letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">Colecciones de los diseñadores más prestigiosos del mundo</p>
-</div>
+<!-- ═══════════════════════════════════════════════════════
+     PRODUCTOS DESTACADOS — Swiper Carousel
+     ═══════════════════════════════════════════════════════ -->
+<section class="py-5 mt-4" style="background: var(--black);">
+    <div class="container-fluid px-4 px-lg-5">
+        <div class="section-heading" data-reveal="up">
+            <span class="section-label">Lo Más Deseado</span>
+            <h2>Productos Destacados</h2>
+            <p>Selección curada por nuestro equipo de estilistas</p>
+        </div>
 
-<!-- Circular Gallery (Marcas) -->
-<div class="scroll-spacer">
-  <div class="sticky-stage">
-    <div class="gallery-root">
-      <div class="gallery-track" id="track"></div>
+        <div class="position-relative" data-reveal="up" data-reveal-delay="0.2">
+            <div class="swiper luxury-swiper" id="featured-swiper">
+                <div class="swiper-wrapper" id="featured-wrapper">
+                    <!-- Skeleton loading while API responds -->
+                    <div class="swiper-slide"><div class="product-card"><div class="skeleton skeleton-img"></div><div class="card-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div></div></div></div>
+                    <div class="swiper-slide"><div class="product-card"><div class="skeleton skeleton-img"></div><div class="card-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div></div></div></div>
+                    <div class="swiper-slide"><div class="product-card"><div class="skeleton skeleton-img"></div><div class="card-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div></div></div></div>
+                    <div class="swiper-slide"><div class="product-card"><div class="skeleton skeleton-img"></div><div class="card-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div></div></div></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
     </div>
-    <div class="scroll-hint">↓ SCROLL PARA DESCUBRIR ↓</div>
-  </div>
-</div>
+</section>
 
-<!-- Floating Recommendations Widget (Bottom Left) -->
-<div id="floating-recs-widget" class="floating-widget">
-    <div class="widget-icon">
-        <i class="fas fa-gem text-gold"></i>
+<!-- ═══════════════════════════════════════════════════════
+     EMBAJADORES — Testimonials with 3D Carousel
+     ═══════════════════════════════════════════════════════ -->
+<section class="py-5" style="background: var(--black-soft);">
+    <div class="container-fluid">
+        <div class="section-heading" data-reveal="up">
+            <span class="section-label">Nuestros Embajadores</span>
+            <h2>La Elegancia Personificada</h2>
+            <p>Quienes representan la esencia de nuestras marcas</p>
+        </div>
     </div>
-    <div class="widget-text">Recomendaciones del día</div>
-</div>
 
-<!-- Recommendations Overlay -->
-<div id="recs-overlay" class="recs-overlay d-none">
-    <button id="close-recs" class="close-btn"><i class="fas fa-times"></i></button>
-    <div class="stage">
-        <h3 class="recs-title">Recomendaciones del día</h3>
-        <div class="stack-wrapper" id="recs-stack"></div>
-        <div class="hint">Haz clic en la carta frontal para ver la siguiente</div>
+    <div class="testimonial-container mx-auto" data-reveal="scale">
+        <div class="testimonial-grid">
+            <div class="image-container" id="imageContainer"></div>
+            <div class="testimonial-content">
+                <div id="textBlock">
+                    <h3 class="name" id="name"></h3>
+                    <p class="designation" id="designation"></p>
+                    <p class="quote" id="quote"></p>
+                </div>
+                <div class="arrow-buttons">
+                    <button class="arrow-button" id="prevBtn" aria-label="Anterior">
+                        <svg viewBox="0 0 512 512"><path d="M257.5 445c-8.8 0-17.5-3.4-24-10.1L45.9 246.4c-6.4-6.7-9.9-15.5-9.9-24.8 0-9.3 3.5-18.1 9.9-24.8L233.5 12.3c13.3-13.9 35.4-14.4 49.3-1.1 13.9 13.3 14.4 35.4 1.1 49.3L128.7 221.6l155.2 161.1c13.3 13.9 12.8 36-1.1 49.3-6.8 6.5-15.5 9.7-24.3 9.7z"/></svg>
+                    </button>
+                    <button class="arrow-button" id="nextBtn" aria-label="Siguiente">
+                        <svg viewBox="0 0 512 512"><path d="M255.5 445c-8.8 0-17.5-3.2-24.3-9.7-13.9-13.3-14.4-35.4-1.1-49.3l155.2-161.1L230.1 63.8c-13.3-13.9-12.8-36 1.1-49.3 13.9-13.3 36-12.8 49.3 1.1l187.6 195.6c6.4 6.7 9.9 15.5 9.9 24.8 0 9.3-3.5 18.1-9.9 24.8L279.5 434.9c-6.5 6.7-15.2 10.1-24 10.1z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
+<!-- ═══════════════════════════════════════════════════════
+     MARCAS — Swiper Logo Carousel
+     ═══════════════════════════════════════════════════════ -->
+<section class="py-5" style="background: var(--black);">
+    <div class="container-fluid">
+        <div class="section-heading" data-reveal="up">
+            <span class="section-label">Nuestras Alianzas</span>
+            <h2>Marcas Exclusivas</h2>
+            <p>Colecciones de los diseñadores más prestigiosos del mundo</p>
+        </div>
+
+        <div class="swiper luxury-swiper" data-reveal="up" data-reveal-delay="0.2" id="brands-swiper">
+            <div class="swiper-wrapper" id="brands-wrapper"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA BANNER
+     ═══════════════════════════════════════════════════════ -->
+<section class="py-5" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1510 50%, #0a0a0a 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container text-center py-4" data-reveal="up">
+        <p style="font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem;">Únete a la Exclusividad</p>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: 3px; margin-bottom: 1rem;">SUSCRÍBETE PARA LANZAMIENTOS</h2>
+        <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 0.88rem;">Acceso anticipado a nuevas colecciones, ofertas privadas y estilo personalizado.</p>
+        <form class="d-flex justify-content-center gap-2" style="max-width: 440px; margin: 0 auto;">
+            <input type="email" class="input-luxury flex-grow-1" placeholder="Tu correo electrónico" required style="flex: 1;" />
+            <button type="submit" class="btn-gold-luxury" style="padding: 14px 1.8rem;">UNIRME</button>
+        </form>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     STYLES (page-specific)
+     ═══════════════════════════════════════════════════════ -->
 <style>
-    .hover-zoom:hover {
-        transform: scale(1.05);
-    }
-    
-    /* Animated Words CSS */
-    .animated-words-container {
-        display: flex;
-        justify-content: center;
-    }
-    
-    .recs-card-image {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        overflow: hidden;
-        background: #0a0a0a;
-    }
-
-    .recs-card-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-        display: block;
-    }
-
+    .animated-words-container { display: flex; justify-content: center; }
     .animated-word {
-        position: absolute;
-        opacity: 0;
-        transform: translateY(100%);
+        position: absolute; opacity: 0; transform: translateY(100%);
         transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        width: 100%;
-        text-align: center;
-        font-weight: 600;
+        width: 100%; text-align: center; font-weight: 600; color: var(--gold);
     }
-    
-    .animated-word.active {
-        opacity: 1;
-        transform: translateY(0);
+    .animated-word.active { opacity: 1; transform: translateY(0); }
+    .animated-word.out { opacity: 0; transform: translateY(-100%); }
+
+    .recs-card-image { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #0a0a0a; }
+    .recs-card-image img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+    .brands-slide {
+        display: flex; align-items: center; justify-content: center;
+        padding: 1.5rem 2rem; opacity: 0.45; transition: opacity 0.4s ease;
+        filter: grayscale(80%);
     }
-    
-    .animated-word.out {
-        opacity: 0;
-        transform: translateY(-100%);
+    .brands-slide:hover { opacity: 1; filter: grayscale(0%); }
+    .brands-slide img { height: 40px; width: auto; object-fit: contain; filter: brightness(0) invert(1); }
+
+    @@keyframes bounce-down {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(8px); }
     }
 </style>
 
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const words = document.querySelectorAll(".animated-word");
-            let currentIndex = 0;
-            
-            if(words.length === 0) return;
+<script>
+document.addEventListener("DOMContentLoaded", function() {
 
-            setInterval(() => {
-                // Current word goes up and out
-                words[currentIndex].classList.remove("active");
-                words[currentIndex].classList.add("out");
-                
-                // Next word comes in from bottom
-                currentIndex = (currentIndex + 1) % words.length;
-                
-                // Reset the new current word's position instantly before animating it in
-                words[currentIndex].classList.remove("out");
-                
-                // Small delay to allow CSS to apply the reset before adding active class
-                setTimeout(() => {
-                    words[currentIndex].classList.add("active");
-                }, 50);
-                
-            }, 2500); // Change word every 2.5 seconds
-            
-            // Lógica del Widget de Recomendaciones
-            const widget = document.getElementById('floating-recs-widget');
-            const overlay = document.getElementById('recs-overlay');
-            const closeBtn = document.getElementById('close-recs');
-            const stack = document.getElementById('recs-stack');
-            
-            let products = [];
-            let order = [];
-            
-            widget.addEventListener('click', () => {
-                overlay.classList.remove('d-none');
-                if (products.length === 0) {
-                    fetchProducts();
-                }
-            });
-            
-            closeBtn.addEventListener('click', () => {
-                overlay.classList.add('d-none');
-            });
-            
-            async function fetchProducts() {
-                try {
-                    const res = await fetch('https://luxuryco.onrender.com/api/producto');
-                    if (res.ok) {
-                        const data = await res.json();
-                        // Tomar 5 aleatorios
-                        products = data.sort(() => 0.5 - Math.random()).slice(0, 5);
-                        order = Array.from({length: products.length}, (_, i) => i);
-                        renderStack();
-                    }
-                } catch(e) {
-                    console.error('Error cargando recomendaciones', e);
-                }
+    // ─── Animated Words ───
+    const words = document.querySelectorAll(".animated-word");
+    let wordIndex = 0;
+    if (words.length > 0) {
+        setInterval(() => {
+            words[wordIndex].classList.remove("active");
+            words[wordIndex].classList.add("out");
+            wordIndex = (wordIndex + 1) % words.length;
+            words[wordIndex].classList.remove("out");
+            setTimeout(() => words[wordIndex].classList.add("active"), 50);
+        }, 2800);
+    }
+
+    // ─── Featured Products Swiper ───
+    if (typeof Swiper !== 'undefined') {
+        new Swiper('#featured-swiper', {
+            slidesPerView: 1.3,
+            centeredSlides: true,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            breakpoints: {
+                576:  { slidesPerView: 2,   spaceBetween: 24 },
+                768:  { slidesPerView: 2.5, spaceBetween: 28 },
+                1024: { slidesPerView: 3.2, spaceBetween: 32 },
+                1280: { slidesPerView: 4,   spaceBetween: 28 }
             }
-            
-            function renderStack() {
-                stack.innerHTML = '';
-                order.forEach((cardIndex, depth) => {
-                    const p = products[cardIndex];
-                    const el = document.createElement('div');
-                    el.className = 'recs-card';
-                    
-                    const offsetX = depth * 10;
-                    const offsetY = depth * -6;
-                    const rotate = depth * 4.5;
-                    const scale = 1 - depth * 0.035;
-
-                    el.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotate}deg) scale(${scale})`;
-                    el.style.zIndex = 100 - depth;
-                    el.style.boxShadow = depth === 0
-                        ? '0 14px 34px rgba(0,0,0,0.5), 0 3px 10px rgba(0,0,0,0.3)'
-                        : '0 6px 16px rgba(0,0,0,0.3)';
-
-                    const imageUrl = p.imagenPrincipalUrl ? p.imagenPrincipalUrl : 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop';
-                    
-                    el.innerHTML = `
-                        <div class="recs-card-image">
-                            <img src="${imageUrl}" alt="${p.nombre}" loading="lazy">
-                            <div class="recs-card-overlay"></div>
-                        </div>
-                        <div class="recs-card-label">
-                            ${p.nombre}
-                            <span class="recs-card-sub">$${p.precio.toLocaleString()} USD</span>
-                        </div>
-                    `;
-
-                    if (depth === 0) {
-                        el.addEventListener('click', (e) => {
-                            if (e.target.tagName.toLowerCase() !== 'a') {
-                                cycle();
-                            }
-                        });
-                        
-                        const link = document.createElement('a');
-                        link.href = `/Shop/Product/${p.idProducto}`;
-                        link.className = 'recs-btn-link';
-                        link.innerHTML = 'Ir al producto';
-                        el.appendChild(link);
-                    }
-
-                    stack.appendChild(el);
-                });
-            }
-
-            function cycle() {
-                if(order.length === 0) return;
-                const front = stack.querySelector('.recs-card');
-                front.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease';
-                front.style.transform += ' translate(120px, 40px) rotate(22deg)';
-                front.style.opacity = '0';
-
-                setTimeout(() => {
-                    order.push(order.shift());
-                    renderStack();
-                }, 230);
-            }
-            
-            // ==========================================
-            // TESTIMONIALS (MODELOS) LOGIC
-            // ==========================================
-            const testimonials = [
-                {
-                    quote: "La esencia de LuxuryCo radica en su capacidad de transformar la moda en arte puro. Vestir estas marcas es llevar una obra maestra en cada paso.",
-                    name: "Gigi Hadid",
-                    designation: "Embajadora de Alta Costura",
-                    src: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1440&auto=format&fit=crop"
-                },
-                {
-                    quote: "Un estilo que trasciende las tendencias. Para el hombre moderno que valora la sastrería impecable y el diseño vanguardista en cada detalle.",
-                    name: "Sean O'Pry",
-                    designation: "Ícono de Elegancia Masculina",
-                    src: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1440&auto=format&fit=crop"
-                },
-                {
-                    quote: "Revolucionando la forma en que entendemos el lujo. Las colecciones curadas por LuxuryCo son simplemente incomparables e inspiradoras.",
-                    name: "Bella Hadid",
-                    designation: "Modelo de Vanguardia",
-                    src: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1440&auto=format&fit=crop"
-                }
-            ];
-
-            let activeIndex = 0;
-            const total = testimonials.length;
-            const imageContainer = document.getElementById('imageContainer');
-            let autoplayInterval = null;
-
-            function calculateGap(width) {
-                const minWidth = 400, maxWidth = 900, minGap = 40, maxGap = 70;
-                if (width <= minWidth) return minGap;
-                if (width >= maxWidth) return maxGap;
-                return minGap + (maxGap - minGap) * ((width - minWidth) / (maxWidth - minWidth));
-            }
-
-            testimonials.forEach((t, i) => {
-                const img = document.createElement('img');
-                img.src = t.src;
-                img.alt = t.name;
-                img.className = 'testimonial-image';
-                img.dataset.index = i;
-                imageContainer.appendChild(img);
-            });
-
-            function updateImages() {
-                const gap = calculateGap(imageContainer.offsetWidth);
-                const maxStickUp = gap * 0.8;
-                const imgs = imageContainer.querySelectorAll('.testimonial-image');
-
-                imgs.forEach((img, index) => {
-                    const isActive = index === activeIndex;
-                    const isLeft = (activeIndex - 1 + total) % total === index;
-                    const isRight = (activeIndex + 1) % total === index;
-
-                    if (isActive) {
-                        img.style.zIndex = 3;
-                        img.style.opacity = 1;
-                        img.style.pointerEvents = 'auto';
-                        img.style.transform = `translateX(0px) translateY(0px) scale(1) rotateY(0deg)`;
-                    } else if (isLeft) {
-                        img.style.zIndex = 2;
-                        img.style.opacity = 1;
-                        img.style.pointerEvents = 'auto';
-                        img.style.transform = `translateX(-${gap}px) translateY(-${maxStickUp}px) scale(0.85) rotateY(15deg)`;
-                    } else if (isRight) {
-                        img.style.zIndex = 2;
-                        img.style.opacity = 1;
-                        img.style.pointerEvents = 'auto';
-                        img.style.transform = `translateX(${gap}px) translateY(-${maxStickUp}px) scale(0.85) rotateY(-15deg)`;
-                    } else {
-                        img.style.zIndex = 1;
-                        img.style.opacity = 0;
-                        img.style.pointerEvents = 'none';
-                    }
-                });
-            }
-
-            function updateText() {
-                const t = testimonials[activeIndex];
-                document.getElementById('name').textContent = t.name;
-                document.getElementById('designation').textContent = t.designation;
-
-                const quoteEl = document.getElementById('quote');
-                quoteEl.innerHTML = '';
-                t.quote.split(' ').forEach((word, i) => {
-                    const span = document.createElement('span');
-                    span.textContent = word + '\u00A0';
-                    span.style.filter = 'blur(10px)';
-                    span.style.opacity = '0';
-                    span.style.transform = 'translateY(5px)';
-                    quoteEl.appendChild(span);
-
-                    setTimeout(() => {
-                        span.style.filter = 'blur(0px)';
-                        span.style.opacity = '1';
-                        span.style.transform = 'translateY(0)';
-                    }, 25 * i);
-                });
-            }
-
-            function renderTestimonials() {
-                updateImages();
-                updateText();
-            }
-
-            function goNext() {
-                activeIndex = (activeIndex + 1) % total;
-                renderTestimonials();
-                resetAutoplay();
-            }
-
-            function goPrev() {
-                activeIndex = (activeIndex - 1 + total) % total;
-                renderTestimonials();
-                resetAutoplay();
-            }
-
-            function resetAutoplay() {
-                if (autoplayInterval) clearInterval(autoplayInterval);
-                autoplayInterval = setInterval(() => {
-                    activeIndex = (activeIndex + 1) % total;
-                    renderTestimonials();
-                }, 5000);
-            }
-
-            document.getElementById('nextBtn').addEventListener('click', goNext);
-            document.getElementById('prevBtn').addEventListener('click', goPrev);
-            window.addEventListener('resize', updateImages);
-            renderTestimonials();
-            resetAutoplay();
-            
-            // ==========================================
-            // CIRCULAR GALLERY (MARCAS) LOGIC
-            // ==========================================
-            const galleryData = [
-                {
-                    common: "GUCCI",
-                    binomial: "Italian Luxury House · Since 1921",
-                    url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=700&auto=format&fit=crop&q=80",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "PRADA",
-                    binomial: "Milan Fashion · Since 1913",
-                    url: "/images/prada.jpg",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "LOUIS VUITTON",
-                    binomial: "Paris Heritage · Since 1854",
-                    url: "/images/LOUIS VUITTON.webp",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "ROLEX",
-                    binomial: "Swiss Mastery · Since 1905",
-                    url: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=700&auto=format&fit=crop&q=80",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "CARTIER",
-                    binomial: "Paris Fine Jewelry · Since 1847",
-                    url: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=700&auto=format&fit=crop&q=80",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "DIOR",
-                    binomial: "French Elegance · Since 1946",
-                    url: "/images/dior.webp",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "CHANEL",
-                    binomial: "Timeless Parisian · Since 1910",
-                    url: "/images/chanel.jpg",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "BALENCIAGA",
-                    binomial: "Avant-Garde · Since 1919",
-                    url: "/images/balensiaga.avif",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "HERMÈS",
-                    binomial: "Artisan Leather · Since 1837",
-                    url: "/images/hermes.webp",
-                    by: "LuxuryCo"
-                },
-                {
-                    common: "YSL",
-                    binomial: "Yves Saint Laurent · Since 1961",
-                    url: "/images/ysl.jpg",
-                    by: "LuxuryCo"
-                },
-            ];
-
-            const radius = 480;
-            const autoRotateSpeed = 0.05;
-            const anglePerItem = 360 / galleryData.length;
-            const track = document.getElementById('track');
-            
-            let rotation = 0;
-            let isScrolling = false;
-            let scrollTimeout = null;
-
-            const itemEls = galleryData.map((item, i) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'gallery-item';
-
-                wrapper.innerHTML = `
-                  <div class="gallery-card">
-                    <img src="${item.url}" alt="${item.common}" loading="lazy">
-                    <div class="card-caption">
-                      <h2>${item.common}</h2>
-                      <em>${item.binomial}</em>
-                      <div class="by">${item.by}</div>
-                    </div>
-                  </div>
-                `;
-                track.appendChild(wrapper);
-                return wrapper;
-            });
-
-            function updateGalleryItems() {
-                itemEls.forEach((el, i) => {
-                    const itemAngle = i * anglePerItem;
-                    const totalRotation = ((rotation % 360) + 360) % 360;
-                    const relativeAngle = (itemAngle + totalRotation + 360) % 360;
-                    const normalizedAngle = Math.abs(relativeAngle > 180 ? 360 - relativeAngle : relativeAngle);
-                    const opacity = Math.max(0.25, 1 - (normalizedAngle / 180));
-
-                    el.style.transform = `rotateY(${itemAngle}deg) translateZ(${radius}px)`;
-                    el.style.opacity = opacity;
-                });
-                track.style.transform = `rotateY(${rotation}deg)`;
-            }
-
-            function handleScroll() {
-                isScrolling = true;
-                if (scrollTimeout) clearTimeout(scrollTimeout);
-
-                // Start scrolling calculation relative to the component position if possible
-                // For simplicity, using overall document scroll since the spacer is huge
-                const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const scrollProgress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
-                
-                // Adjust rotation sensitivity
-                rotation = scrollProgress * 720; // 720 degrees over full scroll
-                updateGalleryItems();
-
-                scrollTimeout = setTimeout(() => { isScrolling = false; }, 150);
-            }
-
-            function autoRotateGallery() {
-                if (!isScrolling) {
-                    rotation += autoRotateSpeed;
-                    updateGalleryItems();
-                }
-                requestAnimationFrame(autoRotateGallery);
-            }
-
-            window.addEventListener('scroll', handleScroll, { passive: true });
-            requestAnimationFrame(autoRotateGallery);
-            updateGalleryItems();
         });
-    </script>
+    }
+
+    // ─── Load Featured Products from API ───
+    fetch('/api/producto')
+        .then(r => r.ok ? r.json() : [])
+        .then(products => {
+            const wrapper = document.getElementById('featured-wrapper');
+            if (!wrapper || !products.length) return;
+            const featured = products.filter(p => p.activo && p.stock > 0).slice(0, 12);
+            wrapper.innerHTML = featured.map(p => {
+                const img = p.imagenPrincipalUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600&auto=format&fit=crop';
+                return `
+                <div class="swiper-slide">
+                    <a href="/Shop/Product/${p.idProducto}" class="product-card" style="text-decoration:none; display:block;">
+                        <div class="card-img-wrap">
+                            <img src="${img}" alt="${p.nombre}" loading="lazy">
+                            <div class="card-img-overlay">
+                                <span class="badge-luxury badge-gold">Ver Producto</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-brand">${p.marcaNombre || 'LuxuryCo'}</div>
+                            <div class="card-name">${p.nombre}</div>
+                            <div class="card-price">$${Number(p.precio).toLocaleString()} COP</div>
+                        </div>
+                    </a>
+                </div>`;
+            }).join('');
+        })
+        .catch(() => {});
+
+    // ─── Brands Swiper ───
+    const brands = [
+        { name: 'GUCCI',       sub: 'Italian Luxury · Since 1921',     img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80' },
+        { name: 'PRADA',       sub: 'Milan Fashion · Since 1913',      img: '/images/prada.jpg' },
+        { name: 'LOUIS VUITTON', sub: 'Paris Heritage · Since 1854',   img: '/images/LOUIS VUITTON.webp' },
+        { name: 'ROLEX',       sub: 'Swiss Mastery · Since 1905',      img: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&auto=format&fit=crop&q=80' },
+        { name: 'CARTIER',     sub: 'Fine Jewelry · Since 1847',       img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&auto=format&fit=crop&q=80' },
+        { name: 'DIOR',        sub: 'French Elegance · Since 1946',     img: '/images/dior.webp' },
+        { name: 'CHANEL',      sub: 'Timeless Parisian · Since 1910',   img: '/images/chanel.jpg' },
+        { name: 'BALENCIAGA',  sub: 'Avant-Garde · Since 1919',        img: '/images/balensiaga.avif' },
+        { name: 'HERMÈS',      sub: 'Artisan Leather · Since 1837',     img: '/images/hermes.webp' },
+        { name: 'YSL',         sub: 'Yves Saint Laurent · Since 1961',  img: '/images/ysl.jpg' },
+    ];
+
+    const brandsWrapper = document.getElementById('brands-wrapper');
+    if (brandsWrapper && typeof Swiper !== 'undefined') {
+        brandsWrapper.innerHTML = brands.map(b => `
+            <div class="swiper-slide brands-slide">
+                <img src="${b.img}" alt="${b.name}" loading="lazy" title="${b.name} — ${b.sub}">
+            </div>
+        `).join('');
+
+        new Swiper('#brands-swiper', {
+            slidesPerView: 2.5,
+            centeredSlides: true,
+            spaceBetween: 16,
+            loop: true,
+            autoplay: { delay: 0, disableOnInteraction: false, reverseDirection: true },
+            speed: 3000,
+            freeMode: true,
+            breakpoints: {
+                576:  { slidesPerView: 3.5, spaceBetween: 20 },
+                768:  { slidesPerView: 4.5, spaceBetween: 24 },
+                1024: { slidesPerView: 5.5, spaceBetween: 28 },
+            }
+        });
+    }
+
+    // ─── Testimonials Logic ───
+    const testimonials = [
+        { quote: "La esencia de LuxuryCo radica en su capacidad de transformar la moda en arte puro. Vestir estas marcas es llevar una obra maestra en cada paso.", name: "Gigi Hadid", designation: "Embajadora de Alta Costura", src: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1440&auto=format&fit=crop" },
+        { quote: "Un estilo que trasciende las tendencias. Para el hombre moderno que valora la sastrería impecable y el diseño vanguardista en cada detalle.", name: "Sean O'Pry", designation: "Ícono de Elegancia Masculina", src: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1440&auto=format&fit=crop" },
+        { quote: "Revolucionando la forma en que entendemos el lujo. Las colecciones curadas por LuxuryCo son simplemente incomparables e inspiradoras.", name: "Bella Hadid", designation: "Modelo de Vanguardia", src: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1440&auto=format&fit=crop" }
+    ];
+
+    let tIndex = 0;
+    const tTotal = testimonials.length;
+    const imgContainer = document.getElementById('imageContainer');
+    let tAutoplay = null;
+
+    function calcGap(w) { const mn=400,mx=900,mg=40,xg=70; return w<=mn?mg:w>=mx?xg:mg+(xg-mg)*((w-mn)/(mx-mn)); }
+
+    testimonials.forEach((t, i) => {
+        const img = document.createElement('img');
+        img.src = t.src; img.alt = t.name; img.className = 'testimonial-image'; img.dataset.index = i;
+        imgContainer.appendChild(img);
+    });
+
+    function updateTImages() {
+        const gap = calcGap(imgContainer.offsetWidth), maxUp = gap * 0.8;
+        imgContainer.querySelectorAll('.testimonial-image').forEach((img, i) => {
+            const active = i===tIndex, left = (tIndex-1+tTotal)%tTotal===i, right = (tIndex+1)%tTotal===i;
+            img.style.zIndex = active?3:left||right?2:1;
+            img.style.opacity = active||left||right?1:0;
+            img.style.pointerEvents = active||left||right?'auto':'none';
+            if (active) img.style.transform = 'translateX(0) translateY(0) scale(1) rotateY(0)';
+            else if (left) img.style.transform = `translateX(-${gap}px) translateY(-${maxUp}px) scale(0.85) rotateY(15deg)`;
+            else if (right) img.style.transform = `translateX(${gap}px) translateY(-${maxUp}px) scale(0.85) rotateY(-15deg)`;
+        });
+    }
+
+    function updateTText() {
+        const t = testimonials[tIndex];
+        document.getElementById('name').textContent = t.name;
+        document.getElementById('designation').textContent = t.designation;
+        const qEl = document.getElementById('quote');
+        qEl.innerHTML = '';
+        t.quote.split(' ').forEach((w, i) => {
+            const s = document.createElement('span');
+            s.textContent = w + '\u00A0';
+            s.style.cssText = 'filter:blur(10px); opacity:0; transform:translateY(5px); transition: all 0.35s ease;';
+            qEl.appendChild(s);
+            setTimeout(() => { s.style.filter='blur(0)'; s.style.opacity='1'; s.style.transform='translateY(0)'; }, 25*i);
+        });
+    }
+
+    function renderT() { updateTImages(); updateTText(); }
+    function resetTAutoplay() { clearInterval(tAutoplay); tAutoplay = setInterval(() => { tIndex=(tIndex+1)%tTotal; renderT(); }, 5500); }
+
+    document.getElementById('nextBtn').addEventListener('click', () => { tIndex=(tIndex+1)%tTotal; renderT(); resetTAutoplay(); });
+    document.getElementById('prevBtn').addEventListener('click', () => { tIndex=(tIndex-1+tTotal)%tTotal; renderT(); resetTAutoplay(); });
+    window.addEventListener('resize', updateTImages);
+    renderT(); resetTAutoplay();
+});
+</script>
 }

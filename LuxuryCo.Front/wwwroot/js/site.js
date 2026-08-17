@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
         gsap.registerPlugin(ScrollTrigger);
 
         try {
-            // Ocultar solo en runtime y animar. Si algo falla, catch() los deja visibles.
             document.querySelectorAll('[data-reveal]').forEach(el => {
                 const direction = el.dataset.reveal || 'up';
                 const delay = parseFloat(el.dataset.revealDelay) || 0;
@@ -24,10 +23,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 else if (direction === 'right') fromVars.x = -40;
                 else if (direction === 'scale') fromVars.scale = 0.92;
 
-                gsap.from(el, {
-                    ...fromVars,
-                    scrollTrigger: { trigger: el, start: 'top 88%', once: true }
-                });
+                // Si el elemento ya está visible en pantalla al cargar → animar de inmediato
+                const rect = el.getBoundingClientRect();
+                const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+
+                if (inViewport) {
+                    gsap.from(el, fromVars);
+                } else {
+                    gsap.from(el, {
+                        ...fromVars,
+                        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+                    });
+                }
             });
 
             document.querySelectorAll('[data-parallax]').forEach(el => {
@@ -42,8 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('GSAP animation error:', err);
         }
     }
-    // Si GSAP NO está disponible, no hacemos nada: el contenido ya es visible
-    // porque ya NO está oculto por CSS.
+    // Si GSAP NO está disponible, el contenido es visible sin animación.
 
     // ── Scroll Progress Bar ──
     window.addEventListener('scroll', () => {

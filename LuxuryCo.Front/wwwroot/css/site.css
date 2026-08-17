@@ -1094,8 +1094,12 @@ hr { border-color: var(--border-light); opacity: 0.15; }
   transform: translateY(-4px);
 }
 
-/* ---- REVEAL ANIMATION BASE (GSAP data-reveal) ---- */
-[data-reveal] { opacity: 0; will-change: transform, opacity; }
+/* ---- REVEAL ANIMATION BASE (GSAP data-reveal) ----
+   Elementos NO se ocultan por CSS. GSAP los oculta y anima en runtime,
+   para que si GSAP falla el contenido siga siendo visible (evita página en blanco).
+   Los elementos fuera de viewport se ocultan via el JS en site.js.
+   */
+[data-reveal] { will-change: transform, opacity; }
 
 /* ---- SECTION TITLE PATTERN ---- */
 .section-heading {

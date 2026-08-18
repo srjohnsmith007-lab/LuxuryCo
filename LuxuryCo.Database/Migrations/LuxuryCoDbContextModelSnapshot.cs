@@ -17,10 +17,139 @@ namespace LuxuryCo.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.16")
+                .HasAnnotation("ProductVersion", "9.0.18")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("LuxuryCo.Database.Models.AiActionLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionExecuted")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("AfterState")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BeforeState")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("Confidence")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IntentDetected")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)");
+
+                    b.Property<string>("ModelUsed")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PromptOriginal")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RiskLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SanitizedPrompt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TraceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ai_action_log", (string)null);
+                });
+
+            modelBuilder.Entity("LuxuryCo.Database.Models.AiImageGeneration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("GenerationTimeMs")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("NegativePrompt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OptimizedPrompt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PromptOriginal")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Seed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ai_image_generation", (string)null);
+                });
 
             modelBuilder.Entity("LuxuryCo.Database.Models.Carrito", b =>
                 {
@@ -31,7 +160,7 @@ namespace LuxuryCo.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_carrito"));
 
                     b.Property<DateTime>("fecha_creacion")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_usuario")
                         .HasColumnType("integer");
@@ -225,7 +354,7 @@ namespace LuxuryCo.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_envio"));
 
                     b.Property<DateTime?>("fecha_envio")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_estado_envio")
                         .HasColumnType("integer");
@@ -331,7 +460,7 @@ namespace LuxuryCo.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_factura"));
 
                     b.Property<DateTime>("fecha_factura")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_metodo_pago")
                         .HasColumnType("integer");
@@ -367,7 +496,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<DateTime>("fecha_ingreso")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("id_producto")
                         .HasColumnType("integer");
@@ -410,7 +539,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("fecha_creacion")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_usuario")
                         .HasColumnType("integer");
@@ -466,6 +595,10 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_inventario"));
+
+                    b.Property<Guid>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
 
                     b.Property<int>("cantidad_disponible")
                         .HasColumnType("integer");
@@ -598,7 +731,7 @@ namespace LuxuryCo.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_pedido"));
 
                     b.Property<DateTime>("fecha_pedido")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_direccion")
                         .HasColumnType("integer");
@@ -631,6 +764,10 @@ namespace LuxuryCo.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_producto"));
 
+                    b.Property<Guid>("ConcurrencyToken")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("activo")
                         .HasColumnType("boolean");
 
@@ -638,7 +775,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("fecha_creacion")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_categoria")
                         .HasColumnType("integer");
@@ -747,7 +884,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("fecha")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("id_producto")
                         .HasColumnType("integer");
@@ -836,7 +973,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("fecha_creacion")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("nombre")
                         .IsRequired()
@@ -869,10 +1006,10 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime?>("fecha_completada")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("fecha_solicitud")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("id_producto")
                         .HasColumnType("integer");
@@ -921,7 +1058,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.Property<DateTime>("fecha_registro")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("foto_perfil_url")
                         .HasColumnType("text");
@@ -947,7 +1084,7 @@ namespace LuxuryCo.Database.Migrations
                         .HasColumnType("character varying(6)");
 
                     b.Property<DateTime?>("reset_password_expires")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("telefono")
                         .HasMaxLength(20)
@@ -1002,6 +1139,24 @@ namespace LuxuryCo.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DataProtectionKeys");
+                });
+
+            modelBuilder.Entity("LuxuryCo.Database.Models.AiActionLog", b =>
+                {
+                    b.HasOne("LuxuryCo.Database.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("LuxuryCo.Database.Models.AiImageGeneration", b =>
+                {
+                    b.HasOne("LuxuryCo.Database.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("LuxuryCo.Database.Models.Carrito", b =>

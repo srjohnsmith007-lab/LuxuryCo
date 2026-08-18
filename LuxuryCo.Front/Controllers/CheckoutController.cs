@@ -66,7 +66,7 @@ public class CheckoutController : Controller
             // Fórmula: SHA256(reference + amountInCents + "COP" + integritySecret)
             var integritySecret = _config["Wompi:IntegritySecret"] 
                 ?? Environment.GetEnvironmentVariable("Wompi__IntegritySecret") 
-                ?? "";
+                ?? "test_integrity_gj7eMblroNF7lDTdEnK0YTjCsP5iR8SB"; // Fallback por defecto para ambiente de pruebas
             var rawSignature = $"{reference}{amountInCents}COP{integritySecret}";
             var signatureBytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawSignature));
             var signature = Convert.ToHexString(signatureBytes).ToLower();

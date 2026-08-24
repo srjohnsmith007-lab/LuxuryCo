@@ -129,60 +129,126 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SECCIÓN UBICACIÓN (MAPA PROVENZA)
+     SECCIÓN BOUTIQUE — iPhone Mockup + Mapa Provenza
      ═══════════════════════════════════════════════════════ -->
-<section style="background-color: var(--black); padding: 5rem 0; border-top: 1px solid var(--border);" class="position-relative">
+<section class="boutique-section" style="background: var(--black-soft); padding: 6rem 0; border-top: 1px solid var(--border);">
     <div class="container text-center mb-5" data-reveal="up">
         <p style="font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem;">Encuéntranos en Medellín</p>
-        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: 3px; color: var(--text);">NUESTRA BOUTIQUE EN PROVENZA</h2>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: 3px; color: var(--text);">NUESTRA BOUTIQUE EN PROVENZA</h2>
         <div style="width: 50px; height: 1px; background: var(--gold); margin: 1.5rem auto;"></div>
         <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 0.9rem;">
-            El epicentro del lujo y la moda en Colombia. Visítanos en nuestra sede principal para una experiencia de 'Personal Shopper' exclusiva y conoce nuestras colecciones en vivo.
+            El epicentro del lujo y la moda en Colombia. Visítanos para una experiencia de Personal Shopper exclusiva.
         </p>
     </div>
 
-    <div class="container" data-reveal="up" data-reveal-delay="200">
-        <div class="row gx-0 align-items-center" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--black-soft); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-            <div class="col-lg-6 position-relative" style="height: 400px; border-right: 1px solid var(--border);">
-                <!-- Filtro para mapa oscuro (luxury dark map) -->
-                <div style="width: 100%; height: 100%; filter: grayscale(100%) invert(92%) contrast(85%) opacity(0.85);">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15866.505537554522!2d-75.5714394464879!3d6.208149866173007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e442828b6d4e8c1%3A0x6334f5ab3c155d31!2sProvenza%2C%20El%20Poblado%2C%20Medell%C3%ADn%2C%20Antioquia!5e0!3m2!1ses!2sco!4v1700000000000!5m2!1ses!2sco" 
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="container">
+        <div class="row align-items-center g-5">
+
+            <!-- ─── COLUMNA IZQUIERDA: iPhone Mockup CSS ─── -->
+            <div class="col-lg-5 d-flex justify-content-center" data-reveal="left">
+                <div class="iphone-mockup-wrap">
+                    <!-- Marco exterior del iPhone (titanio natural) -->
+                    <div class="iphone-frame">
+                        <!-- Dynamic Island -->
+                        <div class="iphone-island"></div>
+                        <!-- Pantalla con contenido de la app -->
+                        <div class="iphone-screen">
+                            <div class="iphone-wallpaper">
+                                <!-- Miniatura de la app dentro del iPhone -->
+                                <div class="app-header">
+                                    <span class="app-logo-text">LUXURYCO</span>
+                                    <i class="fas fa-shopping-bag" style="color: var(--gold); font-size: 0.9rem;"></i>
+                                </div>
+                                <div class="app-hero-img">
+                                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="LuxuryCo App" style="width:100%; height:100%; object-fit:cover; object-position: center top;">
+                                    <div style="position:absolute; inset:0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.9) 100%);"></div>
+                                    <div style="position:absolute; bottom:12px; left:12px; right:12px;">
+                                        <div style="font-size:0.55rem; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:4px;">Nueva Colección</div>
+                                        <div style="font-size:0.85rem; font-family:var(--font-display); color:#fff; letter-spacing:2px;">Elegancia 2026</div>
+                                    </div>
+                                </div>
+                                <div class="app-product-grid">
+                                    <div class="app-mini-card">
+                                        <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=200&auto=format&fit=crop" alt="">
+                                        <div class="app-mini-price">$350K</div>
+                                    </div>
+                                    <div class="app-mini-card">
+                                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=200&auto=format&fit=crop" alt="">
+                                        <div class="app-mini-price">$820K</div>
+                                    </div>
+                                    <div class="app-mini-card">
+                                        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=200&auto=format&fit=crop" alt="">
+                                        <div class="app-mini-price">$610K</div>
+                                    </div>
+                                </div>
+                                <!-- Bottom bar del "app" -->
+                                <div class="app-navbar">
+                                    <div class="app-nav-item active"><i class="fas fa-home"></i><span>Inicio</span></div>
+                                    <div class="app-nav-item"><i class="fas fa-search"></i><span>Buscar</span></div>
+                                    <div class="app-nav-item"><i class="fas fa-heart"></i><span>Wishlist</span></div>
+                                    <div class="app-nav-item"><i class="fas fa-user"></i><span>Perfil</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Home Indicator -->
+                        <div class="iphone-home-indicator"></div>
+                        <!-- Botones laterales (decorativos) -->
+                        <div class="iphone-btn-power"></div>
+                        <div class="iphone-btn-vol-up"></div>
+                        <div class="iphone-btn-vol-down"></div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6 p-5">
-                <h4 style="font-family: var(--font-display); letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 2rem; color: var(--gold);">ATENCIÓN VIP</h4>
-                
-                <div class="mb-4 d-flex align-items-start gap-3">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-map-marker-alt" style="color: var(--gold); font-size: 0.9rem;"></i>
-                    </div>
-                    <div>
-                        <strong style="color: var(--text); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;">DIRECCIÓN</strong><br>
-                        <span style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">Zona Provenza, El Poblado<br>Medellín, Antioquia</span>
+
+            <!-- ─── COLUMNA DERECHA: Mapa + Info VIP ─── -->
+            <div class="col-lg-7" data-reveal="right">
+                <!-- Mapa -->
+                <div style="border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 2rem; height: 280px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+                    <div style="width: 100%; height: 100%; filter: grayscale(100%) invert(90%) contrast(82%) opacity(0.82);">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.292!2d-75.57143!3d6.208149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e442828b6d4e8c1%3A0x6334f5ab3c155d31!2sProvenza%2C%20El%20Poblado%2C%20Medell%C3%ADn!5e0!3m2!1ses!2sco!4v1700000000000!5m2!1ses!2sco"
+                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
-                
-                <div class="mb-4 d-flex align-items-start gap-3">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="far fa-clock" style="color: var(--gold); font-size: 0.9rem;"></i>
+
+                <!-- Info VIP -->
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="boutique-info-card">
+                            <div class="boutique-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <strong>DIRECCIÓN</strong>
+                            <p>Zona Provenza, El Poblado<br>Medellín, Antioquia</p>
+                        </div>
                     </div>
-                    <div>
-                        <strong style="color: var(--text); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;">HORARIOS</strong><br>
-                        <span style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">Lunes - Sábado: 10:00 AM - 8:00 PM<br>Domingos: Exclusivo con cita previa</span>
+                    <div class="col-sm-6">
+                        <div class="boutique-info-card">
+                            <div class="boutique-info-icon"><i class="far fa-clock"></i></div>
+                            <strong>HORARIOS</strong>
+                            <p>Lun – Sáb: 10AM – 8PM<br>Dom: Solo con cita previa</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="boutique-info-card">
+                            <div class="boutique-info-icon"><i class="fas fa-concierge-bell"></i></div>
+                            <strong>PERSONAL SHOPPER</strong>
+                            <p>Agenda una visita privada con nuestro Chatbot AI</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="boutique-info-card">
+                            <div class="boutique-info-icon"><i class="fas fa-phone-alt"></i></div>
+                            <strong>CONTACTO VIP</strong>
+                            <p>+57 305 000 0000<br>contacto&#64;luxuryco.co</p>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="d-flex align-items-start gap-3">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-concierge-bell" style="color: var(--gold); font-size: 0.9rem;"></i>
-                    </div>
-                    <div>
-                        <strong style="color: var(--text); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;">RESERVAS PRIVADAS</strong><br>
-                        <span style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">Habla con nuestro Chatbot AI para agendar una prueba privada con un Personal Shopper.</span>
-                    </div>
+
+                <div class="mt-4">
+                    <a href="/Shop/Category/Todos" class="btn-gold-luxury" style="display: inline-flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-gem" style="font-size: 0.8rem;"></i> EXPLORAR COLECCIÓN
+                    </a>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
@@ -233,7 +299,152 @@
         0%, 100% { transform: translateX(-50%) translateY(0); }
         50% { transform: translateX(-50%) translateY(8px); }
     }
+
+    /* ── iPhone Mockup CSS ─────────────────────────── */
+    .iphone-mockup-wrap {
+        perspective: 1200px;
+    }
+    .iphone-frame {
+        position: relative;
+        width: 270px;
+        height: 555px;
+        border-radius: 48px;
+        background: linear-gradient(145deg, #b8a99a 0%, #a69a8a 40%, #8c7d70 100%);
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,0.12),
+            0 20px 60px rgba(0,0,0,0.65),
+            0 4px 12px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.2);
+        padding: 14px;
+        box-sizing: border-box;
+        transform: rotateY(-6deg) rotateX(2deg);
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .iphone-frame:hover {
+        transform: rotateY(0deg) rotateX(0deg) scale(1.03);
+    }
+    .iphone-screen {
+        width: 100%; height: 100%;
+        border-radius: 36px;
+        overflow: hidden;
+        background: #000;
+        position: relative;
+    }
+    .iphone-wallpaper {
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column;
+        background: #0a0a0a;
+        overflow: hidden;
+    }
+    .iphone-island {
+        position: absolute;
+        top: 20px; left: 50%;
+        transform: translateX(-50%);
+        width: 100px; height: 30px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 10;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    }
+    .iphone-home-indicator {
+        position: absolute;
+        bottom: 8px; left: 50%;
+        transform: translateX(-50%);
+        width: 100px; height: 4px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 3px;
+        z-index: 10;
+    }
+    /* Botón power (derecha) */
+    .iphone-btn-power {
+        position: absolute;
+        right: -3px; top: 140px;
+        width: 3px; height: 65px;
+        background: linear-gradient(to bottom, #8c7d70, #a69a8a);
+        border-radius: 0 3px 3px 0;
+    }
+    /* Botones volumen (izquierda) */
+    .iphone-btn-vol-up, .iphone-btn-vol-down {
+        position: absolute;
+        left: -3px;
+        width: 3px; height: 44px;
+        background: linear-gradient(to bottom, #8c7d70, #a69a8a);
+        border-radius: 3px 0 0 3px;
+    }
+    .iphone-btn-vol-up  { top: 130px; }
+    .iphone-btn-vol-down { top: 185px; }
+
+    /* ── Contenido de la App dentro del iPhone ──────── */
+    .app-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 52px 16px 10px;
+        background: rgba(0,0,0,0.9);
+        flex-shrink: 0;
+    }
+    .app-logo-text {
+        font-family: var(--font-display); font-size: 0.75rem;
+        letter-spacing: 3px; color: var(--gold); font-weight: 700;
+    }
+    .app-hero-img {
+        flex-shrink: 0; height: 170px; position: relative; overflow: hidden;
+    }
+    .app-product-grid {
+        display: flex; gap: 6px; padding: 10px 12px;
+        background: #0a0a0a; flex-shrink: 0;
+    }
+    .app-mini-card {
+        flex: 1; border-radius: 8px; overflow: hidden;
+        position: relative; aspect-ratio: 3/4;
+        border: 1px solid rgba(212,175,55,0.15);
+    }
+    .app-mini-card img { width: 100%; height: 100%; object-fit: cover; }
+    .app-mini-price {
+        position: absolute; bottom: 4px; left: 0; right: 0; text-align: center;
+        font-size: 0.55rem; color: var(--gold); font-weight: 700;
+        background: rgba(0,0,0,0.7); padding: 2px 0;
+    }
+    .app-navbar {
+        display: flex; justify-content: space-around; align-items: center;
+        padding: 10px 8px 18px;
+        background: rgba(0,0,0,0.95);
+        border-top: 1px solid rgba(212,175,55,0.15);
+        margin-top: auto; flex-shrink: 0;
+    }
+    .app-nav-item {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 3px; color: #555; font-size: 0.6rem; cursor: pointer;
+    }
+    .app-nav-item.active { color: var(--gold); }
+    .app-nav-item i { font-size: 1rem; }
+
+    /* ── Boutique Info Cards ─────────────────────────── */
+    .boutique-info-card {
+        background: var(--black-card2, #111);
+        border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.2rem 1rem;
+        transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+    .boutique-info-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-3px);
+    }
+    .boutique-info-icon {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(212,175,55,0.1);
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 0.7rem; color: var(--gold); font-size: 0.9rem;
+    }
+    .boutique-info-card strong {
+        display: block; color: var(--text);
+        font-size: 0.72rem; letter-spacing: 2px;
+        text-transform: uppercase; margin-bottom: 0.4rem;
+    }
+    .boutique-info-card p {
+        color: var(--text-muted); font-size: 0.8rem;
+        line-height: 1.6; margin: 0;
+    }
 </style>
+
 
 <!-- ═══════════════════════════════════════════════════════
      SCRIPTS

@@ -1,77 +1,315 @@
 @model LuxuryCo.Front.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Iniciar Sesión";
+    Layout = null; // Full-screen sin navbar ni footer
 }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar Sesión — LuxuryCo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="auth-page-bg">
-    <div class="auth-card">
-
-        <div class="text-center mb-4">
-            <div class="auth-brand-title">LUXURYCO</div>
-            <div class="auth-brand-sub">Acceso a tu cuenta</div>
-        </div>
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="auth-alert-success"><i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]</div>
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex;
         }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="auth-alert-error"><i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]</div>
+
+        /* ── PANEL IZQUIERDO — IMAGEN ───────────────────── */
+        .login-image-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-image-panel img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .login-image-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.15) 0%,
+                rgba(0,0,0,0.08) 50%,
+                rgba(0,0,0,0.55) 100%
+            );
+        }
+        .btn-back {
+            position: absolute; top: 1.5rem; left: 1.5rem; z-index: 10;
+            width: 40px; height: 40px;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; text-decoration: none; font-size: 1rem;
+            transition: background 0.25s ease;
+        }
+        .btn-back:hover { background: rgba(0,0,0,0.45); color: #fff; }
+        .image-brand-badge {
+            position: absolute; bottom: 2.5rem; left: 2.5rem; z-index: 10;
+        }
+        .image-brand-badge .badge-label {
+            font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase;
+            color: rgba(255,255,255,0.6); margin-bottom: 4px;
+        }
+        .image-brand-badge .badge-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem; color: #fff; letter-spacing: 3px; font-weight: 300;
+            line-height: 1;
+        }
+        .image-brand-badge .badge-sub {
+            font-size: 0.65rem; letter-spacing: 2px; color: #d4af37;
+            text-transform: uppercase; margin-top: 4px;
         }
 
-        <div id="loginView">
-            <form method="post" asp-action="Login" asp-controller="Account">
-                <div asp-validation-summary="All" class="auth-alert-error" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+        /* ── PANEL DERECHO — FORMULARIO ─────────────────── */
+        .login-form-panel {
+            width: 480px;
+            min-width: 420px;
+            flex-shrink: 0;
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 2.5rem;
+            overflow-y: auto;
+        }
+        .login-form-inner { width: 100%; max-width: 360px; }
+        .form-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; letter-spacing: 5px;
+            text-transform: uppercase; color: #111; margin-bottom: 0.5rem;
+        }
+        .form-title {
+            font-size: 1.75rem; font-weight: 700; color: #111;
+            letter-spacing: -0.5px; margin-bottom: 0.4rem; line-height: 1.2;
+        }
+        .form-subtitle {
+            font-size: 0.85rem; color: #777; margin-bottom: 2rem;
+        }
+        .form-subtitle a {
+            color: #111; font-weight: 600; text-decoration: none;
+            border-bottom: 1px solid #111;
+        }
+        .form-subtitle a:hover { color: #c8a97a; border-color: #c8a97a; }
 
-                <div class="mb-4">
-                    <label class="auth-label">Correo Electrónico</label>
-                    <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" required />
-                </div>
-                <div class="mb-5">
-                    <label class="auth-label">Contraseña</label>
-                    <input name="Password" type="password" class="auth-input" placeholder="••••••••" required />
-                </div>
+        .alert-success-login {
+            background: #f0fdf4; border: 1px solid #bbf7d0;
+            color: #166534; border-radius: 8px; padding: 0.75rem 1rem;
+            font-size: 0.82rem; margin-bottom: 1.2rem;
+        }
+        .alert-error-login {
+            background: #fef2f2; border: 1px solid #fecaca;
+            color: #991b1b; border-radius: 8px; padding: 0.75rem 1rem;
+            font-size: 0.82rem; margin-bottom: 1.2rem;
+        }
+        .login-label {
+            display: block; font-size: 0.75rem; font-weight: 500;
+            color: #555; margin-bottom: 6px; letter-spacing: 0.3px;
+        }
+        .login-input {
+            width: 100%; padding: 12px 14px;
+            border: 1.5px solid #e5e7eb; border-radius: 10px;
+            font-size: 0.875rem; color: #111;
+            font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+        .login-input::placeholder { color: #bbb; }
+        .login-input:focus {
+            border-color: #111;
+            box-shadow: 0 0 0 3px rgba(17,17,17,0.07);
+        }
+        .input-password-wrap { position: relative; }
+        .input-password-wrap .login-input { padding-right: 44px; }
+        .btn-toggle-password {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; padding: 4px; cursor: pointer;
+            color: #aaa; transition: color 0.2s; line-height: 1;
+        }
+        .btn-toggle-password:hover { color: #111; }
+        .login-options {
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 1rem 0 1.4rem;
+        }
+        .remember-label {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 0.8rem; color: #555; cursor: pointer;
+        }
+        .remember-label input[type="checkbox"] {
+            width: 15px; height: 15px; accent-color: #111; cursor: pointer;
+        }
+        .btn-forgot {
+            background: none; border: none; padding: 0; cursor: pointer;
+            font-size: 0.8rem; color: #777; font-family: 'Inter', sans-serif;
+        }
+        .btn-forgot:hover { color: #111; text-decoration: underline; }
+        .btn-login-submit {
+            width: 100%; padding: 13px;
+            background: #111; color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 600; letter-spacing: 0.5px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+        .btn-login-submit:hover { background: #333; transform: translateY(-1px); }
+        .btn-login-submit:active { transform: translateY(0); }
+        .login-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 1.5rem 0; font-size: 0.78rem; color: #bbb;
+        }
+        .login-divider::before, .login-divider::after {
+            content: ''; flex: 1; height: 1px; background: #e5e7eb;
+        }
+        .forgot-panel { display: none; }
+        .forgot-panel p { font-size: 0.83rem; color: #777; margin-bottom: 1.2rem; line-height: 1.6; }
+        .btn-back-login {
+            background: none; border: none; padding: 0; cursor: pointer;
+            font-size: 0.8rem; color: #777; font-family: 'Inter', sans-serif;
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 0.8rem;
+        }
+        .btn-back-login:hover { color: #111; }
 
-                <button type="submit" class="btn-auth-primary mb-3">
-                    <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
-                </button>
+        @@media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .login-image-panel { height: 260px; flex: none; }
+            .login-form-panel { width: 100%; min-width: 0; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
 
-                <hr class="auth-divider" />
-
-                <div class="d-flex justify-content-between">
-                    <span class="auth-link" onclick="toggleViews('forgot')">¿Olvidaste tu contraseña?</span>
-                    <a asp-action="Register" asp-controller="Account" class="auth-link">Crear una cuenta</a>
-                </div>
-            </form>
+    <!-- ─── PANEL IZQUIERDO: Imagen Boutique LuxuryCo Provenza ─── -->
+    <div class="login-image-panel">
+        <a href="/" class="btn-back" title="Volver al inicio">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <img src="~/images/login_boutique.jpg" alt="Boutique LuxuryCo · Provenza · Medellín" />
+        <div class="login-image-overlay"></div>
+        <div class="image-brand-badge">
+            <div class="badge-label">Bienvenido a</div>
+            <div class="badge-name">LUXURYCO</div>
+            <div class="badge-sub">Provenza · Medellín · Colombia</div>
         </div>
-
-        <div id="forgotPasswordView" style="display:none;">
-            <p class="mb-1" style="color:#aaa;font-size:.88rem;">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
-            <hr class="auth-divider" />
-            <form method="post" asp-action="ForgotPassword" asp-controller="Account">
-                @Html.AntiForgeryToken()
-                <div class="mb-5">
-                    <label class="auth-label">Correo Electrónico</label>
-                    <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" required />
-                </div>
-                <button type="submit" class="btn-auth-primary mb-3">
-                    <i class="fas fa-paper-plane me-2"></i> Enviar Enlace
-                </button>
-                <div class="text-center mt-2">
-                    <span class="auth-link" onclick="toggleViews('login')">← Volver al inicio de sesión</span>
-                </div>
-            </form>
-        </div>
-
     </div>
-</div>
 
-@section Scripts {
-<script>
-function toggleViews(view) {
-    document.getElementById('loginView').style.display         = view === 'login'  ? 'block' : 'none';
-    document.getElementById('forgotPasswordView').style.display = view === 'forgot' ? 'block' : 'none';
-}
-</script>
-}
+    <!-- ─── PANEL DERECHO: Formulario ─── -->
+    <div class="login-form-panel">
+        <div class="login-form-inner">
+
+            <div class="form-logo">LuxuryCo</div>
+
+            <!-- VISTA: Iniciar Sesión -->
+            <div id="loginView">
+                <h1 class="form-title">Bienvenido de vuelta</h1>
+                <p class="form-subtitle">
+                    ¿No tienes una cuenta?
+                    <a asp-action="Register" asp-controller="Account">Regístrate</a>
+                </p>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert-success-login">
+                        <i class="fas fa-check-circle me-1"></i> @TempData["SuccessMessage"]
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert-error-login">
+                        <i class="fas fa-exclamation-triangle me-1"></i> @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form method="post" asp-action="Login" asp-controller="Account">
+                    <div asp-validation-summary="All" class="alert-error-login" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+                    <div class="mb-3">
+                        <label class="login-label">Correo Electrónico</label>
+                        <input name="Email" type="email" class="login-input" placeholder="tu@correo.com" required autocomplete="email" />
+                    </div>
+
+                    <div>
+                        <label class="login-label">Contraseña</label>
+                        <div class="input-password-wrap">
+                            <input name="Password" id="passwordInput" type="password" class="login-input" placeholder="••••••••" required autocomplete="current-password" />
+                            <button type="button" class="btn-toggle-password" onclick="togglePassword()" title="Mostrar/ocultar contraseña">
+                                <i class="far fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="login-options">
+                        <label class="remember-label">
+                            <input type="checkbox" name="RememberMe" />
+                            Recordarme
+                        </label>
+                        <button type="button" class="btn-forgot" onclick="toggleViews('forgot')">
+                            ¿Olvidaste tu contraseña?
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-login-submit">
+                        Iniciar Sesión
+                    </button>
+
+                    <div class="login-divider">o</div>
+
+                    <p style="text-align:center; font-size:0.75rem; color:#aaa; line-height:1.6;">
+                        Al iniciar sesión, aceptas nuestros
+                        <a href="#" style="color:#555; text-decoration:underline;">Términos de Servicio</a>
+                        y la
+                        <a href="#" style="color:#555; text-decoration:underline;">Política de Privacidad</a>.
+                    </p>
+                </form>
+            </div>
+
+            <!-- VISTA: Olvidé mi contraseña -->
+            <div id="forgotPasswordView" class="forgot-panel">
+                <h1 class="form-title">Restablecer contraseña</h1>
+                <p>Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña. Revisa también tu carpeta de spam.</p>
+
+                <form method="post" asp-action="ForgotPassword" asp-controller="Account">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="login-label">Correo Electrónico</label>
+                        <input name="Email" type="email" class="login-input" placeholder="tu@correo.com" required />
+                    </div>
+                    <button type="submit" class="btn-login-submit">
+                        <i class="fas fa-paper-plane me-2"></i> Enviar enlace de restablecimiento
+                    </button>
+                </form>
+
+                <button type="button" class="btn-back-login" onclick="toggleViews('login')">
+                    <i class="fas fa-arrow-left" style="font-size:0.75rem;"></i> Volver al inicio de sesión
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleViews(view) {
+            document.getElementById('loginView').style.display          = view === 'login'  ? 'block' : 'none';
+            document.getElementById('forgotPasswordView').style.display  = view === 'forgot' ? 'block' : 'none';
+        }
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon  = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

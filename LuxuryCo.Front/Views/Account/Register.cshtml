@@ -1,90 +1,316 @@
 @model LuxuryCo.Front.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Crear una Cuenta";
+    ViewData["Title"] = "Crear Cuenta";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crear Cuenta — LuxuryCo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="auth-page-bg">
-    <div class="auth-card">
-
-        <div class="text-center mb-4">
-            <div class="auth-brand-title">LUXURYCO</div>
-            <div class="auth-brand-sub">Únete a la experiencia</div>
-        </div>
-
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="auth-alert-error"><i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]</div>
+        html, body {
+            height: 100%; width: 100%;
+            background: var(--black);
+            color: var(--text);
+            font-family: var(--font-ui);
         }
 
-        <form id="registerForm" method="post" asp-action="Register" asp-controller="Account" novalidate>
-            @Html.AntiForgeryToken()
+        .register-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-            <div class="row g-3 mb-3">
-                <div class="col-6 position-relative">
-                    <label class="auth-label">Nombre</label>
-                    <input name="Nombre" type="text" class="auth-input" placeholder="Carlos" 
-                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
-                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un nombre válido (solo letras, sin símbolos ni caracteres como &amp; &lt; &gt;).</div>
-                </div>
-                <div class="col-6 position-relative">
-                    <label class="auth-label">Apellido</label>
-                    <input name="Apellido" type="text" class="auth-input" placeholder="García" 
-                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
-                    <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un apellido válido (solo letras, sin símbolos ni caracteres como &amp; &lt; &gt;).</div>
-                </div>
-            </div>
+        /* ── PANEL IZQUIERDO — Imagen fija ────────────── */
+        .reg-img-panel {
+            flex: 1;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .reg-img-panel img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+        .reg-img-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.1) 0%,
+                rgba(0,0,0,0.05) 40%,
+                rgba(0,0,0,0.7) 100%
+            );
+        }
+        .btn-reg-back {
+            position: absolute; top: 1.8rem; left: 1.8rem; z-index: 20;
+            width: 42px; height: 42px;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; text-decoration: none; font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .btn-reg-back:hover {
+            background: rgba(212,175,55,0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .img-badge {
+            position: absolute; bottom: 2.8rem; left: 2.8rem; z-index: 20;
+        }
+        .img-badge .b-eyebrow {
+            font-size: 0.58rem; letter-spacing: 5px; text-transform: uppercase;
+            color: rgba(255,255,255,0.55); margin-bottom: 6px; display: block;
+        }
+        .img-badge .b-title {
+            font-family: var(--font-display);
+            font-size: 2rem; color: #fff; letter-spacing: 4px; font-weight: 300;
+            line-height: 1; display: block;
+        }
+        .img-badge .b-sub {
+            font-size: 0.62rem; letter-spacing: 3px; color: var(--gold);
+            text-transform: uppercase; margin-top: 6px; display: block;
+        }
 
-            <div class="mb-3 position-relative">
-                <label class="auth-label">Correo Electrónico</label>
-                <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com" 
-                       pattern="^[a-zA-Z0-9._%+\-]+@@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required />
-                <div class="invalid-feedback" style="font-size: 0.75rem;">Ingresa un correo válido sin espacios ni caracteres peligrosos (ej: usuario@gmail.com).</div>
-                <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px;">
-                    * Por favor usa un correo real, necesitará ser verificado.
-                </small>
-            </div>
+        /* ── PANEL DERECHO — Formulario dark ──────────── */
+        .reg-form-panel {
+            width: 520px;
+            min-width: 460px;
+            flex-shrink: 0;
+            background: var(--black-soft);
+            border-left: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 3rem 2.8rem;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        .reg-form-inner {
+            width: 100%;
+            max-width: 400px;
+            padding: 1rem 0 3rem;
+        }
 
-            <div class="mb-3 position-relative">
-                <label class="auth-label">Teléfono</label>
-                <input id="telefonoInput" name="Telefono" type="tel" class="auth-input" placeholder="Ej: 3000000000"
-                       pattern="^\d{10,15}$" required />
-                <div id="telefonoError" class="invalid-feedback" style="font-size: 0.75rem;">Ingresa solo dígitos sin espacios ni símbolos (mínimo 10 dígitos).</div>
-            </div>
+        /* Encabezado */
+        .rf-logo {
+            font-family: var(--font-display);
+            font-size: 0.9rem; letter-spacing: 6px;
+            text-transform: uppercase; color: var(--gold);
+            margin-bottom: 2rem; display: block;
+        }
+        .rf-title {
+            font-family: var(--font-display);
+            font-size: 2rem; font-weight: 400;
+            letter-spacing: 2px; color: var(--text);
+            margin-bottom: 0.4rem; line-height: 1.2;
+        }
+        .rf-subtitle {
+            font-size: 0.8rem; color: var(--text-muted);
+            margin-bottom: 2.2rem; letter-spacing: 0.3px;
+        }
+        .rf-subtitle a {
+            color: var(--gold); text-decoration: none;
+            border-bottom: 1px solid rgba(212,175,55,0.4);
+            transition: border-color 0.2s;
+        }
+        .rf-subtitle a:hover { border-color: var(--gold); }
 
-            <div class="mb-3 position-relative">
-                <label class="auth-label">Contraseña</label>
-                <input id="pwdInput" name="Password" type="password" class="auth-input" placeholder="Mínimo 8 caracteres, mayúscula, minúscula y número"
-                       required />
-                <div id="pwdError" class="invalid-feedback" style="font-size: 0.75rem;">La contraseña no cumple los requisitos.</div>
-                <small style="color: var(--text-muted); font-size: 0.74rem; display: block; margin-top: 5px; line-height:1.6">
-                    ✔ Mínimo 8 caracteres &nbsp;·&nbsp; ✔ Mayúscula y minúscula &nbsp;·&nbsp; ✔ Al menos un número<br>
-                    ✔ Al menos un carácter especial (ej: <code style="font-size:0.72rem">! @@ # $ % ^ * - _ + = . ,</code>)<br>
-                    ✘ Sin espacios &nbsp;·&nbsp; ✘ Sin secuencias como 1234 o 9876 &nbsp;·&nbsp; ✘ Sin dígitos repetidos como 1111<br>
-                    ✘ Sin caracteres peligrosos: <code style="font-size:0.72rem">&amp; &lt; &gt; / " ' ` \</code>
-                </small>
-            </div>
+        /* Hint de contraseña */
+        .pwd-hints {
+            font-size: 0.72rem; color: var(--text-muted);
+            line-height: 1.8; margin-top: 6px;
+        }
+        .pwd-hints code {
+            font-size: 0.68rem; color: var(--text-secondary);
+            background: var(--black-card); padding: 1px 4px; border-radius: 3px;
+        }
 
-            <div class="mb-5 position-relative">
-                <label class="auth-label">Confirmar Contraseña</label>
-                <input id="pwdConfirm" name="ConfirmPassword" type="password" class="auth-input" placeholder="Repite tu contraseña" required />
-                <div class="invalid-feedback" style="font-size: 0.75rem;">Las contraseñas no coinciden.</div>
-            </div>
+        /* Botón de ojo */
+        .input-icon-wrap { position: relative; }
+        .input-icon-wrap .auth-input { padding-right: 46px; }
+        .btn-eye {
+            position: absolute; right: 13px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; padding: 4px;
+            color: var(--text-muted); cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-eye:hover { color: var(--gold); }
 
-            <button type="submit" class="btn-auth-primary mb-3">
-                <i class="fas fa-user-plus me-2"></i> Crear Cuenta
-            </button>
+        /* Nota pie */
+        .rf-footer-note {
+            font-size: 0.72rem; color: var(--text-muted);
+            text-align: center; line-height: 1.7; margin-top: 1.5rem;
+        }
+        .rf-footer-note a {
+            color: var(--text-secondary); text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .rf-footer-note a:hover { color: var(--gold); }
 
-            <hr class="auth-divider" />
+        /* ── Responsive ───────────────────────────────── */
+        @@media (max-width: 900px) {
+            .register-wrapper { flex-direction: column; }
+            .reg-img-panel {
+                position: relative; height: 260px;
+                width: 100%; flex: none;
+            }
+            .reg-form-panel { width: 100%; min-width: 0; min-height: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="register-wrapper">
 
-            <p class="text-center mb-0" style="font-size:.83rem;">
-                ¿Ya tienes cuenta? <a asp-action="Login" asp-controller="Account" class="auth-link">Inicia sesión aquí</a>
-            </p>
-        </form>
+    <!-- ─── PANEL IZQUIERDO: Imagen fija ─── -->
+    <div class="reg-img-panel">
+        <a href="/" class="btn-reg-back" title="Volver al inicio">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <img src="~/images/login_boutique.jpg" alt="Boutique LuxuryCo Provenza Medellín" />
+        <div class="reg-img-overlay"></div>
+        <div class="img-badge">
+            <span class="b-eyebrow">Únete a</span>
+            <span class="b-title">LUXURYCO</span>
+            <span class="b-sub">Provenza · Medellín · Colombia</span>
+        </div>
     </div>
+
+    <!-- ─── PANEL DERECHO: Formulario ─── -->
+    <div class="reg-form-panel">
+        <div class="reg-form-inner">
+
+            <span class="rf-logo">LuxuryCo</span>
+            <h1 class="rf-title">Crear una cuenta</h1>
+            <p class="rf-subtitle">
+                ¿Ya tienes cuenta?
+                <a asp-action="Login" asp-controller="Account">Inicia sesión</a>
+            </p>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="auth-alert-error mb-3">
+                    <i class="fas fa-exclamation-triangle me-1"></i> @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form id="registerForm" method="post" asp-action="Register" asp-controller="Account" novalidate>
+                @Html.AntiForgeryToken()
+
+                <!-- Nombre y Apellido -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="auth-label">Nombre</label>
+                        <input name="Nombre" type="text" class="auth-input" placeholder="Carlos"
+                               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
+                        <div class="invalid-feedback" style="font-size:0.72rem;">Solo letras, sin símbolos.</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="auth-label">Apellido</label>
+                        <input name="Apellido" type="text" class="auth-input" placeholder="García"
+                               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" required />
+                        <div class="invalid-feedback" style="font-size:0.72rem;">Solo letras, sin símbolos.</div>
+                    </div>
+                </div>
+
+                <!-- Correo -->
+                <div class="mb-3">
+                    <label class="auth-label">Correo Electrónico</label>
+                    <input name="Email" type="email" class="auth-input" placeholder="tu@correo.com"
+                           pattern="^[a-zA-Z0-9._%+\-]+@@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" required />
+                    <div class="invalid-feedback" style="font-size:0.72rem;">Correo inválido.</div>
+                    <small style="color:var(--text-muted); font-size:0.72rem; margin-top:5px; display:block;">
+                        * Usa un correo real, deberá ser verificado.
+                    </small>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="mb-3">
+                    <label class="auth-label">Teléfono</label>
+                    <input id="telefonoInput" name="Telefono" type="tel" class="auth-input"
+                           placeholder="Ej: 3000000000" pattern="^\d{10,15}$" required />
+                    <div id="telefonoError" class="invalid-feedback" style="font-size:0.72rem;">
+                        Solo dígitos, mínimo 10.
+                    </div>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="mb-3">
+                    <label class="auth-label">Contraseña</label>
+                    <div class="input-icon-wrap">
+                        <input id="pwdInput" name="Password" type="password" class="auth-input"
+                               placeholder="Mín. 8 caracteres, mayúscula, número y símbolo" required />
+                        <button type="button" class="btn-eye" onclick="togglePwd('pwdInput','eyeIcon1')">
+                            <i class="far fa-eye" id="eyeIcon1"></i>
+                        </button>
+                    </div>
+                    <div id="pwdError" class="invalid-feedback" style="font-size:0.72rem;">La contraseña no cumple los requisitos.</div>
+                    <div class="pwd-hints">
+                        ✔ Mín. 8 caracteres &nbsp;·&nbsp; ✔ Mayúscula y minúscula &nbsp;·&nbsp; ✔ Un número<br>
+                        ✔ Un carácter especial (<code>! # $ % ^ * - _ + = . ,</code>)<br>
+                        ✘ Sin espacios &nbsp;·&nbsp; ✘ Sin secuencias (1234) &nbsp;·&nbsp; ✘ Sin repetidos (1111)
+                    </div>
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="mb-4">
+                    <label class="auth-label">Confirmar Contraseña</label>
+                    <div class="input-icon-wrap">
+                        <input id="pwdConfirm" name="ConfirmPassword" type="password" class="auth-input"
+                               placeholder="Repite tu contraseña" required />
+                        <button type="button" class="btn-eye" onclick="togglePwd('pwdConfirm','eyeIcon2')">
+                            <i class="far fa-eye" id="eyeIcon2"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback" style="font-size:0.72rem;">Las contraseñas no coinciden.</div>
+                </div>
+
+                <button type="submit" class="btn-auth-primary">
+                    <i class="fas fa-gem me-2" style="font-size:0.8rem;"></i> Crear Mi Cuenta
+                </button>
+
+                <p class="rf-footer-note">
+                    Al registrarte, aceptas nuestros
+                    <a href="#">Términos de Servicio</a> y la
+                    <a href="#">Política de Privacidad</a> de LuxuryCo.
+                </p>
+            </form>
+
+        </div>
+    </div>
+
 </div>
 
-@section Scripts {
 <script>
+    // ─── Toggle de contraseña ────────────────────────────
+    function togglePwd(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // ─── Validación del formulario ───────────────────────
     document.addEventListener('DOMContentLoaded', function () {
         const form       = document.getElementById('registerForm');
         const inputs     = form.querySelectorAll('.auth-input');
@@ -94,98 +320,71 @@
         const telError   = document.getElementById('telefonoError');
         const pwdError   = document.getElementById('pwdError');
 
-        /* ---- Helpers de contraseña ---- */
         function hasSequentialDigits(str) {
-            // Detecta 4 o más dígitos consecutivos ascendentes o descendentes
             for (let i = 0; i <= str.length - 4; i++) {
                 const c = str.charCodeAt(i);
-                if (c < 48 || c > 57) continue; // solo dígitos
+                if (c < 48 || c > 57) continue;
                 const asc  = str.charCodeAt(i+1) === c+1 && str.charCodeAt(i+2) === c+2 && str.charCodeAt(i+3) === c+3;
                 const desc = str.charCodeAt(i+1) === c-1 && str.charCodeAt(i+2) === c-2 && str.charCodeAt(i+3) === c-3;
                 if (asc || desc) return true;
             }
             return false;
         }
+        function hasRepeatedDigits(str) { return /(.)\1{3,}/.test(str); }
 
-        function hasRepeatedDigits(str) {
-            // Detecta 4 o más dígitos iguales seguidos: 1111, 0000, etc.
-            return /(.)(\1{3,})/.test(str);
-        }
+        const DANGEROUS = /[&<>\/("'`\\)]/;
+        const SPECIAL   = /[!@@#$%^*\-_+=\[\]{}|:;.,?~]/;
 
-        // Caracteres peligrosos que no se permiten en la contraseña
-        const DANGEROUS_CHARS = /[&<>\/("'`\\)]/;
-        // Al menos un carácter especial seguro
-        const SAFE_SPECIAL    = /[!@@#$%^*\-_+=\[\]{}|:;.,?~]/;
-
-        function validatePassword(value) {
-            if (value.length === 0)           return 'La contraseña es obligatoria.';
-            if (/\s/.test(value))             return 'La contraseña no puede contener espacios.';
-            if (DANGEROUS_CHARS.test(value))  return 'La contraseña contiene un carácter no permitido: & < > / " \' ` \\';
-            if (value.length < 8)             return 'Debe tener al menos 8 caracteres.';
-            if (!/[a-z]/.test(value))         return 'Debe incluir al menos una letra minúscula.';
-            if (!/[A-Z]/.test(value))         return 'Debe incluir al menos una letra mayúscula.';
-            if (!/\d/.test(value))            return 'Debe incluir al menos un número.';
-            if (!SAFE_SPECIAL.test(value))    return 'Debe incluir al menos un carácter especial (ej: ! @@ # $ % ^ * - _ + = . ,)';
-            if (hasSequentialDigits(value))   return 'No se permiten secuencias numéricas como 1234 o 9876.';
-            if (hasRepeatedDigits(value))     return 'No se permiten dígitos repetidos como 1111 o 0000.';
-            return null; // válida
-        }
-
-        /* ---- Helpers de teléfono ---- */
-        function validateTelefono(value) {
-            if (value.length === 0)    return 'El teléfono es obligatorio.';
-            if (/\s/.test(value))      return 'El teléfono no puede contener espacios.';
-            if (/[^\d]/.test(value))   return 'El teléfono solo puede contener números, sin símbolos ni letras.';
-            if (value.length < 10)     return 'El teléfono debe tener al menos 10 dígitos.';
-            if (value.length > 15)     return 'El teléfono no puede tener más de 15 dígitos.';
+        function validatePassword(v) {
+            if (!v)                    return 'La contraseña es obligatoria.';
+            if (/\s/.test(v))          return 'Sin espacios.';
+            if (DANGEROUS.test(v))     return 'Carácter no permitido: & < > / " \' ` \\';
+            if (v.length < 8)          return 'Mínimo 8 caracteres.';
+            if (!/[a-z]/.test(v))      return 'Incluye una minúscula.';
+            if (!/[A-Z]/.test(v))      return 'Incluye una mayúscula.';
+            if (!/\d/.test(v))         return 'Incluye al menos un número.';
+            if (!SPECIAL.test(v))      return 'Incluye un carácter especial (! # $ % ...).';
+            if (hasSequentialDigits(v)) return 'Sin secuencias numéricas (1234, 9876...).';
+            if (hasRepeatedDigits(v))  return 'Sin dígitos repetidos (1111, 0000...).';
             return null;
         }
 
-        /* ---- Función central de validación ---- */
+        function validateTelefono(v) {
+            if (!v)              return 'El teléfono es obligatorio.';
+            if (/\s/.test(v))    return 'Sin espacios.';
+            if (/[^\d]/.test(v)) return 'Solo números.';
+            if (v.length < 10)   return 'Mínimo 10 dígitos.';
+            if (v.length > 15)   return 'Máximo 15 dígitos.';
+            return null;
+        }
+
         const validateInput = (input) => {
-            // Limpiar espacios en email y texto plano automáticamente
             if (input.type === 'email' || input.type === 'text') {
                 input.value = input.value.trim();
             }
-
-            // Bloquear caracteres peligrosos en campos de texto y email
             if (input.type === 'text' || input.type === 'email') {
-                if (DANGEROUS_CHARS.test(input.value)) {
-                    input.setCustomValidity('No se permiten caracteres peligrosos como: & < > / " \' ` \\');
-                } else {
-                    // Limpiar solo si no hay otro error custom ya puesto
-                    if (input.validationMessage.startsWith('No se permiten')) {
-                        input.setCustomValidity('');
-                    }
+                if (DANGEROUS.test(input.value)) {
+                    input.setCustomValidity('Carácter no permitido.');
+                } else if (input.validationMessage.startsWith('Carácter')) {
+                    input.setCustomValidity('');
                 }
             }
-
-            // Contraseña — validación custom
             if (input.id === 'pwdInput') {
                 const msg = validatePassword(input.value);
                 input.setCustomValidity(msg || '');
                 pwdError.textContent = msg || '';
             }
-
-            // Confirmar contraseña
             if (input.id === 'pwdConfirm') {
-                if (input.value === '') {
-                    input.setCustomValidity('Por favor confirma tu contraseña.');
-                } else if (input.value !== pwd.value) {
-                    input.setCustomValidity('Las contraseñas no coinciden.');
-                } else {
-                    input.setCustomValidity('');
-                }
+                if (!input.value) input.setCustomValidity('Confirma tu contraseña.');
+                else if (input.value !== pwd.value) input.setCustomValidity('Las contraseñas no coinciden.');
+                else input.setCustomValidity('');
             }
-
-            // Teléfono — validación custom
             if (input.id === 'telefonoInput') {
                 const msg = validateTelefono(input.value);
                 input.setCustomValidity(msg || '');
                 telError.textContent = msg || '';
             }
 
-            // Aplicar clases Bootstrap is-invalid / is-valid
             if (!input.checkValidity()) {
                 input.classList.add('is-invalid');
                 input.classList.remove('is-valid');
@@ -206,17 +405,12 @@
             });
         });
 
-        form.addEventListener('submit', function (event) {
-            let isValid = true;
-            inputs.forEach(input => {
-                validateInput(input);
-                if (!input.checkValidity()) isValid = false;
-            });
-            if (!isValid) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
+        form.addEventListener('submit', function (e) {
+            let valid = true;
+            inputs.forEach(input => { validateInput(input); if (!input.checkValidity()) valid = false; });
+            if (!valid) { e.preventDefault(); e.stopPropagation(); }
         }, false);
     });
 </script>
-}
+</body>
+</html>

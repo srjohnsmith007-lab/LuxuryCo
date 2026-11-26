@@ -7,11 +7,13 @@
     var prodBrand = Model?.MarcaNombre ?? "LuxuryCo";
     var prodDesc = Model?.Descripcion ?? "Una pieza única de la colección exclusiva de LuxuryCo.";
     var prodStock = Model?.Stock ?? 0;
-    var imgUrl = !string.IsNullOrEmpty(Model?.ImagenPrincipalUrl)
-        ? Model.ImagenPrincipalUrl
-        : "https://images.unsplash.com/photo-1618517351616-38fb9c5210c6?q=80&w=800&auto=format&fit=crop";
+    Func<string?, string> resolveUrl = u => {
+        if (string.IsNullOrEmpty(u)) return "https://images.unsplash.com/photo-1618517351616-38fb9c5210c6?q=80&w=800&auto=format&fit=crop";
+        return u.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + u : u;
+    };
+    var imgUrl = resolveUrl(Model?.ImagenPrincipalUrl);
     var allImages = Model?.ImagenesUrls != null && Model.ImagenesUrls.Count > 0
-        ? Model.ImagenesUrls
+        ? Model.ImagenesUrls.Select(resolveUrl).ToList()
         : new List<string> { imgUrl };
 
     ViewData["Title"] = prodName + " | LuxuryCo";

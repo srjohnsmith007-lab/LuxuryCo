@@ -151,8 +151,9 @@
                         <div class="mb-4" style="max-height: 250px; overflow-y: auto;">
                             @foreach(var item in cart.Detalles)
                             {
+                                var checkoutImg = string.IsNullOrEmpty(item.ImagenUrl) ? "" : (item.ImagenUrl.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + item.ImagenUrl : item.ImagenUrl);
                                 <div class="d-flex align-items-center mb-3">
-                                    <div style="width: 50px; height: 60px; background: var(--black-card2) url('@(string.IsNullOrEmpty(item.ImagenUrl) ? "" : item.ImagenUrl)') center/cover;"></div>
+                                    <div style="width: 50px; height: 60px; background: var(--black-card2) url('@checkoutImg') center/cover;"></div>
                                     <div class="ms-3 flex-grow-1">
                                         <div class="small fw-bold" style="color: var(--text);">@item.NombreProducto</div>
                                         <div style="font-size: 0.75rem; color: var(--text-muted);">Cant: @item.Cantidad x $@string.Format("{0:N0}", item.PrecioUnitario)</div>

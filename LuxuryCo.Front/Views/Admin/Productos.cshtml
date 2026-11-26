@@ -50,7 +50,11 @@
                                 <td style="padding-left: 2rem;" class="text-secondary">#@p.IdProducto</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-secondary rounded-3 me-3" style="width: 45px; height: 45px; overflow: hidden; background: #222 url('@(p.ImagenPrincipalUrl ?? "https://via.placeholder.com/100")') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.1);"></div>
+                                        @{
+                                            var thumbUrl = p.ImagenPrincipalUrl ?? "https://via.placeholder.com/100";
+                                            if (thumbUrl.StartsWith("/uploads/")) thumbUrl = "https://luxuryco.onrender.com" + thumbUrl;
+                                        }
+                                        <div class="bg-secondary rounded-3 me-3" style="width: 45px; height: 45px; overflow: hidden; background: #222 url('@thumbUrl') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.1);"></div>
                                         <div>
                                             <div class="fw-bold text-white">@p.Nombre</div>
                                             <div class="small text-secondary">@p.Referencia</div>

@@ -411,8 +411,9 @@
                 int i = 0;
                 @foreach (var prod in Model)
                 {
-                    var imgUrl = !string.IsNullOrEmpty(prod.ImagenPrincipalUrl)
-                        ? prod.ImagenPrincipalUrl
+                    var rawUrl = prod.ImagenPrincipalUrl;
+                    var imgUrl = !string.IsNullOrEmpty(rawUrl)
+                        ? (rawUrl.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + rawUrl : rawUrl)
                         : "https://via.placeholder.com/400x500/0d0d0d/444?text=LuxuryCo";
                     var precioFmt = string.Format("{0:N0}", prod.Precio);
                     var marca = prod.MarcaNombre ?? "LuxuryCo";

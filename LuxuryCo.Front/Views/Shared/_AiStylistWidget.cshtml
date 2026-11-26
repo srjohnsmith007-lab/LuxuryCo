@@ -12,9 +12,12 @@
         <div class="widget-dot-grid"></div>
         <canvas class="widget-canvas" id="widget-nodes-canvas"></canvas>
         <div class="chat-header d-flex justify-content-between align-items-center">
-            <div>
-                <i class="fas fa-gem text-gold me-2"></i>
-                <span class="fw-bold">LuxuryCo Stylist</span>
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-gem text-gold" style="font-size: 1.15rem;"></i>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.95rem; line-height: 1.2;">LuxuryCo Stylist</div>
+                    <div style="font-size: 0.68rem; color: #b8b8c2; letter-spacing: 0.4px;">Personal Shopper • Asesoría de Imagen</div>
+                </div>
             </div>
             <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-sm text-gold px-2" id="btn-tryon-toggle" title="Probador Virtual">
@@ -90,6 +93,25 @@
         <div id="stylist-typing" class="typing-indicator d-none p-2 mb-2">
             <div class="typing-line"></div>
         </div>
+
+        <!-- Chips de asesoría interactiva rápida -->
+        <div id="stylist-chips-container" class="stylist-chips-wrapper">
+            <div class="stylist-chips-scroll">
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('¿Cuál es mi talla ideal y cómo comparar mis medidas?')">
+                    <i class="fas fa-ruler text-gold me-1"></i> Medidas y Talla Ideal
+                </button>
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('¿Cómo vienen los cortes de la colección (oversize vs regular)?')">
+                    <i class="fas fa-tshirt text-gold me-1"></i> Tipos de Corte y Fit
+                </button>
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('Mido 1.75m y contextura estándar, ¿qué look me recomiendas?')">
+                    <i class="fas fa-user-check text-gold me-1"></i> Asesoría de Silueta
+                </button>
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('Recomiéndame un outfit exclusivo para una ocasión especial')">
+                    <i class="fas fa-gem text-gold me-1"></i> Outfit Exclusivo
+                </button>
+            </div>
+        </div>
+
          <div class="chat-footer">
              <!-- Input de archivo oculto (hidden) -->
              <input type="file" id="stylist-file-upload" accept="image/*" style="display:none !important;">
@@ -240,7 +262,7 @@
     }
 
     /* Content above bg layers */
-    .chat-header, .tryon-panel, .chat-body, #stylist-typing, .chat-footer {
+    .chat-header, .tryon-panel, .chat-body, #stylist-typing, .stylist-chips-wrapper, .chat-footer {
         position: relative;
         z-index: 1;
     }
@@ -843,6 +865,47 @@
         background: #222; border: 1px solid #444; color: white; border-radius: 6px;
     }
     .secure-modal-box button { width: 100%; }
+
+    /* Chips de Asesoría Rápida */
+    .stylist-chips-wrapper {
+        padding: 7px 12px;
+        background: rgba(8, 8, 12, 0.92);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        z-index: 5;
+    }
+    .stylist-chips-scroll {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+    .stylist-chips-scroll::-webkit-scrollbar {
+        display: none;
+    }
+    .stylist-chip-btn {
+        background: rgba(201, 168, 76, 0.08);
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        color: #e8d08d;
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        user-select: none;
+    }
+    .stylist-chip-btn:hover {
+        background: rgba(201, 168, 76, 0.25);
+        color: #ffffff;
+        border-color: rgba(201, 168, 76, 0.7);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(201, 168, 76, 0.25);
+    }
 </style>
 
 <script>
@@ -1040,34 +1103,44 @@
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 
-    // ── ID del último producto mostrado (para contexto de "agrégalo") ─────────
-    let lastShownProductId = null;
+    // ── ID del último producto mostrado o detectado por URL ─────────
+    let lastShownProductId = (function() {
+        const m = window.location.pathname.match(/\/shop\/product\/(\d+)/i);
+        return m ? parseInt(m[1], 10) : null;
+    })();
 
     // ── Estado del chat ────────────────────────────────────────────
     let chatGreetingShown = false;
 
     function buildSmartGreeting() {
         const path = window.location.pathname.toLowerCase();
-        const isProductDetail = path.includes('/catalogo/detalle');
-        const isCatalog = path.includes('/catalogo') && !isProductDetail;
-        const isCart = path.includes('/carrito');
+        const isProductDetail = path.includes('/shop/product') || path.includes('/catalogo/detalle');
+        const isCatalog = (path.includes('/shop/category') || path.includes('/shop') || path.includes('/catalogo')) && !isProductDetail;
+        const isCart = path.includes('/cart') || path.includes('/carrito');
         const isCheckout = path.includes('/checkout');
 
         if (isProductDetail) {
-            const productTitle = document.querySelector('h1')?.innerText?.trim() || 'este producto';
-            return `¡Hola! 👋 Veo que estás mirando <strong>${productTitle}</strong>.<br><br>¿Tienes alguna duda sobre <strong>tallas, envíos o devoluciones</strong>? Estoy aquí para ayudarte. 😊`;
+            const productTitle = document.querySelector('h1')?.innerText?.trim() || 'esta prenda exclusiva';
+            return `¡Hola! 👋 Qué gran gusto saludarte. Veo que estás observando <strong>${productTitle}</strong>.<br><br>Como tu Personal Shopper en LuxuryCo, mi compromiso no es venderte por vender, sino ayudarte a que esta pieza armonice con tu estilo y te quede como hecha a medida. ✨<br><br>¿Te gustaría contarme tu estatura aproximada o tu preferencia de corte (oversize, regular o entallado) para recomendarte tu talla exacta?`;
         }
         if (isCatalog) {
-            return '¡Hola! Bienvenido a nuestro catálogo. 🛍️<br>¿Buscas algo para una ocasión especial o quieres explorar las últimas tendencias de LuxuryCo?';
+            return `¡Hola! Te doy una cálida bienvenida a nuestra colección. 🛍️✨<br><br>Soy tu asesor personal de imagen. Más allá de mostrarte piezas, estoy aquí para guiarte según tus medidas, complexión y la ocasión que tengas en mente para que encuentres tu look perfecto.<br><br>¿Qué estilo buscas hoy o para qué evento te estás preparando?`;
         }
         if (isCart) {
-            return '¡Hola! Veo que tienes artículos en tu carrito. 🛒<br>¿Puedo ayudarte con algo antes de finalizar tu compra? También puedo sugerirte looks completos.';
+            return `¡Hola! Veo que tienes piezas seleccionadas en tu carrito. 🛒✨<br><br>Antes de finalizar, ¿deseas que validemos juntos que las tallas sean las ideales según tus medidas, o quieres alguna sugerencia para completar el look?`;
         }
         if (isCheckout) {
-            return '¡Ya casi es tuyo! 🎉<br>¿Tienes alguna duda sobre el proceso de pago o los tiempos de entrega?';
+            return `¡Un paso más hacia una experiencia exclusiva! 🎉<br><br>¿Tienes alguna duda sobre los tiempos de entrega, seguridad en el pago o garantías de tu pedido? Estoy aquí para asistirte.`;
         }
-        return '¡Hola! Soy tu asesor de estilo personal de LuxuryCo. ✨<br>¿Buscas algo para una ocasión especial o quieres explorar nuevas tendencias?';
+        return `¡Hola! Te doy la bienvenida a <strong>LuxuryCo</strong>. ✨<br><br>Soy tu Asesor de Imagen & Personal Shopper exclusivo. Mi objetivo es ayudarte a elegir con total seguridad y buen gusto, asesorándote en tallas y cortes a partir de tus medidas y estilo.<br><br>¿En qué pieza o estilo te gustaría que nos enfoquemos hoy?`;
     }
+
+    // ── Helper para enviar prompts rápidos desde los chips de sugerencia ─────
+    window.sendQuickPrompt = function(promptText) {
+        if (!promptText) return;
+        stylistInput.value = promptText;
+        stylistForm.dispatchEvent(new Event('submit'));
+    };
 
     // ── Restaurar historial visual al abrir ──────────────────────────────────
     function restoreHistoryToUI() {
@@ -1398,13 +1471,17 @@
             const cardEl = document.createElement('a');
             cardEl.href = card.url;
             cardEl.className = 'product-card-mini';
+            let cardImg = card.imagen || '/img/placeholder.png';
+            if (cardImg.startsWith('/uploads/')) {
+                cardImg = 'https://luxuryco.onrender.com' + cardImg;
+            }
             cardEl.innerHTML = `
-                <img src="${card.imagen}" alt="${card.nombre}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
+                <img src="${cardImg}" alt="${card.nombre}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
                 <div class="pc-body">
                     <p class="pc-name">${card.nombre}</p>
                     <p class="pc-section">${card.seccion}</p>
                     <p class="pc-price">${formatted}</p>
-                    <span class="pc-btn">Ver producto →</span>
+                    <span class="pc-btn">Ver prenda y tallas →</span>
                 </div>
             `;
             container.appendChild(cardEl);

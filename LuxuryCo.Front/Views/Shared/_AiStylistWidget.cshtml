@@ -94,22 +94,34 @@
             <div class="typing-line"></div>
         </div>
 
-        <!-- Chips de asesoría interactiva rápida -->
+        <!-- Carrusel Interactivo de Asesoría Rápida con Desplazamiento -->
         <div id="stylist-chips-container" class="stylist-chips-wrapper">
-            <div class="stylist-chips-scroll">
+            <button type="button" class="chips-nav-btn chips-nav-prev nav-disabled" id="chips-nav-prev" title="Desplazar a la izquierda" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="stylist-chips-scroll" id="stylist-chips-scroll">
                 <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('¿Cuál es mi talla ideal y cómo comparar mis medidas?')">
-                    <i class="fas fa-ruler text-gold me-1"></i> Medidas y Talla Ideal
+                    <i class="fas fa-ruler text-gold me-1"></i> Medidas y Talla
                 </button>
                 <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('¿Cómo vienen los cortes de la colección (oversize vs regular)?')">
-                    <i class="fas fa-tshirt text-gold me-1"></i> Tipos de Corte y Fit
+                    <i class="fas fa-tshirt text-gold me-1"></i> Cortes & Fit
                 </button>
                 <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('Mido 1.75m y contextura estándar, ¿qué look me recomiendas?')">
-                    <i class="fas fa-user-check text-gold me-1"></i> Asesoría de Silueta
+                    <i class="fas fa-user-check text-gold me-1"></i> Mi Silueta
                 </button>
                 <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('Recomiéndame un outfit exclusivo para una ocasión especial')">
-                    <i class="fas fa-gem text-gold me-1"></i> Outfit Exclusivo
+                    <i class="fas fa-gem text-gold me-1"></i> Outfit Completo
+                </button>
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('¿Qué blazer o prenda sastre me recomiendas para un evento?')">
+                    <i class="fas fa-user-tie text-gold me-1"></i> Sastrería & Blazer
+                </button>
+                <button type="button" class="stylist-chip-btn" onclick="sendQuickPrompt('Muéstrame las mejores camisetas y hoodies streetwear de lujo')">
+                    <i class="fas fa-fire text-gold me-1"></i> Streetwear de Lujo
                 </button>
             </div>
+            <button type="button" class="chips-nav-btn chips-nav-next" id="chips-nav-next" title="Desplazar a la derecha" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
 
          <div class="chat-footer">
@@ -866,11 +878,15 @@
     }
     .secure-modal-box button { width: 100%; }
 
-    /* Chips de Asesoría Rápida */
+    /* ── Carrusel Interactivo de Chips de Asesoría ── */
     .stylist-chips-wrapper {
-        padding: 7px 12px;
-        background: rgba(8, 8, 12, 0.92);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 8px;
+        background: linear-gradient(180deg, rgba(14, 14, 20, 0.96) 0%, rgba(6, 6, 10, 0.98) 100%);
+        border-top: 1px solid rgba(201, 168, 76, 0.2);
         border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         z-index: 5;
     }
@@ -878,33 +894,88 @@
         display: flex;
         gap: 8px;
         overflow-x: auto;
-        scrollbar-width: none;
-        padding-bottom: 2px;
+        scroll-behavior: smooth;
+        padding: 4px 2px;
+        cursor: grab;
+        user-select: none;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(201, 168, 76, 0.35) transparent;
+        flex-grow: 1;
+    }
+    .stylist-chips-scroll:active {
+        cursor: grabbing;
     }
     .stylist-chips-scroll::-webkit-scrollbar {
-        display: none;
+        height: 3px;
+    }
+    .stylist-chips-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    .stylist-chips-scroll::-webkit-scrollbar-thumb {
+        background: rgba(201, 168, 76, 0.35);
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+    .stylist-chips-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(201, 168, 76, 0.7);
+    }
+    .chips-nav-btn {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(24, 24, 32, 0.95);
+        border: 1px solid rgba(201, 168, 76, 0.4);
+        color: var(--chat-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 6;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+    .chips-nav-btn:hover {
+        background: var(--chat-accent);
+        color: #000;
+        transform: scale(1.12);
+        box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
+    }
+    .chips-nav-btn:active {
+        transform: scale(0.92);
+    }
+    .chips-nav-btn.nav-disabled {
+        opacity: 0.25;
+        pointer-events: none;
     }
     .stylist-chip-btn {
-        background: rgba(201, 168, 76, 0.08);
-        border: 1px solid rgba(201, 168, 76, 0.3);
-        color: #e8d08d;
+        flex-shrink: 0;
+        background: rgba(201, 168, 76, 0.07);
+        border: 1px solid rgba(201, 168, 76, 0.28);
+        color: #ebd499;
         border-radius: 20px;
         padding: 5px 12px;
-        font-size: 0.72rem;
+        font-size: 0.73rem;
         font-weight: 500;
         white-space: nowrap;
         cursor: pointer;
-        transition: all 0.25s ease;
+        transition: all 0.22s ease;
         display: inline-flex;
         align-items: center;
-        user-select: none;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     }
     .stylist-chip-btn:hover {
-        background: rgba(201, 168, 76, 0.25);
+        background: rgba(201, 168, 76, 0.24);
         color: #ffffff;
         border-color: rgba(201, 168, 76, 0.7);
         transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(201, 168, 76, 0.25);
+        box-shadow: 0 3px 10px rgba(201, 168, 76, 0.22);
+    }
+    .stylist-chip-btn:active {
+        transform: translateY(0);
+        background: rgba(201, 168, 76, 0.35);
     }
 </style>
 
@@ -1142,6 +1213,91 @@
         stylistForm.dispatchEvent(new Event('submit'));
     };
 
+    // ── Slider Interactivo de Chips (Flechas, Arrastre con ratón, Rueda táctil) ───
+    (function initChipsSlider() {
+        const scrollEl = document.getElementById('stylist-chips-scroll');
+        const prevBtn = document.getElementById('chips-nav-prev');
+        const nextBtn = document.getElementById('chips-nav-next');
+        if (!scrollEl || !prevBtn || !nextBtn) return;
+
+        window.updateChipsSlider = function() {
+            const maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
+            if (maxScroll <= 2) {
+                prevBtn.classList.add('nav-disabled');
+                nextBtn.classList.add('nav-disabled');
+                return;
+            }
+            if (scrollEl.scrollLeft <= 4) {
+                prevBtn.classList.add('nav-disabled');
+            } else {
+                prevBtn.classList.remove('nav-disabled');
+            }
+            if (scrollEl.scrollLeft >= maxScroll - 4) {
+                nextBtn.classList.add('nav-disabled');
+            } else {
+                nextBtn.classList.remove('nav-disabled');
+            }
+        };
+
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            scrollEl.scrollBy({ left: -160, behavior: 'smooth' });
+            setTimeout(window.updateChipsSlider, 300);
+        });
+
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            scrollEl.scrollBy({ left: 160, behavior: 'smooth' });
+            setTimeout(window.updateChipsSlider, 300);
+        });
+
+        scrollEl.addEventListener('scroll', window.updateChipsSlider, { passive: true });
+
+        // Scroll con rueda del ratón en horizontal
+        scrollEl.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                scrollEl.scrollLeft += (e.deltaY * 0.8);
+                window.updateChipsSlider();
+            }
+        }, { passive: false });
+
+        // Drag to scroll con mouse
+        let isDown = false;
+        let startX = 0;
+        let scrollStart = 0;
+        let hasMoved = false;
+
+        scrollEl.addEventListener('mousedown', (e) => {
+            isDown = true;
+            hasMoved = false;
+            startX = e.pageX - scrollEl.offsetLeft;
+            scrollStart = scrollEl.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDown = false;
+            setTimeout(() => { hasMoved = false; }, 50);
+        });
+
+        scrollEl.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollEl.offsetLeft;
+            const walk = (x - startX) * 1.4;
+            if (Math.abs(walk) > 4) hasMoved = true;
+            scrollEl.scrollLeft = scrollStart - walk;
+            window.updateChipsSlider();
+        });
+
+        scrollEl.addEventListener('click', (e) => {
+            if (hasMoved) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+    })();
+
     // ── Restaurar historial visual al abrir ──────────────────────────────────
     function restoreHistoryToUI() {
         const history = loadHistory();
@@ -1171,6 +1327,7 @@
                 }
                 stylistInput.focus();
                 scrollToBottom();
+                if (window.updateChipsSlider) setTimeout(window.updateChipsSlider, 150);
             }
         });
 

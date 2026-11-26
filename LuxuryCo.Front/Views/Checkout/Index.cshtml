@@ -151,7 +151,7 @@
                         <div class="mb-4" style="max-height: 250px; overflow-y: auto;">
                             @foreach(var item in cart.Detalles)
                             {
-                                var checkoutImg = string.IsNullOrEmpty(item.ImagenUrl) ? "" : (item.ImagenUrl.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + item.ImagenUrl : item.ImagenUrl);
+                                var checkoutImg = string.IsNullOrEmpty(item.ImagenUrl) ? "" : item.ImagenUrl;
                                 <div class="d-flex align-items-center mb-3">
                                     <div style="width: 50px; height: 60px; background: var(--black-card2) url('@checkoutImg') center/cover;"></div>
                                     <div class="ms-3 flex-grow-1">

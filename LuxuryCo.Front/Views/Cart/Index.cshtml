@@ -29,7 +29,7 @@
                 <div class="col-lg-8">
                     @foreach (var item in Model.Detalles)
                     {
-                        var cartImg = string.IsNullOrEmpty(item.ImagenUrl) ? "https://via.placeholder.com/150" : (item.ImagenUrl.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + item.ImagenUrl : item.ImagenUrl);
+                        var cartImg = string.IsNullOrEmpty(item.ImagenUrl) ? "https://via.placeholder.com/150" : item.ImagenUrl;
                         <div class="d-flex align-items-center py-4" style="border-bottom: 1px solid var(--border);" data-reveal="up">
                             <div class="flex-shrink-0" style="width: 120px; height: 150px; background: var(--black-card) url('@cartImg') center/cover no-repeat;">
                             </div>

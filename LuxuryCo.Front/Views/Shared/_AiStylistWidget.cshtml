@@ -1472,11 +1472,8 @@
             cardEl.href = card.url;
             cardEl.className = 'product-card-mini';
             let cardImg = card.imagen || '/img/placeholder.png';
-            if (cardImg.startsWith('/uploads/')) {
-                cardImg = 'https://luxuryco.onrender.com' + cardImg;
-            }
             cardEl.innerHTML = `
-                <img src="${cardImg}" alt="${card.nombre}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
+                <img src="${cardImg}" alt="${card.nombre}" onerror="if(this.src && !this.src.includes('luxuryco.onrender.com') && this.getAttribute('data-fallback') !== 'done'){this.setAttribute('data-fallback','done');this.src='https://luxuryco.onrender.com'+'${card.imagen}';}else{this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';}">
                 <div class="pc-body">
                     <p class="pc-name">${card.nombre}</p>
                     <p class="pc-section">${card.seccion}</p>

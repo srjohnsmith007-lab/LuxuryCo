@@ -52,7 +52,6 @@
                                     <div class="d-flex align-items-center">
                                         @{
                                             var thumbUrl = p.ImagenPrincipalUrl ?? "https://via.placeholder.com/100";
-                                            if (thumbUrl.StartsWith("/uploads/")) thumbUrl = "https://luxuryco.onrender.com" + thumbUrl;
                                         }
                                         <div class="bg-secondary rounded-3 me-3" style="width: 45px; height: 45px; overflow: hidden; background: #222 url('@thumbUrl') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.1);"></div>
                                         <div>

@@ -411,9 +411,8 @@
                 int i = 0;
                 @foreach (var prod in Model)
                 {
-                    var rawUrl = prod.ImagenPrincipalUrl;
-                    var imgUrl = !string.IsNullOrEmpty(rawUrl)
-                        ? (rawUrl.StartsWith("/uploads/") ? "https://luxuryco.onrender.com" + rawUrl : rawUrl)
+                    var imgUrl = !string.IsNullOrEmpty(prod.ImagenPrincipalUrl)
+                        ? prod.ImagenPrincipalUrl
                         : "https://via.placeholder.com/400x500/0d0d0d/444?text=LuxuryCo";
                     var precioFmt = string.Format("{0:N0}", prod.Precio);
                     var marca = prod.MarcaNombre ?? "LuxuryCo";
@@ -426,7 +425,7 @@
                          data-reveal="up"
                          data-reveal-delay="@(0.05 * (i % 8))">
                         <a href="/Shop/Product/@prod.IdProducto" class="product-image-wrap">
-                            <img src="@imgUrl" alt="@prod.Nombre" loading="lazy" />
+                            <img src="@imgUrl" alt="@prod.Nombre" loading="lazy" onerror="if(this.src && !this.src.includes('luxuryco.onrender.com') && this.getAttribute('data-fallback') !== 'done'){this.setAttribute('data-fallback','done');this.src='https://luxuryco.onrender.com@prod.ImagenPrincipalUrl';}" />
                             <span class="card-badge">NUEVO</span>
 
                             <div class="card-overlay">
